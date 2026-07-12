@@ -276,6 +276,8 @@ function GlobalStyles() {
         50% { box-shadow: 0 0 0 10px var(--wine-dim), 0 0 46px 14px var(--wine-dim), 0 0 70px 22px var(--gold-dim); }
       }
       .lea-idle-glow { animation: lea-idle 2.4s ease-in-out infinite; }
+      @keyframes lea-float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-9px); } }
+      .lea-float-card { animation: lea-float 4.5s ease-in-out infinite; }
       .lea-benefit-card { transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease; }
       .lea-benefit-card:hover { transform: translateY(-5px); box-shadow: 0 16px 32px rgba(0,0,0,0.10); border-color: var(--wine); }
       .lea-benefit-icon { transition: transform 0.25s ease; }
@@ -1644,15 +1646,20 @@ export default function LeeannApp() {
           </div>
           </Reveal>
 
-          {/* WHY LEEANN — benefit-forward, stats as light support */}
+          {/* WHY LEEANN — benefit-forward */}
           <Reveal>
-          <div style={{ padding: '8px 40px 44px' }}>
-            <div style={{ textAlign: 'center', marginBottom: 30 }}>
-              <Eyebrow color="var(--text-muted)">Why Leeann</Eyebrow>
-              <div className="lea-display" style={{ fontSize: 24, fontWeight: 600, color: 'var(--text)' }}>Built to close the gaps that cost companies the most</div>
+          <div style={{ padding: '8px 40px 48px' }}>
+            <div style={{ textAlign: 'center', marginBottom: 44 }}>
+              <Eyebrow color="var(--text-muted)">The difference</Eyebrow>
+              <div className="lea-display" style={{ fontSize: 38, fontWeight: 700, color: 'var(--text)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                Why <LogoMark size={32} />eeann?
+              </div>
+              <div style={{ fontSize: 14, color: 'var(--text-muted)', marginTop: 12, maxWidth: 460, margin: '12px auto 0' }}>
+                Built to close the gaps that cost companies the most.
+              </div>
             </div>
 
-            <div style={{ display: 'flex', gap: 16, maxWidth: 900, margin: '0 auto', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: 20, maxWidth: 940, margin: '0 auto', flexWrap: 'wrap' }}>
               {[
                 {
                   icon: Sparkles,
@@ -1660,6 +1667,7 @@ export default function LeeannApp() {
                   body: 'Leeann runs role calibration and candidate conversations in real time, so a strong match can go from first conversation to decision fast — before they\u2019re gone.',
                   context: 'Industry average sits near 42 days (SHRM, 2025)',
                   color: 'var(--wine)',
+                  floatDelay: '0s',
                 },
                 {
                   icon: MessageSquare,
@@ -1667,6 +1675,7 @@ export default function LeeannApp() {
                   body: 'Every candidate gets real, honest answers and status updates from Leeann throughout the process — no black hole, no wondering.',
                   context: 'Most candidates say silence is what drives them away (iHire, 2025)',
                   color: 'var(--gold)',
+                  floatDelay: '1.3s',
                 },
                 {
                   icon: CheckCircle2,
@@ -1674,44 +1683,32 @@ export default function LeeannApp() {
                   body: 'Leeann gets candidates genuinely ready for the specific role and team — so the people who make it through are set up to succeed, not just impressive on paper.',
                   context: 'Most new-hire failures come down to fit, not skill',
                   color: 'var(--wine)',
+                  floatDelay: '0.7s',
                 },
               ].map((c, i) => (
-                <div key={i} className="lea-benefit-card" style={{ flex: 1, minWidth: 250, background: 'var(--panel)', border: '1px solid var(--line)', borderRadius: 12, padding: 22 }}>
-                  <div className="lea-benefit-icon" style={{ width: 34, height: 34, borderRadius: 9, background: `${c.color}1A`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 }}>
-                    <c.icon size={16} color={c.color} />
+                <div key={i} className="lea-float-card" style={{ flex: 1, minWidth: 260, animationDelay: c.floatDelay }}>
+                  <div className="lea-benefit-card" style={{ height: '100%', background: 'var(--panel)', border: '1px solid var(--line)', borderRadius: 14, padding: '24px 22px 22px', position: 'relative', overflow: 'hidden' }}>
+                    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: c.color }} />
+                    <div className="lea-benefit-icon" style={{ width: 44, height: 44, borderRadius: 12, background: `${c.color}1A`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
+                      <c.icon size={19} color={c.color} />
+                    </div>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text)', marginBottom: 9, lineHeight: 1.3 }}>{c.title}</div>
+                    <div style={{ fontSize: 12.5, color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: 16 }}>{c.body}</div>
+                    <div className="lea-mono" style={{
+                      display: 'inline-block', fontSize: 10, color: c.color, background: `${c.color}14`,
+                      padding: '5px 10px', borderRadius: 20, lineHeight: 1.4,
+                    }}>{c.context}</div>
                   </div>
-                  <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)', marginBottom: 8, lineHeight: 1.3 }}>{c.title}</div>
-                  <div style={{ fontSize: 12.5, color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: 12 }}>{c.body}</div>
-                  <div className="lea-mono" style={{ fontSize: 10, color: 'var(--text-muted)', opacity: 0.75 }}>{c.context}</div>
                 </div>
               ))}
             </div>
           </div>
           </Reveal>
 
-          {/* STATS / PROOF BAND */}
+          {/* TIME TO FILL PROOF */}
           <div style={{ padding: '0 40px 40px' }}>
             <TimeToFillChart />
-            <div style={{
-              maxWidth: 780, margin: '0 auto', display: 'flex', flexWrap: 'wrap', gap: 0,
-              border: '1px solid var(--line)', borderRadius: 12, overflow: 'hidden', background: 'var(--panel)',
-            }}>
-              {[
-                { icon: ClipboardList, value: 13, suffix: '', label: 'Fields mapped' },
-                { icon: Search, value: 70, suffix: '+', label: 'Specializations covered' },
-                { icon: Activity, value: 24, suffix: '/7', label: 'Always available to candidates' },
-                { icon: MessageSquare, value: 1, suffix: '', label: 'Conversation, both sides' },
-              ].map((s, i) => (
-                <div key={i} className="lea-stat-cell" style={{ flex: 1, minWidth: 140, padding: '20px 16px', textAlign: 'center', borderRight: i < 3 ? '1px solid var(--line)' : 'none' }}>
-                  <s.icon size={15} color="var(--wine)" style={{ marginBottom: 6 }} />
-                  <div className="lea-display" style={{ fontSize: 24, fontWeight: 600, color: 'var(--wine)' }}>
-                    <CountUp value={s.value} suffix={s.suffix} />
-                  </div>
-                  <div style={{ fontSize: 11.5, color: 'var(--text-muted)', marginTop: 4 }}>{s.label}</div>
-                </div>
-              ))}
-            </div>
-            <div style={{ textAlign: 'center', marginTop: 24 }}>
+            <div style={{ textAlign: 'center' }}>
               <button onClick={goSignupType} style={{ background: 'transparent', border: '1px solid var(--wine)', color: 'var(--wine)', borderRadius: 8, padding: '11px 22px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
                 Sign up to try it →
               </button>
