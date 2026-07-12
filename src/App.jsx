@@ -231,6 +231,7 @@ function highlightLine(line, keyColor) {
 function GlobalStyles() {
   return (
     <style>{`
+      * { box-sizing: border-box; }
       @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
       .lea-root { font-family: 'Inter', sans-serif; }
       .lea-display { font-family: 'Fraunces', serif; }
