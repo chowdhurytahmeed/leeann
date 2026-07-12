@@ -295,8 +295,12 @@ function GlobalStyles() {
       }
       .lea-glow-heartbeat { animation: lea-glow-pulse ease-in-out infinite; }
       @keyframes lea-glow-wave {
-        0%, 100% { opacity: 0.28; transform: translate(0%, 0%) scale(0.88); }
-        50% { opacity: 0.85; transform: translate(4%, -5%) scale(1.2); }
+        0% { opacity: 0.35; transform: translate(-14%, 4%) scale(0.9); }
+        20% { opacity: 1; transform: translate(6%, -12%) scale(1.35); }
+        40% { opacity: 0.4; transform: translate(22%, 6%) scale(1); }
+        60% { opacity: 0.95; transform: translate(4%, 14%) scale(1.3); }
+        80% { opacity: 0.5; transform: translate(-10%, -6%) scale(1.05); }
+        100% { opacity: 0.35; transform: translate(-14%, 4%) scale(0.9); }
       }
       .lea-glow-wave { animation: lea-glow-wave ease-in-out infinite; }
       .lea-type-search { transition: opacity 0.3s ease, transform 0.32s cubic-bezier(.4,0,.2,1); }
@@ -1459,14 +1463,14 @@ export default function LeeannApp() {
       {screen === 'home' && (
         <div className="lea-fade" style={{ position: 'relative' }}>
           {[
-            { top: 60, left: '6%', color: 'wine', size: 380, blur: 100, dur: '8s' },
-            { top: 750, left: '55%', color: 'gold', size: 400, blur: 105, dur: '9.5s' },
-            { top: 1400, left: '10%', color: 'wine', size: 360, blur: 95, dur: '7s' },
-            { top: 1900, left: '65%', color: 'gold', size: 420, blur: 110, dur: '10s' },
-            { top: 2500, left: '20%', color: 'wine', size: 400, blur: 105, dur: '8.5s' },
-            { top: 3000, left: '60%', color: 'gold', size: 360, blur: 95, dur: '9s' },
-            { top: 3500, left: '15%', color: 'wine', size: 380, blur: 100, dur: '7.5s' },
-            { top: 4000, left: '55%', color: 'gold', size: 400, blur: 105, dur: '10.5s' },
+            { top: 60, left: '6%', color: 'wine', size: 380, blur: 100, dur: '4.5s' },
+            { top: 750, left: '55%', color: 'gold', size: 400, blur: 105, dur: '5.5s' },
+            { top: 1400, left: '10%', color: 'wine', size: 360, blur: 95, dur: '3.8s' },
+            { top: 1900, left: '65%', color: 'gold', size: 420, blur: 110, dur: '6s' },
+            { top: 2500, left: '20%', color: 'wine', size: 400, blur: 105, dur: '4.8s' },
+            { top: 3000, left: '60%', color: 'gold', size: 360, blur: 95, dur: '5s' },
+            { top: 3500, left: '15%', color: 'wine', size: 380, blur: 100, dur: '4.2s' },
+            { top: 4000, left: '55%', color: 'gold', size: 400, blur: 105, dur: '5.8s' },
           ].map((g, i) => (
             <div key={i} className="lea-glow-wave" style={{
               position: 'absolute', top: g.top, left: g.left, width: g.size, height: g.size, borderRadius: '50%',
