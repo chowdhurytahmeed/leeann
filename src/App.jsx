@@ -276,6 +276,14 @@ function GlobalStyles() {
         50% { box-shadow: 0 0 0 10px var(--wine-dim), 0 0 46px 14px var(--wine-dim), 0 0 70px 22px var(--gold-dim); }
       }
       .lea-idle-glow { animation: lea-idle 2.4s ease-in-out infinite; }
+      .lea-benefit-card { transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease; }
+      .lea-benefit-card:hover { transform: translateY(-5px); box-shadow: 0 16px 32px rgba(0,0,0,0.10); border-color: var(--wine); }
+      .lea-benefit-icon { transition: transform 0.25s ease; }
+      .lea-benefit-card:hover .lea-benefit-icon { transform: scale(1.15) rotate(-6deg); }
+      .lea-compare-row { transition: background 0.15s ease; }
+      .lea-compare-row:hover { background: var(--panel-alt); }
+      .lea-stat-cell { transition: background 0.2s ease, transform 0.2s ease; }
+      .lea-stat-cell:hover { background: var(--wine-dim); transform: translateY(-2px); }
       @keyframes lea-heartbeat {
         0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 var(--wine-dim); }
         8% { transform: scale(1.08); box-shadow: 0 0 26px 6px var(--wine-dim); }
@@ -321,6 +329,80 @@ function GlobalStyles() {
       .lea-play-btn { transition: transform 0.12s ease, background 0.12s ease; }
       .lea-play-btn:hover { transform: scale(1.06); }
     `}</style>
+  );
+}
+
+function CountUp({ value, suffix = '' }) {
+  const ref = useRef(null);
+  const [display, setDisplay] = useState(0);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    let started = false;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !started) {
+          started = true;
+          const startTime = performance.now();
+          const duration = 1100;
+          function tick(now) {
+            const progress = Math.min((now - startTime) / duration, 1);
+            setDisplay(Math.round(value * progress));
+            if (progress < 1) requestAnimationFrame(tick);
+          }
+          requestAnimationFrame(tick);
+          observer.unobserve(el);
+        }
+      },
+      { threshold: 0.4 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [value]);
+
+  return <span ref={ref}>{display}{suffix}</span>;
+}
+
+function TimeToFillChart() {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); observer.unobserve(el); } },
+      { threshold: 0.3 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const rows = [
+    { label: 'Industry average', value: 42, max: 42, color: 'var(--text-muted)' },
+    { label: 'With Leeann', value: 7, max: 42, color: 'var(--wine)' },
+  ];
+
+  return (
+    <div ref={ref} style={{ maxWidth: 560, margin: '0 auto 36px', background: 'var(--panel)', border: '1px solid var(--line)', borderRadius: 12, padding: '22px 26px' }}>
+      <div className="lea-mono" style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 18 }}>Average time to fill a role</div>
+      {rows.map((row, i) => (
+        <div key={i} style={{ marginBottom: i < rows.length - 1 ? 16 : 0 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 12.5 }}>
+            <span style={{ color: 'var(--text)' }}>{row.label}</span>
+            <span style={{ color: row.color, fontWeight: 600 }}>~{row.value} days</span>
+          </div>
+          <div style={{ height: 10, borderRadius: 6, background: 'var(--panel-alt)', overflow: 'hidden' }}>
+            <div style={{
+              height: '100%', borderRadius: 6, background: row.color,
+              width: visible ? `${(row.value / row.max) * 100}%` : '0%',
+              transition: 'width 1.1s cubic-bezier(.2,.8,.2,1)',
+            }} />
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -391,11 +473,11 @@ function ComparisonTable() {
           </div>
         </div>
         {rows.map((r, i) => (
-          <div key={i} style={{ display: 'flex', borderBottom: i < rows.length - 1 ? '1px solid var(--line)' : 'none' }}>
-            <div style={{ flex: 1, padding: '14px 20px', display: 'flex', alignItems: 'flex-start', gap: 8, background: 'var(--panel)' }}>
+          <div key={i} className="lea-compare-row" style={{ display: 'flex', borderBottom: i < rows.length - 1 ? '1px solid var(--line)' : 'none' }}>
+            <div style={{ flex: 1, padding: '14px 20px', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
               <span style={{ color: 'var(--text-muted)', fontSize: 13, lineHeight: 1.5 }}>{r.old}</span>
             </div>
-            <div style={{ flex: 1, padding: '14px 20px', display: 'flex', alignItems: 'flex-start', gap: 8, background: 'var(--panel)' }}>
+            <div style={{ flex: 1, padding: '14px 20px', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
               <CheckCircle2 size={15} color="var(--wine)" style={{ flexShrink: 0, marginTop: 2 }} />
               <span style={{ color: 'var(--text)', fontSize: 13, lineHeight: 1.5, fontWeight: 500 }}>{r.neu}</span>
             </div>
@@ -1594,8 +1676,8 @@ export default function LeeannApp() {
                   color: 'var(--wine)',
                 },
               ].map((c, i) => (
-                <div key={i} style={{ flex: 1, minWidth: 250, background: 'var(--panel)', border: '1px solid var(--line)', borderRadius: 12, padding: 22 }}>
-                  <div style={{ width: 34, height: 34, borderRadius: 9, background: `${c.color}1A`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 }}>
+                <div key={i} className="lea-benefit-card" style={{ flex: 1, minWidth: 250, background: 'var(--panel)', border: '1px solid var(--line)', borderRadius: 12, padding: 22 }}>
+                  <div className="lea-benefit-icon" style={{ width: 34, height: 34, borderRadius: 9, background: `${c.color}1A`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 }}>
                     <c.icon size={16} color={c.color} />
                   </div>
                   <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)', marginBottom: 8, lineHeight: 1.3 }}>{c.title}</div>
@@ -1609,18 +1691,22 @@ export default function LeeannApp() {
 
           {/* STATS / PROOF BAND */}
           <div style={{ padding: '0 40px 40px' }}>
+            <TimeToFillChart />
             <div style={{
               maxWidth: 780, margin: '0 auto', display: 'flex', flexWrap: 'wrap', gap: 0,
               border: '1px solid var(--line)', borderRadius: 12, overflow: 'hidden', background: 'var(--panel)',
             }}>
               {[
-                { n: '13', label: 'Fields mapped' },
-                { n: '70+', label: 'Specializations covered' },
-                { n: '24/7', label: 'Always available to candidates' },
-                { n: '1', label: 'Conversation, both sides' },
+                { icon: ClipboardList, value: 13, suffix: '', label: 'Fields mapped' },
+                { icon: Search, value: 70, suffix: '+', label: 'Specializations covered' },
+                { icon: Activity, value: 24, suffix: '/7', label: 'Always available to candidates' },
+                { icon: MessageSquare, value: 1, suffix: '', label: 'Conversation, both sides' },
               ].map((s, i) => (
-                <div key={i} style={{ flex: 1, minWidth: 140, padding: '20px 16px', textAlign: 'center', borderRight: i < 3 ? '1px solid var(--line)' : 'none' }}>
-                  <div className="lea-display" style={{ fontSize: 24, fontWeight: 600, color: 'var(--wine)' }}>{s.n}</div>
+                <div key={i} className="lea-stat-cell" style={{ flex: 1, minWidth: 140, padding: '20px 16px', textAlign: 'center', borderRight: i < 3 ? '1px solid var(--line)' : 'none' }}>
+                  <s.icon size={15} color="var(--wine)" style={{ marginBottom: 6 }} />
+                  <div className="lea-display" style={{ fontSize: 24, fontWeight: 600, color: 'var(--wine)' }}>
+                    <CountUp value={s.value} suffix={s.suffix} />
+                  </div>
                   <div style={{ fontSize: 11.5, color: 'var(--text-muted)', marginTop: 4 }}>{s.label}</div>
                 </div>
               ))}
