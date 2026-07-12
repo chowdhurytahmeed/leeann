@@ -811,9 +811,14 @@ function AnimatedChatPreview({ homeSide }) {
   }, [homeSide]);
 
   const accent = homeSide === 'employer' ? 'var(--wine)' : 'var(--gold)';
+  const scrollRef = useRef(null);
+
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  }, [completed, liveText, typingPause]);
 
   return (
-    <div style={{ minHeight: 180 }}>
+    <div ref={scrollRef} style={{ height: 280, overflowY: 'auto', paddingRight: 4 }}>
       {completed.map((m, i) => (
         <ChatBubble key={i} role={m.role} text={m.text} accent={accent} />
       ))}
