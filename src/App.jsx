@@ -232,9 +232,9 @@ function GlobalStyles() {
   return (
     <style>{`
       * { box-sizing: border-box; }
-      @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
       .lea-root { font-family: 'Inter', sans-serif; }
-      .lea-display { font-family: 'Fraunces', serif; }
+      .lea-display { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; }
       .lea-signature { font-family: 'Space Grotesk', sans-serif; font-style: normal; }
       .lea-mono { font-family: 'IBM Plex Mono', monospace; }
       .lea-scroll::-webkit-scrollbar { width: 6px; }
@@ -299,6 +299,40 @@ function GlobalStyles() {
       .lea-play-btn { transition: transform 0.12s ease, background 0.12s ease; }
       .lea-play-btn:hover { transform: scale(1.06); }
     `}</style>
+  );
+}
+
+function Reveal({ children, delay = 0 }) {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.unobserve(el);
+        }
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? 'translateY(0)' : 'translateY(28px)',
+        transition: `opacity 0.7s ease ${delay}s, transform 0.7s cubic-bezier(.2,.8,.2,1) ${delay}s`,
+      }}
+    >
+      {children}
+    </div>
   );
 }
 
@@ -1434,6 +1468,7 @@ export default function LeeannApp() {
           </div>
 
           {/* BOLD STATEMENT BREAK */}
+          <Reveal>
           <div style={{ background: 'var(--wine)', padding: '54px 40px', textAlign: 'center' }}>
             <div className="lea-display" style={{ fontSize: 26, fontWeight: 600, color: 'var(--on-accent)', maxWidth: 620, margin: '0 auto', lineHeight: 1.3 }}>
               Hiring shouldn't feel like a black box.
@@ -1442,8 +1477,10 @@ export default function LeeannApp() {
               Every conversation tracked. Every candidate informed. Every decision made by a person, not an algorithm alone.
             </div>
           </div>
+          </Reveal>
 
           {/* WHY LEEANN — benefit-forward, stats as light support */}
+          <Reveal>
           <div style={{ padding: '8px 40px 44px' }}>
             <div style={{ textAlign: 'center', marginBottom: 30 }}>
               <Eyebrow color="var(--text-muted)">Why Leeann</Eyebrow>
@@ -1485,6 +1522,7 @@ export default function LeeannApp() {
               ))}
             </div>
           </div>
+          </Reveal>
 
           {/* STATS / PROOF BAND */}
           <div style={{ padding: '0 40px 40px' }}>
@@ -1511,8 +1549,9 @@ export default function LeeannApp() {
             </div>
           </div>
 
-          <ComparisonTable />
+          <Reveal><ComparisonTable /></Reveal>
 
+          <Reveal>
           <div style={{ padding: '0 40px 48px' }}>
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 24 }}>
               <div style={{ display: 'inline-flex', background: 'var(--panel)', border: '1px solid var(--line)', borderRadius: 9, padding: 4 }}>
@@ -1579,9 +1618,11 @@ export default function LeeannApp() {
               </div>
             </div>
           </div>
+          </Reveal>
 
-          <ProductPeek />
+          <Reveal><ProductPeek /></Reveal>
 
+          <Reveal>
           <div style={{ padding: '0 40px 56px', borderTop: '1px solid var(--line)', paddingTop: 40 }}>
             <div style={{ textAlign: 'center', marginBottom: 30 }}>
               <Eyebrow color="var(--text-muted)">How it works</Eyebrow>
@@ -1600,11 +1641,12 @@ export default function LeeannApp() {
               ))}
             </div>
           </div>
+          </Reveal>
 
-          <PrinciplesSection />
-          <FAQSection />
-          <RoadmapSection />
-          <ClosingCTA onSignup={goSignupType} />
+          <Reveal><PrinciplesSection /></Reveal>
+          <Reveal><FAQSection /></Reveal>
+          <Reveal><RoadmapSection /></Reveal>
+          <Reveal><ClosingCTA onSignup={goSignupType} /></Reveal>
           <SiteFooter onNav={{ signup: goSignupType, login: goSignupType, practice: goPractice }} />
         </div>
       )}
