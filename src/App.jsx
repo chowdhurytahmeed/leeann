@@ -435,6 +435,101 @@ function SiteFooter({ onNav }) {
   );
 }
 
+function ProductPeek() {
+  return (
+    <div style={{ padding: '0 40px 56px' }}>
+      <div style={{ textAlign: 'center', marginBottom: 30 }}>
+        <Eyebrow color="var(--text-muted)">Inside the product</Eyebrow>
+        <div className="lea-display" style={{ fontSize: 22, fontWeight: 600, color: 'var(--text)' }}>What a hiring manager actually sees</div>
+      </div>
+      <div style={{ maxWidth: 760, margin: '0 auto', border: '1px solid var(--line)', borderRadius: 14, overflow: 'hidden', boxShadow: '0 16px 40px rgba(0,0,0,0.12)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 14px', background: 'var(--panel-alt)', borderBottom: '1px solid var(--line)' }}>
+          <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--line)' }} />
+          <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--line)' }} />
+          <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--line)' }} />
+          <span className="lea-mono" style={{ fontSize: 10, color: 'var(--text-muted)', marginLeft: 10 }}>Pipeline Readout</span>
+        </div>
+        <div style={{ display: 'flex', background: 'var(--panel)' }}>
+          <div style={{ flex: 1, padding: 18, borderRight: '1px solid var(--line)' }}>
+            <div className="lea-mono" style={{ fontSize: 9.5, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 10 }}>Candidates · 3</div>
+            {[
+              { name: 'Jordan R.', score: 82, active: true },
+              { name: 'Sam K.', score: 64, active: false },
+              { name: 'Priya M.', score: 91, active: false },
+            ].map((c, i) => (
+              <div key={i} style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', borderRadius: 8, marginBottom: 6,
+                background: c.active ? 'var(--wine-dim)' : 'transparent', border: `1px solid ${c.active ? 'var(--wine)' : 'var(--line)'}`,
+              }}>
+                <span style={{ fontSize: 12.5, color: 'var(--text)', fontWeight: c.active ? 600 : 400 }}>{c.name}</span>
+                <span className="lea-mono" style={{ fontSize: 11, color: 'var(--wine)' }}>{c.score}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ flex: 1.4, padding: 18 }}>
+            <div className="lea-mono" style={{ fontSize: 9.5, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 8 }}>Leeann's recommendation</div>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 10 }}>
+              <div className="lea-display" style={{ fontSize: 24, fontWeight: 600, color: 'var(--wine)' }}>82</div>
+              <div style={{ fontSize: 12, color: 'var(--text)', fontWeight: 600 }}>Strong Match</div>
+            </div>
+            <div style={{ fontSize: 11.5, color: 'var(--text-muted)', marginBottom: 14, lineHeight: 1.5 }}>
+              Strong systems-design background, directly relevant to the payments work this role owns.
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <div style={{ fontSize: 11, fontWeight: 600, padding: '7px 12px', borderRadius: 6, background: 'var(--wine)', color: 'var(--on-accent)' }}>Advance</div>
+              <div style={{ fontSize: 11, padding: '7px 12px', borderRadius: 6, border: '1px solid var(--line)', color: 'var(--text-muted)' }}>Not a fit</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RoadmapSection() {
+  const items = [
+    'Shared company workspaces — multiple hiring managers, one pipeline',
+    'ATS integrations (Greenhouse, Lever, Workday)',
+    'Live-hosted technical interviews with side-by-side code review',
+    'Multi-language support for candidates and hiring teams',
+  ];
+  return (
+    <div style={{ padding: '0 40px 56px', borderTop: '1px solid var(--line)', paddingTop: 40 }}>
+      <div style={{ textAlign: 'center', marginBottom: 26 }}>
+        <Eyebrow color="var(--text-muted)">Where Leeann is headed</Eyebrow>
+        <div className="lea-display" style={{ fontSize: 22, fontWeight: 600, color: 'var(--text)' }}>Built now, growing fast</div>
+      </div>
+      <div style={{ display: 'flex', gap: 12, maxWidth: 780, margin: '0 auto', flexWrap: 'wrap' }}>
+        {items.map((t, i) => (
+          <div key={i} style={{
+            flex: 1, minWidth: 260, display: 'flex', alignItems: 'center', gap: 10, padding: '14px 16px',
+            border: '1px dashed var(--line)', borderRadius: 10, background: 'var(--panel)',
+          }}>
+            <span className="lea-mono" style={{ fontSize: 9, color: 'var(--gold)', textTransform: 'uppercase', flexShrink: 0, border: '1px solid var(--gold)', borderRadius: 12, padding: '3px 8px' }}>Soon</span>
+            <span style={{ fontSize: 12.5, color: 'var(--text-muted)', lineHeight: 1.4 }}>{t}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ClosingCTA({ onSignup }) {
+  return (
+    <div style={{ background: 'var(--wine)', padding: '60px 40px', textAlign: 'center' }}>
+      <div className="lea-display" style={{ fontSize: 28, fontWeight: 600, color: 'var(--on-accent)', marginBottom: 10 }}>
+        Ready to see Leeann in action?
+      </div>
+      <div style={{ fontSize: 13.5, color: 'var(--on-accent)', opacity: 0.85, marginBottom: 26 }}>
+        No sales call required to start.
+      </div>
+      <button onClick={onSignup} style={{ background: 'var(--on-accent)', border: 'none', borderRadius: 8, padding: '13px 28px', fontSize: 13.5, fontWeight: 600, color: 'var(--wine)', cursor: 'pointer' }}>
+        Get started
+      </button>
+    </div>
+  );
+}
+
 function TabButton({ active, onClick, icon: Icon, label, num, color }) {
   return (
     <button
@@ -1338,6 +1433,16 @@ export default function LeeannApp() {
             </div>
           </div>
 
+          {/* BOLD STATEMENT BREAK */}
+          <div style={{ background: 'var(--wine)', padding: '54px 40px', textAlign: 'center' }}>
+            <div className="lea-display" style={{ fontSize: 26, fontWeight: 600, color: 'var(--on-accent)', maxWidth: 620, margin: '0 auto', lineHeight: 1.3 }}>
+              Hiring shouldn't feel like a black box.
+            </div>
+            <div style={{ fontSize: 13.5, color: 'var(--on-accent)', opacity: 0.85, marginTop: 10, maxWidth: 480, margin: '10px auto 0' }}>
+              Every conversation tracked. Every candidate informed. Every decision made by a person, not an algorithm alone.
+            </div>
+          </div>
+
           {/* WHY LEEANN — benefit-forward, stats as light support */}
           <div style={{ padding: '8px 40px 44px' }}>
             <div style={{ textAlign: 'center', marginBottom: 30 }}>
@@ -1475,6 +1580,8 @@ export default function LeeannApp() {
             </div>
           </div>
 
+          <ProductPeek />
+
           <div style={{ padding: '0 40px 56px', borderTop: '1px solid var(--line)', paddingTop: 40 }}>
             <div style={{ textAlign: 'center', marginBottom: 30 }}>
               <Eyebrow color="var(--text-muted)">How it works</Eyebrow>
@@ -1496,6 +1603,8 @@ export default function LeeannApp() {
 
           <PrinciplesSection />
           <FAQSection />
+          <RoadmapSection />
+          <ClosingCTA onSignup={goSignupType} />
           <SiteFooter onNav={{ signup: goSignupType, login: goSignupType, practice: goPractice }} />
         </div>
       )}
