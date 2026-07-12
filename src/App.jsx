@@ -470,20 +470,20 @@ function ComparisonTable() {
           <div style={{ flex: 1, padding: '12px 20px', background: 'var(--panel-alt)' }}>
             <span className="lea-mono" style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase' }}>The old way</span>
           </div>
-          <div style={{ flex: 1, padding: '12px 20px', background: 'linear-gradient(90deg, var(--wine-dim), var(--wine-dim))' }}>
+          <div style={{ flex: 1, padding: '12px 20px', background: 'var(--panel-alt)', borderLeft: '2px solid var(--wine)' }}>
             <span className="lea-mono" style={{ fontSize: 10, color: 'var(--wine)', textTransform: 'uppercase', fontWeight: 700 }}>With Leeann</span>
           </div>
         </div>
         {rows.map((r, i) => (
           <Reveal key={i} delay={i * 0.07}>
           <div className="lea-compare-row" style={{ display: 'flex', borderBottom: i < rows.length - 1 ? '1px solid var(--line)' : 'none' }}>
-            <div style={{ flex: 1, padding: '14px 20px', display: 'flex', alignItems: 'flex-start', gap: 8, background: 'rgba(180,40,40,0.03)' }}>
-              <XCircle size={15} color="var(--danger)" style={{ flexShrink: 0, marginTop: 2, opacity: 0.7 }} />
+            <div style={{ flex: 1, padding: '14px 20px', display: 'flex', alignItems: 'flex-start', gap: 8, background: 'var(--panel)' }}>
+              <XCircle size={15} color="var(--danger)" style={{ flexShrink: 0, marginTop: 2, opacity: 0.8 }} />
               <span style={{ color: 'var(--text-muted)', fontSize: 13, lineHeight: 1.5 }}>{r.old}</span>
             </div>
-            <div style={{ flex: 1, padding: '14px 20px', display: 'flex', alignItems: 'flex-start', gap: 8, background: 'var(--wine-dim)' }}>
+            <div style={{ flex: 1, padding: '14px 20px', display: 'flex', alignItems: 'flex-start', gap: 8, background: 'var(--panel)', borderLeft: '2px solid var(--wine)' }}>
               <CheckCircle2 size={15} color="var(--wine)" style={{ flexShrink: 0, marginTop: 2 }} />
-              <span style={{ color: 'var(--text)', fontSize: 13, lineHeight: 1.5, fontWeight: 500 }}>{r.neu}</span>
+              <span style={{ color: 'var(--text)', fontSize: 13, lineHeight: 1.5, fontWeight: 600 }}>{r.neu}</span>
             </div>
           </div>
           </Reveal>
@@ -748,45 +748,79 @@ function AnimatedChatPreview({ homeSide }) {
     ],
   };
   const script = scripts[homeSide];
-  const [visibleCount, setVisibleCount] = useState(0);
-  const [typing, setTyping] = useState(false);
+  const [completed, setCompleted] = useState([]);
+  const [typingPause, setTypingPause] = useState(false);
+  const [liveRole, setLiveRole] = useState(null);
+  const [liveText, setLiveText] = useState('');
 
   useEffect(() => {
     let cancelled = false;
     const timers = [];
-    setVisibleCount(0);
-    setTyping(false);
+    setCompleted([]);
+    setTypingPause(false);
+    setLiveRole(null);
+    setLiveText('');
+
+    function typeOut(msg, onDone) {
+      setLiveRole(msg.role);
+      setLiveText('');
+      let i = 0;
+      function step() {
+        if (cancelled) return;
+        i++;
+        setLiveText(msg.text.slice(0, i));
+        if (i < msg.text.length) {
+          timers.push(setTimeout(step, 14 + Math.random() * 22));
+        } else {
+          timers.push(setTimeout(() => { if (!cancelled) onDone(); }, 550));
+        }
+      }
+      step();
+    }
 
     function playStep(i) {
       if (cancelled) return;
       if (i >= script.length) {
-        timers.push(setTimeout(() => { if (!cancelled) playStep(0); }, 2800));
-        setVisibleCount(0);
+        timers.push(setTimeout(() => { if (!cancelled) { setCompleted([]); playStep(0); } }, 2600));
         return;
       }
-      if (script[i].role === 'assistant') {
-        setTyping(true);
+      const msg = script[i];
+      if (msg.role === 'assistant') {
+        setTypingPause(true);
         timers.push(setTimeout(() => {
           if (cancelled) return;
-          setTyping(false);
-          setVisibleCount(i + 1);
-          timers.push(setTimeout(() => playStep(i + 1), 1000));
-        }, 1200));
+          setTypingPause(false);
+          typeOut(msg, () => {
+            setCompleted((prev) => [...prev, msg]);
+            setLiveRole(null);
+            setLiveText('');
+            timers.push(setTimeout(() => playStep(i + 1), 450));
+          });
+        }, 900));
       } else {
-        setVisibleCount(i + 1);
-        timers.push(setTimeout(() => playStep(i + 1), 750));
+        typeOut(msg, () => {
+          setCompleted((prev) => [...prev, msg]);
+          setLiveRole(null);
+          setLiveText('');
+          timers.push(setTimeout(() => playStep(i + 1), 450));
+        });
       }
     }
     playStep(0);
     return () => { cancelled = true; timers.forEach(clearTimeout); };
   }, [homeSide]);
 
+  const accent = homeSide === 'employer' ? 'var(--wine)' : 'var(--gold)';
+
   return (
     <div style={{ minHeight: 180 }}>
-      {script.slice(0, visibleCount).map((m, i) => (
-        <ChatBubble key={i} role={m.role} text={m.text} accent={homeSide === 'employer' ? 'var(--wine)' : 'var(--gold)'} />
+      {completed.map((m, i) => (
+        <ChatBubble key={i} role={m.role} text={m.text} accent={accent} />
       ))}
-      {typing && (
+      {liveRole && (
+        <ChatBubble role={liveRole} text={liveText + '\u258c'} accent={accent} />
+      )}
+      {typingPause && (
         <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: 12 }}>
           <div style={{ display: 'flex', gap: 5, padding: '12px 16px', borderRadius: 10, background: 'var(--panel-alt)', border: '1px solid var(--line)' }}>
             {[0, 0.15, 0.3].map((d, i) => (
