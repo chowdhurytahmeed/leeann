@@ -232,9 +232,9 @@ function GlobalStyles() {
   return (
     <style>{`
       * { box-sizing: border-box; }
-      @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
       .lea-root { font-family: 'Inter', sans-serif; }
-      .lea-display { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; }
+      .lea-display { font-family: 'Sora', sans-serif; font-weight: 700; }
       .lea-signature { font-family: 'Space Grotesk', sans-serif; font-style: normal; }
       .lea-mono { font-family: 'IBM Plex Mono', monospace; }
       .lea-scroll::-webkit-scrollbar { width: 6px; }
@@ -276,6 +276,16 @@ function GlobalStyles() {
         50% { box-shadow: 0 0 0 10px var(--wine-dim), 0 0 46px 14px var(--wine-dim), 0 0 70px 22px var(--gold-dim); }
       }
       .lea-idle-glow { animation: lea-idle 2.4s ease-in-out infinite; }
+      @keyframes lea-heartbeat {
+        0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 var(--wine-dim); }
+        8% { transform: scale(1.08); box-shadow: 0 0 26px 6px var(--wine-dim); }
+        16% { transform: scale(1); box-shadow: 0 0 0 0 var(--wine-dim); }
+        24% { transform: scale(1.12); box-shadow: 0 0 36px 10px var(--gold-dim); }
+        36% { transform: scale(1); box-shadow: 0 0 0 0 var(--wine-dim); }
+      }
+      .lea-heartbeat { animation: lea-heartbeat 2.4s ease-in-out infinite; }
+      @keyframes lea-ekg-travel { to { stroke-dashoffset: -2000; } }
+      .lea-ekg-travel { animation: lea-ekg-travel 7s linear infinite; }
       .lea-type-search { transition: opacity 0.3s ease, transform 0.32s cubic-bezier(.4,0,.2,1); }
       .lea-orb-interactive { position: relative; cursor: pointer; transition: transform 0.35s ease, box-shadow 0.35s ease; }
       .lea-orb-interactive:hover { transform: scale(1.14); animation-duration: 1s; }
@@ -560,6 +570,43 @@ function ClosingCTA({ onSignup }) {
       <button onClick={onSignup} style={{ background: 'var(--on-accent)', border: 'none', borderRadius: 8, padding: '13px 28px', fontSize: 13.5, fontWeight: 600, color: 'var(--wine)', cursor: 'pointer' }}>
         Get started
       </button>
+    </div>
+  );
+}
+
+function PulseSection() {
+  // Build a repeating EKG-style waveform path across the viewBox width
+  let d = 'M0,60';
+  for (let x = 0; x <= 1000; x += 125) {
+    d += ` L${x},60 L${x + 18},60 L${x + 27},20 L${x + 36},95 L${x + 45},55 L${x + 60},60`;
+  }
+  return (
+    <div style={{ position: 'relative', background: '#15120E', padding: '72px 40px', overflow: 'hidden', textAlign: 'center' }}>
+      <svg viewBox="0 0 1000 120" preserveAspectRatio="none" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
+        <path d={d} stroke="#3A3226" strokeWidth="2" fill="none" opacity="0.6" />
+        <path d={d} stroke="var(--gold)" strokeWidth="2" fill="none" strokeDasharray="120 2000" className="lea-ekg-travel" opacity="0.9" />
+      </svg>
+      <div style={{ position: 'relative' }}>
+        <Eyebrow color="var(--gold)">Always on</Eyebrow>
+        <div className="lea-display" style={{ fontSize: 26, fontWeight: 700, color: '#F1E9DA', maxWidth: 560, margin: '0 auto 32px' }}>
+          Always listening. Always human where it counts.
+        </div>
+        <div
+          className="lea-heartbeat lea-orb-interactive"
+          onClick={() => speak("Hi, I'm Leeann. I'm always here when you need me.")}
+          title="Hear Leeann"
+          style={{
+            width: 108, height: 108, borderRadius: '50%', background: 'rgba(255,255,255,0.04)',
+            border: '2px solid var(--wine)', margin: '0 auto', position: 'relative', overflow: 'hidden', cursor: 'pointer',
+          }}
+        >
+          <div className="lea-orb-a" style={{ position: 'absolute', width: '86%', height: '86%', top: '-7%', left: '-7%', borderRadius: '50%', background: 'var(--wine)', filter: 'blur(20px)', opacity: 0.9 }} />
+          <div className="lea-orb-b" style={{ position: 'absolute', width: '86%', height: '86%', bottom: '-7%', right: '-7%', borderRadius: '50%', background: 'var(--gold)', filter: 'blur(20px)', opacity: 0.9 }} />
+        </div>
+        <div className="lea-mono" style={{ fontSize: 10.5, color: '#8B92AC', marginTop: 14, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+          Tap to hear her
+        </div>
+      </div>
     </div>
   );
 }
@@ -1621,6 +1668,8 @@ export default function LeeannApp() {
           </Reveal>
 
           <Reveal><ProductPeek /></Reveal>
+
+          <Reveal><PulseSection /></Reveal>
 
           <Reveal>
           <div style={{ padding: '0 40px 56px', borderTop: '1px solid var(--line)', paddingTop: 40 }}>
