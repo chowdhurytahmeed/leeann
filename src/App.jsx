@@ -538,12 +538,13 @@ function RoadmapSection() {
     'Multi-language support for candidates and hiring teams',
   ];
   return (
-    <div style={{ padding: '0 40px 56px', borderTop: '1px solid var(--line)', paddingTop: 40 }}>
-      <div style={{ textAlign: 'center', marginBottom: 26 }}>
+    <div style={{ padding: '0 40px 56px', borderTop: '1px solid var(--line)', paddingTop: 40, position: 'relative', overflow: 'hidden' }}>
+      <div style={{ position: 'absolute', bottom: -30, left: '10%', width: 220, height: 220, borderRadius: '50%', background: 'var(--wine-dim)', filter: 'blur(70px)', pointerEvents: 'none' }} />
+      <div style={{ textAlign: 'center', marginBottom: 26, position: 'relative' }}>
         <Eyebrow color="var(--text-muted)">Where Leeann is headed</Eyebrow>
         <div className="lea-display" style={{ fontSize: 22, fontWeight: 600, color: 'var(--text)' }}>Built now, growing fast</div>
       </div>
-      <div style={{ display: 'flex', gap: 12, maxWidth: 780, margin: '0 auto', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: 12, maxWidth: 780, margin: '0 auto', flexWrap: 'wrap', position: 'relative' }}>
         {items.map((t, i) => (
           <div key={i} style={{
             flex: 1, minWidth: 260, display: 'flex', alignItems: 'center', gap: 10, padding: '14px 16px',
@@ -560,7 +561,7 @@ function RoadmapSection() {
 
 function ClosingCTA({ onSignup }) {
   return (
-    <div style={{ background: 'var(--wine)', padding: '60px 40px', textAlign: 'center' }}>
+    <div style={{ background: 'radial-gradient(circle at 30% 20%, var(--wine) 0%, var(--wine-deep) 75%)', padding: '60px 40px', textAlign: 'center' }}>
       <div className="lea-display" style={{ fontSize: 28, fontWeight: 600, color: 'var(--on-accent)', marginBottom: 10 }}>
         Ready to see Leeann in action?
       </div>
@@ -916,14 +917,14 @@ export default function LeeannApp() {
   const vars = theme === 'dark' ? {
     '--bg': '#0E1220', '--panel': '#171B2C', '--panel-alt': '#1E2338', '--line': '#2C3350',
     '--text': '#EDEFF5', '--text-muted': '#8B92AC',
-    '--wine': '#FF5F6D', '--wine-dim': 'rgba(255,95,109,0.18)',
-    '--gold': '#6FA0FF', '--gold-dim': 'rgba(111,160,255,0.18)',
+    '--wine': '#F0566E', '--wine-deep': '#B8264A', '--wine-dim': 'rgba(240,86,110,0.18)',
+    '--gold': '#7B9FFF', '--gold-deep': '#2947C4', '--gold-dim': 'rgba(123,159,255,0.18)',
     '--danger': '#FF9152', '--on-accent': '#10131F',
   } : {
     '--bg': '#F4F6FA', '--panel': '#FFFFFF', '--panel-alt': '#ECEFF5', '--line': '#D8DEE9',
     '--text': '#14161F', '--text-muted': '#666E82',
-    '--wine': '#D6293B', '--wine-dim': 'rgba(214,41,59,0.10)',
-    '--gold': '#2A5CD6', '--gold-dim': 'rgba(42,92,214,0.10)',
+    '--wine': '#BB1F42', '--wine-deep': '#7A1230', '--wine-dim': 'rgba(187,31,66,0.10)',
+    '--gold': '#2947C4', '--gold-deep': '#152C82', '--gold-dim': 'rgba(41,71,196,0.10)',
     '--danger': '#E0632E', '--on-accent': '#FFFFFF',
   };
 
@@ -1393,7 +1394,10 @@ export default function LeeannApp() {
   );
 
   return (
-    <div className="lea-root" style={{ ...vars, background: 'var(--bg)', minHeight: 640, borderRadius: 12, overflow: 'hidden', border: '1px solid var(--line)', position: 'relative' }}>
+    <div className="lea-root" style={{
+      ...vars, background: 'var(--bg)', minHeight: 640, borderRadius: 12, overflow: 'hidden', border: '1px solid var(--line)', position: 'relative',
+      backgroundImage: 'radial-gradient(var(--line) 1px, transparent 1px)', backgroundSize: '22px 22px',
+    }}>
       <GlobalStyles />
 
       {showApiKeyModal && (
@@ -1516,7 +1520,7 @@ export default function LeeannApp() {
 
           {/* BOLD STATEMENT BREAK */}
           <Reveal>
-          <div style={{ background: 'var(--wine)', padding: '54px 40px', textAlign: 'center' }}>
+          <div style={{ background: 'radial-gradient(circle at 70% 30%, var(--wine) 0%, var(--wine-deep) 75%)', padding: '54px 40px', textAlign: 'center' }}>
             <div className="lea-display" style={{ fontSize: 26, fontWeight: 600, color: 'var(--on-accent)', maxWidth: 620, margin: '0 auto', lineHeight: 1.3 }}>
               Hiring shouldn't feel like a black box.
             </div>
@@ -1528,8 +1532,9 @@ export default function LeeannApp() {
 
           {/* WHY LEEANN — benefit-forward, stats as light support */}
           <Reveal>
-          <div style={{ padding: '8px 40px 44px' }}>
-            <div style={{ textAlign: 'center', marginBottom: 30 }}>
+          <div style={{ padding: '8px 40px 44px', position: 'relative', overflow: 'hidden' }}>
+            <div style={{ position: 'absolute', top: -40, right: '8%', width: 240, height: 240, borderRadius: '50%', background: 'var(--gold-dim)', filter: 'blur(70px)', pointerEvents: 'none' }} />
+            <div style={{ textAlign: 'center', marginBottom: 30, position: 'relative' }}>
               <Eyebrow color="var(--text-muted)">Why Leeann</Eyebrow>
               <div className="lea-display" style={{ fontSize: 24, fontWeight: 600, color: 'var(--text)' }}>Built to close the gaps that cost companies the most</div>
             </div>
