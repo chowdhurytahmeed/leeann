@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { storage } from './storage';
 import {
-  Users, User, Activity, Send, Loader2, CheckCircle2, Circle,
+  Users, User, Activity, Send, Loader2, CheckCircle2, Circle, XCircle,
   Sparkles, Calendar, ArrowRight, ArrowLeft, ClipboardList, MessageSquare,
   Building2, Sun, Moon, Volume2, Search, Mic, Key
 } from 'lucide-react';
@@ -470,20 +470,23 @@ function ComparisonTable() {
           <div style={{ flex: 1, padding: '12px 20px', background: 'var(--panel-alt)' }}>
             <span className="lea-mono" style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase' }}>The old way</span>
           </div>
-          <div style={{ flex: 1, padding: '12px 20px', background: 'var(--wine-dim)' }}>
-            <span className="lea-mono" style={{ fontSize: 10, color: 'var(--wine)', textTransform: 'uppercase' }}>With Leeann</span>
+          <div style={{ flex: 1, padding: '12px 20px', background: 'linear-gradient(90deg, var(--wine-dim), var(--wine-dim))' }}>
+            <span className="lea-mono" style={{ fontSize: 10, color: 'var(--wine)', textTransform: 'uppercase', fontWeight: 700 }}>With Leeann</span>
           </div>
         </div>
         {rows.map((r, i) => (
-          <div key={i} className="lea-compare-row" style={{ display: 'flex', borderBottom: i < rows.length - 1 ? '1px solid var(--line)' : 'none' }}>
-            <div style={{ flex: 1, padding: '14px 20px', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+          <Reveal key={i} delay={i * 0.07}>
+          <div className="lea-compare-row" style={{ display: 'flex', borderBottom: i < rows.length - 1 ? '1px solid var(--line)' : 'none' }}>
+            <div style={{ flex: 1, padding: '14px 20px', display: 'flex', alignItems: 'flex-start', gap: 8, background: 'rgba(180,40,40,0.03)' }}>
+              <XCircle size={15} color="var(--danger)" style={{ flexShrink: 0, marginTop: 2, opacity: 0.7 }} />
               <span style={{ color: 'var(--text-muted)', fontSize: 13, lineHeight: 1.5 }}>{r.old}</span>
             </div>
-            <div style={{ flex: 1, padding: '14px 20px', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+            <div style={{ flex: 1, padding: '14px 20px', display: 'flex', alignItems: 'flex-start', gap: 8, background: 'var(--wine-dim)' }}>
               <CheckCircle2 size={15} color="var(--wine)" style={{ flexShrink: 0, marginTop: 2 }} />
               <span style={{ color: 'var(--text)', fontSize: 13, lineHeight: 1.5, fontWeight: 500 }}>{r.neu}</span>
             </div>
           </div>
+          </Reveal>
         ))}
       </div>
     </div>
@@ -726,6 +729,73 @@ function TabButton({ active, onClick, icon: Icon, label, num, color }) {
         {label}
       </span>
     </button>
+  );
+}
+
+function AnimatedChatPreview({ homeSide }) {
+  const scripts = {
+    employer: [
+      { role: 'user', text: 'We need a backend engineer for our payments team.' },
+      { role: 'assistant', text: "Got it. What would this person actually own day to day — new payment flows, or reliability of what's already live?" },
+      { role: 'user', text: 'Mostly reliability — keeping things running as we scale.' },
+      { role: 'assistant', text: "That's a different profile than pure feature work — I'll weight for production experience over greenfield building." },
+    ],
+    candidate: [
+      { role: 'user', text: "What's the team actually like to work with?" },
+      { role: 'assistant', text: 'Small, senior team of 5 — high ownership, low process. On-call is shared, about once every 6 weeks.' },
+      { role: 'user', text: 'Is this more building new stuff, or maintaining?' },
+      { role: 'assistant', text: "Mostly reliability and scaling what's live — if you like solving real production problems, this fits well." },
+    ],
+  };
+  const script = scripts[homeSide];
+  const [visibleCount, setVisibleCount] = useState(0);
+  const [typing, setTyping] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    const timers = [];
+    setVisibleCount(0);
+    setTyping(false);
+
+    function playStep(i) {
+      if (cancelled) return;
+      if (i >= script.length) {
+        timers.push(setTimeout(() => { if (!cancelled) playStep(0); }, 2800));
+        setVisibleCount(0);
+        return;
+      }
+      if (script[i].role === 'assistant') {
+        setTyping(true);
+        timers.push(setTimeout(() => {
+          if (cancelled) return;
+          setTyping(false);
+          setVisibleCount(i + 1);
+          timers.push(setTimeout(() => playStep(i + 1), 1000));
+        }, 1200));
+      } else {
+        setVisibleCount(i + 1);
+        timers.push(setTimeout(() => playStep(i + 1), 750));
+      }
+    }
+    playStep(0);
+    return () => { cancelled = true; timers.forEach(clearTimeout); };
+  }, [homeSide]);
+
+  return (
+    <div style={{ minHeight: 180 }}>
+      {script.slice(0, visibleCount).map((m, i) => (
+        <ChatBubble key={i} role={m.role} text={m.text} accent={homeSide === 'employer' ? 'var(--wine)' : 'var(--gold)'} />
+      ))}
+      {typing && (
+        <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: 12 }}>
+          <div style={{ display: 'flex', gap: 5, padding: '12px 16px', borderRadius: 10, background: 'var(--panel-alt)', border: '1px solid var(--line)' }}>
+            {[0, 0.15, 0.3].map((d, i) => (
+              <span key={i} className="lea-typing-dot" style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--text-muted)', display: 'inline-block', animationDelay: `${d}s` }} />
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -1769,18 +1839,7 @@ export default function LeeannApp() {
 
               <div style={{ flex: 1, minWidth: 260, background: 'var(--panel)', border: '1px solid var(--line)', borderRadius: 12, padding: 18 }}>
                 <div className="lea-mono" style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 12, textTransform: 'uppercase' }}>Preview</div>
-                {(homeSide === 'employer'
-                  ? [
-                      { role: 'user', text: 'We need a backend engineer for our payments team.' },
-                      { role: 'assistant', text: "Got it. What would this person actually own day to day — new payment flows, or reliability of what's already live?" },
-                    ]
-                  : [
-                      { role: 'user', text: "What's the team actually like to work with?" },
-                      { role: 'assistant', text: 'Small, senior team of 5 — high ownership, low process. On-call is shared, about once every 6 weeks.' },
-                    ]
-                ).map((m, i) => (
-                  <ChatBubble key={i} role={m.role} text={m.text} accent={homeSide === 'employer' ? 'var(--wine)' : 'var(--gold)'} />
-                ))}
+                <AnimatedChatPreview homeSide={homeSide} />
               </div>
             </div>
           </div>
