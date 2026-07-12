@@ -310,6 +310,131 @@ function Eyebrow({ children, color }) {
   );
 }
 
+function ComparisonTable() {
+  const rows = [
+    { old: '42-day average time to fill a role', neu: 'Decisions in about a week' },
+    { old: 'Mass applications, resumes screened blind', neu: 'A real conversation before you see a resume' },
+    { old: 'Candidates hear nothing for weeks', neu: 'Always-on updates, honest answers' },
+    { old: 'AI screens silently, no one accountable', neu: 'Leeann recommends — a human always decides' },
+    { old: 'Rejected candidates get no feedback', neu: 'Every candidate learns what to improve' },
+    { old: 'One generic process for every role', neu: 'Tailored to the specific role and team' },
+  ];
+  return (
+    <div style={{ padding: '0 40px 56px' }}>
+      <div style={{ textAlign: 'center', marginBottom: 28 }}>
+        <Eyebrow color="var(--text-muted)">The difference</Eyebrow>
+        <div className="lea-display" style={{ fontSize: 22, fontWeight: 600, color: 'var(--text)' }}>Hiring, before and after Leeann</div>
+      </div>
+      <div style={{ maxWidth: 780, margin: '0 auto', border: '1px solid var(--line)', borderRadius: 12, overflow: 'hidden' }}>
+        <div style={{ display: 'flex', borderBottom: '1px solid var(--line)' }}>
+          <div style={{ flex: 1, padding: '12px 20px', background: 'var(--panel-alt)' }}>
+            <span className="lea-mono" style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase' }}>The old way</span>
+          </div>
+          <div style={{ flex: 1, padding: '12px 20px', background: 'var(--wine-dim)' }}>
+            <span className="lea-mono" style={{ fontSize: 10, color: 'var(--wine)', textTransform: 'uppercase' }}>With Leeann</span>
+          </div>
+        </div>
+        {rows.map((r, i) => (
+          <div key={i} style={{ display: 'flex', borderBottom: i < rows.length - 1 ? '1px solid var(--line)' : 'none' }}>
+            <div style={{ flex: 1, padding: '14px 20px', display: 'flex', alignItems: 'flex-start', gap: 8, background: 'var(--panel)' }}>
+              <span style={{ color: 'var(--text-muted)', fontSize: 13, lineHeight: 1.5 }}>{r.old}</span>
+            </div>
+            <div style={{ flex: 1, padding: '14px 20px', display: 'flex', alignItems: 'flex-start', gap: 8, background: 'var(--panel)' }}>
+              <CheckCircle2 size={15} color="var(--wine)" style={{ flexShrink: 0, marginTop: 2 }} />
+              <span style={{ color: 'var(--text)', fontSize: 13, lineHeight: 1.5, fontWeight: 500 }}>{r.neu}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PrinciplesSection() {
+  const principles = [
+    { icon: CheckCircle2, title: 'A human always decides', text: "Leeann recommends. A hiring manager confirms every outcome — nothing is automatic.", color: 'var(--wine)' },
+    { icon: MessageSquare, title: 'Feedback is mandatory', text: 'Every candidate learns what they did well and what to improve — not just the ones who advance.', color: 'var(--gold)' },
+    { icon: User, title: 'Transparent by design', text: "Candidates always know they're talking with an AI hiring liaison, from the first message.", color: 'var(--wine)' },
+    { icon: Sparkles, title: 'Built for fit, not filtering', text: 'Leeann prepares candidates for the specific role — the goal is readiness, not a faster reject pile.', color: 'var(--gold)' },
+  ];
+  return (
+    <div style={{ padding: '0 40px 56px', borderTop: '1px solid var(--line)', paddingTop: 40 }}>
+      <div style={{ textAlign: 'center', marginBottom: 30 }}>
+        <Eyebrow color="var(--text-muted)">Principles</Eyebrow>
+        <div className="lea-display" style={{ fontSize: 22, fontWeight: 600, color: 'var(--text)' }}>Built with guardrails, not just features</div>
+      </div>
+      <div style={{ display: 'flex', gap: 16, maxWidth: 900, margin: '0 auto', flexWrap: 'wrap' }}>
+        {principles.map((p, i) => (
+          <div key={i} style={{ flex: 1, minWidth: 200, textAlign: 'center', padding: '0 8px' }}>
+            <div style={{ width: 40, height: 40, borderRadius: 10, background: `${p.color}1A`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
+              <p.icon size={18} color={p.color} />
+            </div>
+            <div style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--text)', marginBottom: 6 }}>{p.title}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.55 }}>{p.text}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function FAQSection() {
+  const [openIndex, setOpenIndex] = useState(null);
+  const faqs = [
+    { q: 'Does a human ever review the AI\u2019s recommendation?', a: 'Always. Leeann produces a recommendation and a summary, but a hiring manager has to explicitly confirm the outcome before anything happens. Nothing is decided automatically.' },
+    { q: 'What happens to a candidate who doesn\u2019t move forward?', a: 'They still get feedback — specific strengths and things to work on — automatically, the moment a decision is recorded. Every candidate, not just the ones who advance.' },
+    { q: 'Does Leeann replace our interview process?', a: 'No. She handles the early conversation, role calibration, and prep — your team still runs real interviews and makes the final call.' },
+    { q: 'Do candidates know they\u2019re talking to AI?', a: 'Yes, always. Leeann introduces herself as an AI hiring liaison from the first message — there\u2019s no attempt to pass her off as human.' },
+    { q: 'What kinds of roles can Leeann help with?', a: 'Any field — engineering, medicine, culinary, law, retail, and more. She adapts her questions and interview style to the specific role rather than using one generic script.' },
+    { q: 'Is this ready for our whole company to use today?', a: 'Right now it\u2019s built for individual pilot use. Shared company workspaces — where multiple hiring managers see the same roles and pipeline — are on the roadmap.' },
+  ];
+  return (
+    <div style={{ padding: '0 40px 56px', borderTop: '1px solid var(--line)', paddingTop: 40 }}>
+      <div style={{ textAlign: 'center', marginBottom: 26 }}>
+        <Eyebrow color="var(--text-muted)">Questions</Eyebrow>
+        <div className="lea-display" style={{ fontSize: 22, fontWeight: 600, color: 'var(--text)' }}>Before you ask</div>
+      </div>
+      <div style={{ maxWidth: 640, margin: '0 auto' }}>
+        {faqs.map((f, i) => (
+          <div key={i} style={{ borderBottom: '1px solid var(--line)' }}>
+            <button
+              onClick={() => setOpenIndex(openIndex === i ? null : i)}
+              style={{
+                width: '100%', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer',
+                padding: '16px 4px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+              }}
+            >
+              <span style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--text)' }}>{f.q}</span>
+              <span style={{ fontSize: 18, color: 'var(--text-muted)', flexShrink: 0, transform: openIndex === i ? 'rotate(45deg)' : 'none', transition: 'transform 0.2s ease' }}>+</span>
+            </button>
+            {openIndex === i && (
+              <div className="lea-fade" style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.6, padding: '0 4px 18px' }}>
+                {f.a}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function SiteFooter({ onNav }) {
+  return (
+    <div style={{ borderTop: '1px solid var(--line)', padding: '32px 40px', background: 'var(--panel)' }}>
+      <div style={{ maxWidth: 900, margin: '0 auto', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
+        <Wordmark size={16} />
+        <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
+          <button onClick={onNav.signup} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: 12.5, cursor: 'pointer', padding: 0 }}>Sign up</button>
+          <button onClick={onNav.login} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: 12.5, cursor: 'pointer', padding: 0 }}>Log in</button>
+          <button onClick={onNav.practice} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: 12.5, cursor: 'pointer', padding: 0 }}>Practice</button>
+        </div>
+        <div style={{ fontSize: 11.5, color: 'var(--text-muted)' }}>© {new Date().getFullYear()} Leeann</div>
+      </div>
+    </div>
+  );
+}
+
 function TabButton({ active, onClick, icon: Icon, label, num, color }) {
   return (
     <button
@@ -1281,6 +1406,8 @@ export default function LeeannApp() {
             </div>
           </div>
 
+          <ComparisonTable />
+
           <div style={{ padding: '0 40px 48px' }}>
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 24 }}>
               <div style={{ display: 'inline-flex', background: 'var(--panel)', border: '1px solid var(--line)', borderRadius: 9, padding: 4 }}>
@@ -1366,6 +1493,10 @@ export default function LeeannApp() {
               ))}
             </div>
           </div>
+
+          <PrinciplesSection />
+          <FAQSection />
+          <SiteFooter onNav={{ signup: goSignupType, login: goSignupType, practice: goPractice }} />
         </div>
       )}
 
