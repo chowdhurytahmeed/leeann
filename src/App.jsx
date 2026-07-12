@@ -824,7 +824,7 @@ function FlowLine({ color }) {
 
 function LogoMark({ size = 30 }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 32 32" style={{ transform: 'rotate(-3deg)', flexShrink: 0 }}>
+    <svg width={size} height={size} viewBox="5 3 22 26" style={{ transform: 'rotate(-3deg)', flexShrink: 0 }}>
       <rect x="7" y="5" width="7" height="22" rx="3.5" fill="var(--wine)" />
       <rect x="7" y="20.5" width="18" height="6.5" rx="3.25" fill="var(--gold)" />
     </svg>
@@ -1651,8 +1651,8 @@ export default function LeeannApp() {
           <div style={{ padding: '8px 40px 48px' }}>
             <div style={{ textAlign: 'center', marginBottom: 44 }}>
               <Eyebrow color="var(--text-muted)">The difference</Eyebrow>
-              <div className="lea-display" style={{ fontSize: 38, fontWeight: 700, color: 'var(--text)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
-                Why <LogoMark size={32} />eeann?
+              <div className="lea-display" style={{ fontSize: 38, fontWeight: 700, color: 'var(--text)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0 }}>
+                <span>Why&nbsp;</span><LogoMark size={30} /><span style={{ marginLeft: -3 }}>eeann?</span>
               </div>
               <div style={{ fontSize: 14, color: 'var(--text-muted)', marginTop: 12, maxWidth: 460, margin: '12px auto 0' }}>
                 Built to close the gaps that cost companies the most.
