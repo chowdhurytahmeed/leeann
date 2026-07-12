@@ -286,8 +286,14 @@ function GlobalStyles() {
       .lea-heartbeat { animation: lea-heartbeat 2.4s ease-in-out infinite; }
       @keyframes lea-ekg-travel { to { stroke-dashoffset: -2000; } }
       .lea-ekg-travel { animation: lea-ekg-travel 7s linear infinite; }
-      @keyframes lea-ambient { 0%,100% { opacity: 0.35; transform: scale(0.85); } 50% { opacity: 1; transform: scale(1.35); } }
-      .lea-ambient-glow { animation: lea-ambient ease-in-out infinite; }
+      @keyframes lea-glow-pulse {
+        0%, 100% { opacity: 0.25; transform: scale(0.85); }
+        10% { opacity: 0.85; transform: scale(1.1); }
+        20% { opacity: 0.25; transform: scale(0.85); }
+        30% { opacity: 1; transform: scale(1.3); }
+        45% { opacity: 0.25; transform: scale(0.85); }
+      }
+      .lea-glow-heartbeat { animation: lea-glow-pulse ease-in-out infinite; }
       .lea-type-search { transition: opacity 0.3s ease, transform 0.32s cubic-bezier(.4,0,.2,1); }
       .lea-orb-interactive { position: relative; cursor: pointer; transition: transform 0.35s ease, box-shadow 0.35s ease; }
       .lea-orb-interactive:hover { transform: scale(1.14); animation-duration: 1s; }
@@ -366,9 +372,8 @@ function ComparisonTable() {
     { old: 'One generic process for every role', neu: 'Tailored to the specific role and team' },
   ];
   return (
-    <div style={{ padding: '0 40px 56px', position: 'relative', overflow: 'hidden' }}>
-      <div className="lea-ambient-glow" style={{ position: 'absolute', top: '20%', left: '4%', width: 340, height: 340, borderRadius: '50%', background: 'var(--wine-glow)', filter: 'blur(90px)', pointerEvents: 'none', animationDuration: '9s' }} />
-      <div style={{ textAlign: 'center', marginBottom: 28, position: 'relative' }}>
+    <div style={{ padding: '0 40px 56px' }}>
+      <div style={{ textAlign: 'center', marginBottom: 28 }}>
         <Eyebrow color="var(--text-muted)">The difference</Eyebrow>
         <div className="lea-display" style={{ fontSize: 22, fontWeight: 600, color: 'var(--text)' }}>Hiring, before and after Leeann</div>
       </div>
@@ -405,9 +410,8 @@ function PrinciplesSection() {
     { icon: Sparkles, title: 'Built for fit, not filtering', text: 'Leeann prepares candidates for the specific role — the goal is readiness, not a faster reject pile.', color: 'var(--gold)' },
   ];
   return (
-    <div style={{ padding: '0 40px 56px', borderTop: '1px solid var(--line)', paddingTop: 40, position: 'relative', overflow: 'hidden' }}>
-      <div className="lea-ambient-glow" style={{ position: 'absolute', top: '10%', left: '45%', width: 360, height: 360, borderRadius: '50%', background: 'var(--wine-glow)', filter: 'blur(95px)', pointerEvents: 'none', animationDuration: '7.5s' }} />
-      <div style={{ textAlign: 'center', marginBottom: 30, position: 'relative' }}>
+    <div style={{ padding: '0 40px 56px' }}>
+      <div style={{ textAlign: 'center', marginBottom: 30 }}>
         <Eyebrow color="var(--text-muted)">Principles</Eyebrow>
         <div className="lea-display" style={{ fontSize: 22, fontWeight: 600, color: 'var(--text)' }}>Built with guardrails, not just features</div>
       </div>
@@ -437,9 +441,8 @@ function FAQSection() {
     { q: 'Is this ready for our whole company to use today?', a: 'Right now it\u2019s built for individual pilot use. Shared company workspaces — where multiple hiring managers see the same roles and pipeline — are on the roadmap.' },
   ];
   return (
-    <div style={{ padding: '0 40px 56px', borderTop: '1px solid var(--line)', paddingTop: 40, position: 'relative', overflow: 'hidden' }}>
-      <div className="lea-ambient-glow" style={{ position: 'absolute', top: '15%', left: '2%', width: 320, height: 320, borderRadius: '50%', background: 'var(--gold-glow)', filter: 'blur(90px)', pointerEvents: 'none', animationDuration: '8s' }} />
-      <div style={{ textAlign: 'center', marginBottom: 26, position: 'relative' }}>
+    <div style={{ padding: '0 40px 56px' }}>
+      <div style={{ textAlign: 'center', marginBottom: 26 }}>
         <Eyebrow color="var(--text-muted)">Questions</Eyebrow>
         <div className="lea-display" style={{ fontSize: 22, fontWeight: 600, color: 'var(--text)' }}>Before you ask</div>
       </div>
@@ -486,9 +489,8 @@ function SiteFooter({ onNav }) {
 
 function ProductPeek() {
   return (
-    <div style={{ padding: '0 40px 56px', position: 'relative', overflow: 'hidden' }}>
-      <div className="lea-ambient-glow" style={{ position: 'absolute', bottom: '5%', right: '6%', width: 380, height: 380, borderRadius: '50%', background: 'var(--gold-glow)', filter: 'blur(100px)', pointerEvents: 'none', animationDuration: '10s' }} />
-      <div style={{ textAlign: 'center', marginBottom: 30, position: 'relative' }}>
+    <div style={{ padding: '0 40px 56px' }}>
+      <div style={{ textAlign: 'center', marginBottom: 30 }}>
         <Eyebrow color="var(--text-muted)">Inside the product</Eyebrow>
         <div className="lea-display" style={{ fontSize: 22, fontWeight: 600, color: 'var(--text)' }}>What a hiring manager actually sees</div>
       </div>
@@ -544,9 +546,8 @@ function RoadmapSection() {
     'Multi-language support for candidates and hiring teams',
   ];
   return (
-    <div style={{ padding: '0 40px 56px', borderTop: '1px solid var(--line)', paddingTop: 40, position: 'relative', overflow: 'hidden' }}>
-      <div className="lea-ambient-glow" style={{ position: 'absolute', bottom: -30, left: '10%', width: 400, height: 400, borderRadius: '50%', background: 'var(--wine-glow)', filter: 'blur(105px)', pointerEvents: 'none', animationDuration: '7s' }} />
-      <div style={{ textAlign: 'center', marginBottom: 26, position: 'relative' }}>
+    <div style={{ padding: '0 40px 56px' }}>
+      <div style={{ textAlign: 'center', marginBottom: 26 }}>
         <Eyebrow color="var(--text-muted)">Where Leeann is headed</Eyebrow>
         <div className="lea-display" style={{ fontSize: 22, fontWeight: 600, color: 'var(--text)' }}>Built now, growing fast</div>
       </div>
@@ -1451,8 +1452,24 @@ export default function LeeannApp() {
 
       {/* MARKETING HOME */}
       {screen === 'home' && (
-        <div className="lea-fade">
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 24px', borderBottom: '1px solid var(--line)' }}>
+        <div className="lea-fade" style={{ position: 'relative' }}>
+          {[
+            { top: 60, left: '6%', color: 'wine', size: 380, blur: 100, dur: '1.8s' },
+            { top: 750, left: '55%', color: 'gold', size: 400, blur: 105, dur: '2.1s' },
+            { top: 1400, left: '10%', color: 'wine', size: 360, blur: 95, dur: '1.7s' },
+            { top: 1900, left: '65%', color: 'gold', size: 420, blur: 110, dur: '2.3s' },
+            { top: 2500, left: '20%', color: 'wine', size: 400, blur: 105, dur: '1.9s' },
+            { top: 3000, left: '60%', color: 'gold', size: 360, blur: 95, dur: '2.0s' },
+            { top: 3500, left: '15%', color: 'wine', size: 380, blur: 100, dur: '1.8s' },
+            { top: 4000, left: '55%', color: 'gold', size: 400, blur: 105, dur: '2.2s' },
+          ].map((g, i) => (
+            <div key={i} className="lea-glow-heartbeat" style={{
+              position: 'absolute', top: g.top, left: g.left, width: g.size, height: g.size, borderRadius: '50%',
+              background: `var(--${g.color}-glow)`, filter: `blur(${g.blur}px)`, pointerEvents: 'none',
+              animationDuration: g.dur, zIndex: 0,
+            }} />
+          ))}
+          <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 24px', borderBottom: '1px solid var(--line)' }}>
             <Wordmark />
             <TopRightAuth />
           </div>
@@ -1538,9 +1555,8 @@ export default function LeeannApp() {
 
           {/* WHY LEEANN — benefit-forward, stats as light support */}
           <Reveal>
-          <div style={{ padding: '8px 40px 44px', position: 'relative', overflow: 'hidden' }}>
-            <div className="lea-ambient-glow" style={{ position: 'absolute', top: -40, right: '8%', width: 420, height: 420, borderRadius: '50%', background: 'var(--gold-glow)', filter: 'blur(105px)', pointerEvents: 'none', animationDuration: '8.5s' }} />
-            <div style={{ textAlign: 'center', marginBottom: 30, position: 'relative' }}>
+          <div style={{ padding: '8px 40px 44px' }}>
+            <div style={{ textAlign: 'center', marginBottom: 30 }}>
               <Eyebrow color="var(--text-muted)">Why Leeann</Eyebrow>
               <div className="lea-display" style={{ fontSize: 24, fontWeight: 600, color: 'var(--text)' }}>Built to close the gaps that cost companies the most</div>
             </div>
@@ -1683,7 +1699,7 @@ export default function LeeannApp() {
           <Reveal><PulseSection /></Reveal>
 
           <Reveal>
-          <div style={{ padding: '0 40px 56px', borderTop: '1px solid var(--line)', paddingTop: 40 }}>
+          <div style={{ padding: '0 40px 56px' }}>
             <div style={{ textAlign: 'center', marginBottom: 30 }}>
               <Eyebrow color="var(--text-muted)">How it works</Eyebrow>
             </div>
