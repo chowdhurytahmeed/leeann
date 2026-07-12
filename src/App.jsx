@@ -294,15 +294,10 @@ function GlobalStyles() {
         45% { opacity: 0.25; transform: scale(0.85); }
       }
       .lea-glow-heartbeat { animation: lea-glow-pulse ease-in-out infinite; }
-      @keyframes lea-glow-wave {
-        0% { opacity: 0.35; transform: translate(-14%, 4%) scale(0.9); }
-        20% { opacity: 1; transform: translate(6%, -12%) scale(1.35); }
-        40% { opacity: 0.4; transform: translate(22%, 6%) scale(1); }
-        60% { opacity: 0.95; transform: translate(4%, 14%) scale(1.3); }
-        80% { opacity: 0.5; transform: translate(-10%, -6%) scale(1.05); }
-        100% { opacity: 0.35; transform: translate(-14%, 4%) scale(0.9); }
-      }
-      .lea-glow-wave { animation: lea-glow-wave ease-in-out infinite; }
+      @keyframes lea-cloud-a { 0%,100% { transform: translate(0,0) scale(1); } 33% { transform: translate(18%,12%) scale(1.25); } 66% { transform: translate(-10%,16%) scale(0.85); } }
+      @keyframes lea-cloud-b { 0%,100% { transform: translate(0,0) scale(1); } 33% { transform: translate(-16%,-14%) scale(1.3); } 66% { transform: translate(12%,-8%) scale(0.82); } }
+      .lea-cloud-a { animation: lea-cloud-a ease-in-out infinite; }
+      .lea-cloud-b { animation: lea-cloud-b ease-in-out infinite; }
       .lea-type-search { transition: opacity 0.3s ease, transform 0.32s cubic-bezier(.4,0,.2,1); }
       .lea-orb-interactive { position: relative; cursor: pointer; transition: transform 0.35s ease, box-shadow 0.35s ease; }
       .lea-orb-interactive:hover { transform: scale(1.14); animation-duration: 1s; }
@@ -1463,20 +1458,25 @@ export default function LeeannApp() {
       {screen === 'home' && (
         <div className="lea-fade" style={{ position: 'relative' }}>
           {[
-            { top: 60, left: '6%', color: 'wine', size: 380, blur: 100, dur: '4.5s' },
-            { top: 750, left: '55%', color: 'gold', size: 400, blur: 105, dur: '5.5s' },
-            { top: 1400, left: '10%', color: 'wine', size: 360, blur: 95, dur: '3.8s' },
-            { top: 1900, left: '65%', color: 'gold', size: 420, blur: 110, dur: '6s' },
-            { top: 2500, left: '20%', color: 'wine', size: 400, blur: 105, dur: '4.8s' },
-            { top: 3000, left: '60%', color: 'gold', size: 360, blur: 95, dur: '5s' },
-            { top: 3500, left: '15%', color: 'wine', size: 380, blur: 100, dur: '4.2s' },
-            { top: 4000, left: '55%', color: 'gold', size: 400, blur: 105, dur: '5.8s' },
+            { top: 0, left: '2%', size: 700, blur: 140, durA: '2.4s', durB: '2.9s' },
+            { top: 500, left: '50%', size: 750, blur: 145, durA: '2.6s', durB: '3.1s' },
+            { top: 1050, left: '0%', size: 680, blur: 135, durA: '2.2s', durB: '2.7s' },
+            { top: 1550, left: '55%', size: 780, blur: 150, durA: '2.8s', durB: '3.3s' },
+            { top: 2100, left: '10%', size: 720, blur: 140, durA: '2.5s', durB: '3s' },
+            { top: 2650, left: '50%', size: 680, blur: 135, durA: '2.3s', durB: '2.8s' },
+            { top: 3200, left: '5%', size: 700, blur: 140, durA: '2.7s', durB: '3.2s' },
+            { top: 3750, left: '50%', size: 750, blur: 145, durA: '2.4s', durB: '3s' },
           ].map((g, i) => (
-            <div key={i} className="lea-glow-wave" style={{
-              position: 'absolute', top: g.top, left: g.left, width: g.size, height: g.size, borderRadius: '50%',
-              background: `var(--${g.color}-glow)`, filter: `blur(${g.blur}px)`, pointerEvents: 'none',
-              animationDuration: g.dur, zIndex: 0,
-            }} />
+            <div key={i} style={{ position: 'absolute', top: g.top, left: g.left, width: g.size, height: g.size, pointerEvents: 'none', zIndex: 0 }}>
+              <div className="lea-cloud-a" style={{
+                position: 'absolute', width: '75%', height: '75%', top: '0%', left: '0%', borderRadius: '50%',
+                background: 'var(--wine-glow)', filter: `blur(${g.blur}px)`, animationDuration: g.durA,
+              }} />
+              <div className="lea-cloud-b" style={{
+                position: 'absolute', width: '75%', height: '75%', bottom: '0%', right: '0%', borderRadius: '50%',
+                background: 'var(--gold-glow)', filter: `blur(${g.blur}px)`, animationDuration: g.durB,
+              }} />
+            </div>
           ))}
           <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 24px', borderBottom: '1px solid var(--line)' }}>
             <Wordmark />
