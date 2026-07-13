@@ -1927,15 +1927,42 @@ export default function LeeannApp() {
           </div>
           </Reveal>
 
-          {/* TIME TO FILL PROOF */}
-          <div style={{ padding: '0 40px 40px' }}>
-            <TimeToFillChart />
-            <div style={{ textAlign: 'center' }}>
-              <button onClick={goSignupType} style={{ background: 'transparent', border: '1px solid var(--wine)', color: 'var(--wine)', borderRadius: 8, padding: '11px 22px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
-                Sign up to try it →
-              </button>
+          <Reveal>
+          <div style={{ padding: '0 40px 56px' }}>
+            <div style={{ textAlign: 'center', marginBottom: 36 }}>
+              <Eyebrow color="var(--text-muted)">How it works</Eyebrow>
+              <div className="lea-display" style={{ fontSize: 26, fontWeight: 700, color: 'var(--text)' }}>Three steps, one conversation</div>
+            </div>
+            <div style={{ display: 'flex', gap: 12, maxWidth: 900, margin: '0 auto', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'stretch' }}>
+              {[
+                { n: '01', icon: Users, title: 'Calibrate', text: 'A hiring manager describes the role in conversation. Leeann structures it into a shared profile.', c: 'var(--wine)', delay: '0s' },
+                { n: '02', icon: MessageSquare, title: 'Converse', text: 'Candidates ask Leeann anything about the role and get grounded, honest answers — plus tailored prep.', c: 'var(--gold)', delay: '0.8s' },
+                { n: '03', icon: ClipboardList, title: 'Readout', text: 'Every conversation becomes a clear, comparable summary the hiring team can act on.', c: 'var(--wine)', delay: '1.6s' },
+              ].map((s, i, arr) => (
+                <React.Fragment key={i}>
+                  <div className="lea-float-card" style={{ flex: 1, minWidth: 220, maxWidth: 260, animationDelay: s.delay }}>
+                    <div className="lea-benefit-card" style={{ height: '100%', background: 'var(--panel)', border: '1px solid var(--line)', borderRadius: 14, padding: '22px 20px', position: 'relative', overflow: 'hidden' }}>
+                      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: s.c }} />
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+                        <div className="lea-benefit-icon" style={{ width: 38, height: 38, borderRadius: 10, background: `${s.c}1A`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <s.icon size={17} color={s.c} />
+                        </div>
+                        <span className="lea-mono" style={{ fontSize: 11, color: s.c, fontWeight: 700 }}>{s.n}</span>
+                      </div>
+                      <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)', marginBottom: 8 }}>{s.title}</div>
+                      <div style={{ fontSize: 12.5, color: 'var(--text-muted)', lineHeight: 1.55 }}>{s.text}</div>
+                    </div>
+                  </div>
+                  {i < arr.length - 1 && (
+                    <div style={{ display: 'flex', alignItems: 'center', color: 'var(--text-muted)', opacity: 0.5 }}>
+                      <ArrowRight size={18} />
+                    </div>
+                  )}
+                </React.Fragment>
+              ))}
             </div>
           </div>
+          </Reveal>
 
           <Reveal><ComparisonTable /></Reveal>
 
@@ -2000,43 +2027,6 @@ export default function LeeannApp() {
           <Reveal><ProductPeek /></Reveal>
 
           <Reveal><PulseSection /></Reveal>
-
-          <Reveal>
-          <div style={{ padding: '0 40px 56px' }}>
-            <div style={{ textAlign: 'center', marginBottom: 36 }}>
-              <Eyebrow color="var(--text-muted)">How it works</Eyebrow>
-              <div className="lea-display" style={{ fontSize: 26, fontWeight: 700, color: 'var(--text)' }}>Three steps, one conversation</div>
-            </div>
-            <div style={{ display: 'flex', gap: 12, maxWidth: 900, margin: '0 auto', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'stretch' }}>
-              {[
-                { n: '01', icon: Users, title: 'Calibrate', text: 'A hiring manager describes the role in conversation. Leeann structures it into a shared profile.', c: 'var(--wine)', delay: '0s' },
-                { n: '02', icon: MessageSquare, title: 'Converse', text: 'Candidates ask Leeann anything about the role and get grounded, honest answers — plus tailored prep.', c: 'var(--gold)', delay: '0.8s' },
-                { n: '03', icon: ClipboardList, title: 'Readout', text: 'Every conversation becomes a clear, comparable summary the hiring team can act on.', c: 'var(--wine)', delay: '1.6s' },
-              ].map((s, i, arr) => (
-                <React.Fragment key={i}>
-                  <div className="lea-float-card" style={{ flex: 1, minWidth: 220, maxWidth: 260, animationDelay: s.delay }}>
-                    <div className="lea-benefit-card" style={{ height: '100%', background: 'var(--panel)', border: '1px solid var(--line)', borderRadius: 14, padding: '22px 20px', position: 'relative', overflow: 'hidden' }}>
-                      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: s.c }} />
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-                        <div className="lea-benefit-icon" style={{ width: 38, height: 38, borderRadius: 10, background: `${s.c}1A`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                          <s.icon size={17} color={s.c} />
-                        </div>
-                        <span className="lea-mono" style={{ fontSize: 11, color: s.c, fontWeight: 700 }}>{s.n}</span>
-                      </div>
-                      <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)', marginBottom: 8 }}>{s.title}</div>
-                      <div style={{ fontSize: 12.5, color: 'var(--text-muted)', lineHeight: 1.55 }}>{s.text}</div>
-                    </div>
-                  </div>
-                  {i < arr.length - 1 && (
-                    <div style={{ display: 'flex', alignItems: 'center', color: 'var(--text-muted)', opacity: 0.5 }}>
-                      <ArrowRight size={18} />
-                    </div>
-                  )}
-                </React.Fragment>
-              ))}
-            </div>
-          </div>
-          </Reveal>
 
           <Reveal><PrinciplesSection /></Reveal>
           <Reveal><FAQSection /></Reveal>
