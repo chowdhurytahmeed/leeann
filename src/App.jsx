@@ -563,11 +563,13 @@ function FAQSection() {
                 <span style={{ flex: 1, fontSize: 13.5, fontWeight: 600, color: 'var(--text)' }}>{f.q}</span>
                 <span style={{ fontSize: 20, color: f.color, flexShrink: 0, transform: open ? 'rotate(45deg)' : 'none', transition: 'transform 0.25s ease' }}>+</span>
               </button>
-              {open && (
-                <div className="lea-fade" style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.6, padding: '0 18px 18px 68px' }}>
-                  {f.a}
+              <div style={{ display: 'grid', gridTemplateRows: open ? '1fr' : '0fr', transition: 'grid-template-rows 0.35s ease' }}>
+                <div style={{ overflow: 'hidden' }}>
+                  <div style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.6, padding: '0 18px 18px 68px' }}>
+                    {f.a}
+                  </div>
                 </div>
-              )}
+              </div>
             </div>
           );
         })}
