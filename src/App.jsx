@@ -1898,7 +1898,7 @@ export default function LeeannApp() {
               <Eyebrow color="var(--text-muted)">How it works</Eyebrow>
               <div className="lea-display" style={{ fontSize: 26, fontWeight: 700, color: 'var(--text)' }}>Three steps, one conversation</div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'flex-start', maxWidth: 920, margin: '0 auto' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'center', width: '100%', maxWidth: 920, margin: '0 auto' }}>
               {[
                 { n: '01', icon: Users, title: 'Calibrate', text: 'A hiring manager describes the role in conversation. Leeann structures it into a shared profile.', c: 'var(--wine)' },
                 { n: '02', icon: MessageSquare, title: 'Converse', text: 'Candidates ask Leeann anything about the role and get grounded, honest answers — plus tailored prep.', c: 'var(--gold)' },
