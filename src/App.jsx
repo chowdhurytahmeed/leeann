@@ -15,7 +15,7 @@ async function callClaude(messages, system) {
     // (stored in their own browser via localStorage) and calls Anthropic
     // directly. The `anthropic-dangerous-direct-browser-access` header is
     // Anthropic's official opt-in for exactly this use case. See README.md.
-    const apiKey = localStorage.getItem('leeann:anthropicApiKey');
+    const apiKey = localStorage.getItem('lean:anthropicApiKey');
     if (!apiKey) {
       return "I don't have an API key set up yet — add one in Settings to start talking to me.";
     }
@@ -276,6 +276,8 @@ function GlobalStyles() {
         50% { box-shadow: 0 0 0 10px var(--wine-dim), 0 0 46px 14px var(--wine-dim), 0 0 70px 22px var(--gold-dim); }
       }
       .lea-idle-glow { animation: lea-idle 2.4s ease-in-out infinite; }
+      @keyframes lea-lean-sway { 0%, 100% { transform: rotate(-9deg); } 50% { transform: rotate(6deg); } }
+      .lea-lean { animation: lea-lean-sway 2.6s ease-in-out infinite; transform-origin: 50% 100%; }
       @keyframes lea-cta-pulse {
         0% { box-shadow: 0 0 0 0 var(--wine-dim); }
         70% { box-shadow: 0 0 0 16px rgba(0,0,0,0); }
@@ -398,7 +400,7 @@ function TimeToFillChart() {
 
   const rows = [
     { label: 'Industry average', value: 42, max: 42, color: 'var(--text-muted)' },
-    { label: 'With Leeann', value: 7, max: 42, color: 'var(--wine)' },
+    { label: 'With Lean', value: 7, max: 42, color: 'var(--wine)' },
   ];
 
   return (
@@ -501,10 +503,10 @@ function FlipCard({ icon: Icon, before, after, label, detail, color, delay }) {
 
 function PrinciplesSection() {
   const principles = [
-    { icon: CheckCircle2, title: 'A human always decides', text: "Leeann recommends. A hiring manager confirms every outcome — nothing is automatic.", color: 'var(--wine)' },
+    { icon: CheckCircle2, title: 'A human always decides', text: "Lean recommends. A hiring manager confirms every outcome — nothing is automatic.", color: 'var(--wine)' },
     { icon: MessageSquare, title: 'Feedback is mandatory', text: 'Every candidate learns what they did well and what to improve — not just the ones who advance.', color: 'var(--gold)' },
     { icon: User, title: 'Transparent by design', text: "Candidates always know they're talking with an AI hiring liaison, from the first message.", color: 'var(--wine)' },
-    { icon: Sparkles, title: 'Built for fit, not filtering', text: 'Leeann prepares candidates for the specific role — the goal is readiness, not a faster reject pile.', color: 'var(--gold)' },
+    { icon: Sparkles, title: 'Built for fit, not filtering', text: 'Lean prepares candidates for the specific role — the goal is readiness, not a faster reject pile.', color: 'var(--gold)' },
   ];
   return (
     <div style={{ padding: '0 40px 64px' }}>
@@ -533,11 +535,11 @@ function PrinciplesSection() {
 function FAQSection() {
   const [openIndex, setOpenIndex] = useState(null);
   const faqs = [
-    { icon: CheckCircle2, q: 'Does a human ever review the AI\u2019s recommendation?', a: 'Always. Leeann produces a recommendation and a summary, but a hiring manager has to explicitly confirm the outcome before anything happens. Nothing is decided automatically.', color: 'var(--wine)' },
+    { icon: CheckCircle2, q: 'Does a human ever review the AI\u2019s recommendation?', a: 'Always. Lean produces a recommendation and a summary, but a hiring manager has to explicitly confirm the outcome before anything happens. Nothing is decided automatically.', color: 'var(--wine)' },
     { icon: MessageSquare, q: 'What happens to a candidate who doesn\u2019t move forward?', a: 'They still get feedback — specific strengths and things to work on — automatically, the moment a decision is recorded. Every candidate, not just the ones who advance.', color: 'var(--gold)' },
-    { icon: Users, q: 'Does Leeann replace our interview process?', a: 'No. She handles the early conversation, role calibration, and prep — your team still runs real interviews and makes the final call.', color: 'var(--wine)' },
-    { icon: Sparkles, q: 'Do candidates know they\u2019re talking to AI?', a: 'Yes, always. Leeann introduces herself as an AI hiring liaison from the first message — there\u2019s no attempt to pass her off as human.', color: 'var(--gold)' },
-    { icon: ClipboardList, q: 'What kinds of roles can Leeann help with?', a: 'Any field — engineering, medicine, culinary, law, retail, and more. She adapts her questions and interview style to the specific role rather than using one generic script.', color: 'var(--wine)' },
+    { icon: Users, q: 'Does Lean replace our interview process?', a: 'No. She handles the early conversation, role calibration, and prep — your team still runs real interviews and makes the final call.', color: 'var(--wine)' },
+    { icon: Sparkles, q: 'Do candidates know they\u2019re talking to AI?', a: 'Yes, always. Lean introduces herself as an AI hiring liaison from the first message — there\u2019s no attempt to pass her off as human.', color: 'var(--gold)' },
+    { icon: ClipboardList, q: 'What kinds of roles can Lean help with?', a: 'Any field — engineering, medicine, culinary, law, retail, and more. She adapts her questions and interview style to the specific role rather than using one generic script.', color: 'var(--wine)' },
     { icon: Building2, q: 'Is this ready for our whole company to use today?', a: 'Right now it\u2019s built for individual pilot use. Shared company workspaces — where multiple hiring managers see the same roles and pipeline — are on the roadmap.', color: 'var(--gold)' },
   ];
   return (
@@ -593,7 +595,7 @@ function SiteFooter({ onNav }) {
           <button onClick={onNav.login} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: 12.5, cursor: 'pointer', padding: 0 }}>Log in</button>
           <button onClick={onNav.practice} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: 12.5, cursor: 'pointer', padding: 0 }}>Practice</button>
         </div>
-        <div style={{ fontSize: 11.5, color: 'var(--text-muted)' }}>© {new Date().getFullYear()} Leeann</div>
+        <div style={{ fontSize: 11.5, color: 'var(--text-muted)' }}>© {new Date().getFullYear()} Lean</div>
       </div>
     </div>
   );
@@ -681,7 +683,7 @@ function ProductPeek() {
               ))}
             </div>
             <div style={{ flex: 1.4, padding: 18 }}>
-              <div className="lea-mono" style={{ fontSize: 9.5, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 8 }}>Leeann's recommendation for {c.name}</div>
+              <div className="lea-mono" style={{ fontSize: 9.5, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 8 }}>Lean's recommendation for {c.name}</div>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 10 }}>
                 <div className="lea-display" style={{ fontSize: 24, fontWeight: 600, color: c.color }}>{c.score}</div>
                 <div style={{ fontSize: 12, color: 'var(--text)', fontWeight: 600 }}>{c.tag}</div>
@@ -694,14 +696,14 @@ function ProductPeek() {
                 <div style={{ fontSize: 11, padding: '7px 12px', borderRadius: 6, border: '1px solid var(--line)', color: 'var(--text-muted)' }}>Not a fit</div>
               </div>
               <div style={{ fontSize: 10, color: 'var(--text-muted)', lineHeight: 1.4 }}>
-                Leeann only recommends — a hiring manager clicks one of these to decide.
+                Lean only recommends — a hiring manager clicks one of these to decide.
               </div>
             </div>
           </div>
         ) : (
           <div style={{ display: 'flex', background: 'var(--panel)' }}>
             <div style={{ flex: 1.4, padding: 18, borderRight: '1px solid var(--line)' }}>
-              <div className="lea-mono" style={{ fontSize: 9.5, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 10 }}>Talking with Leeann</div>
+              <div className="lea-mono" style={{ fontSize: 9.5, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 10 }}>Talking with Lean</div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 10 }}>
                 <div style={{ maxWidth: '82%', background: 'var(--gold)', color: 'var(--on-accent)', borderRadius: 10, padding: '9px 12px', fontSize: 12.5, lineHeight: 1.45 }}>
                   What's the team actually like to work with?
@@ -742,7 +744,7 @@ function RoadmapSection() {
   return (
     <div style={{ padding: '0 40px 56px' }}>
       <div style={{ textAlign: 'center', marginBottom: 32 }}>
-        <Eyebrow color="var(--text-muted)">Where Leeann is headed</Eyebrow>
+        <Eyebrow color="var(--text-muted)">Where Lean is headed</Eyebrow>
         <div className="lea-display" style={{ fontSize: 26, fontWeight: 700, color: 'var(--text)' }}>Built now, growing fast</div>
       </div>
       <div style={{ display: 'flex', gap: 16, maxWidth: 820, margin: '0 auto', flexWrap: 'wrap', position: 'relative' }}>
@@ -769,7 +771,7 @@ function ClosingCTA({ onSignup }) {
   return (
     <div style={{ background: 'radial-gradient(circle at 30% 20%, var(--wine) 0%, var(--wine-deep) 75%)', padding: '60px 40px', textAlign: 'center' }}>
       <div className="lea-display" style={{ fontSize: 28, fontWeight: 600, color: 'var(--on-accent)', marginBottom: 10 }}>
-        Ready to see Leeann in action?
+        Ready to see Lean in action?
       </div>
       <div style={{ fontSize: 13.5, color: 'var(--on-accent)', opacity: 0.85, marginBottom: 26 }}>
         No sales call required to start.
@@ -826,7 +828,7 @@ function PulseSection({ onSignup }) {
   const hit = phase === 'hit';
 
   function handleClick() {
-    speak("Hi, I'm Leeann. I'm always here when you need me.");
+    speak("Hi, I'm Lean. I'm always here when you need me.");
     setPulseKey((k) => k + 1);
   }
 
@@ -873,7 +875,7 @@ function PulseSection({ onSignup }) {
             <div
               className="lea-orb-interactive"
               onClick={handleClick}
-              title="Hear Leeann"
+              title="Hear Lean"
               style={{
                 width: hit ? 128 : 108, height: hit ? 128 : 108,
                 borderRadius: '50%', background: 'rgba(255,255,255,0.04)',
@@ -895,7 +897,7 @@ function PulseSection({ onSignup }) {
 
       <div style={{ marginTop: 48, position: 'relative' }}>
         <div className="lea-display" style={{ fontSize: 24, fontWeight: 700, color: '#F1E9DA', marginBottom: 8 }}>
-          Ready to see Leeann in action?
+          Ready to see Lean in action?
         </div>
         <div style={{ fontSize: 13, color: '#8B92AC', marginBottom: 22 }}>
           No sales call required to start.
@@ -1054,7 +1056,7 @@ function ChatBubble({ role, text, accent }) {
       {!isUser && (
         <button
           onClick={() => speak(text)}
-          title="Hear Leeann say this"
+          title="Hear Lean say this"
           style={{
             width: 24, height: 24, borderRadius: '50%', flexShrink: 0, cursor: 'pointer',
             background: 'transparent', border: '1px solid var(--line)', display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -1121,7 +1123,7 @@ function EmployerGlyph() {
 
 function HeroGreeting() {
   const lines = [
-    "Hi, I'm Leeann.",
+    "Hi, I'm Lean.",
     "I sit between hiring teams and candidates.",
     "Ask me anything — I'll give it to you straight.",
   ];
@@ -1172,7 +1174,7 @@ function FlowLine({ color }) {
 
 function LogoMark({ size = 30 }) {
   return (
-    <svg width={size} height={size} viewBox="5 3 22 26" style={{ transform: 'rotate(-3deg)', flexShrink: 0 }}>
+    <svg width={size} height={size} viewBox="5 3 22 26" className="lea-lean" style={{ flexShrink: 0 }}>
       <rect x="7" y="5" width="7" height="22" rx="3.5" fill="var(--wine)" />
       <rect x="7" y="20.5" width="18" height="6.5" rx="3.25" fill="var(--gold)" />
     </svg>
@@ -1184,7 +1186,7 @@ function Wordmark({ size = 19, animated = false }) {
     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
       <LogoMark size={size >= 20 ? 34 : 28} />
       <div>
-        <div className="lea-signature" style={{ fontSize: size, fontWeight: 700, color: 'var(--text)', letterSpacing: '-0.01em' }}>Leeann</div>
+        <div className="lea-signature" style={{ fontSize: size, fontWeight: 700, color: 'var(--text)', letterSpacing: '-0.01em' }}>Lean</div>
         <div
           className={animated ? 'lea-underline' : ''}
           style={{ height: 1.5, background: 'var(--wine)', width: animated ? undefined : '60%', opacity: 0.5, marginTop: 1 }}
@@ -1210,7 +1212,7 @@ function ThemeToggle({ theme, onToggle }) {
   );
 }
 
-export default function LeeannApp() {
+export default function LeanApp() {
   const [theme, setTheme] = useState('light');
   const [apiKeySet, setApiKeySet] = useState(false);
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
@@ -1230,7 +1232,7 @@ export default function LeeannApp() {
   const hmScrollRef = useRef(null);
 
   const [candInput, setCandInput] = useState('');
-  const [candidates, setCandidates] = useState([]); // the pipeline: every candidate who has talked to Leeann for this role
+  const [candidates, setCandidates] = useState([]); // the pipeline: every candidate who has talked to Lean for this role
   const [activeCandidateId, setActiveCandidateId] = useState(null); // which candidate record the current candidate-side conversation is
   const [selectedPipelineId, setSelectedPipelineId] = useState(null); // which candidate the hiring manager is viewing
   const candScrollRef = useRef(null);
@@ -1252,7 +1254,7 @@ export default function LeeannApp() {
   const [practiceCode, setPracticeCode] = useState('');
   const [practiceFeedback, setPracticeFeedback] = useState(null);
   const [practiceFeedbackLoading, setPracticeFeedbackLoading] = useState(false);
-  const [leeannSpeaking, setLeeannSpeaking] = useState(false);
+  const [leanSpeaking, setLeanSpeaking] = useState(false);
   const [showTranscript, setShowTranscript] = useState(false);
   const [showCaptions, setShowCaptions] = useState(false);
   const [micSupported, setMicSupported] = useState(false);
@@ -1323,7 +1325,7 @@ export default function LeeannApp() {
   useEffect(() => {
     (async () => {
       try {
-        const result = await storage.get('leeann-account');
+        const result = await storage.get('lean-account');
         const parsed = result?.value ? JSON.parse(result.value) : null;
         setAccount(parsed);
       } catch (e) {
@@ -1352,7 +1354,7 @@ export default function LeeannApp() {
 
 
   const activeRole = roles.find((r) => r.id === activeRoleId) || null;
-  const openRoles = roles.filter((r) => r.title && r.team); // roles Leeann has enough to represent to candidates
+  const openRoles = roles.filter((r) => r.title && r.team); // roles Lean has enough to represent to candidates
   const activeCandidate = candidates.find((c) => c.id === activeCandidateId) || null;
   const candidateRole = roles.find((r) => r.id === activeCandidate?.roleId) || null;
   const roleCandidates = candidates.filter((c) => c.roleId === activeRoleId);
@@ -1381,7 +1383,7 @@ export default function LeeannApp() {
       id, title: '', team: '', tasks: [], mustHaves: [], culture: '', stages: [],
       company: account?.company || '',
       started: false,
-      hmMessages: [{ role: 'assistant', text: "Hi — I'm Leeann. Tell me about the role you're hiring for. Start wherever's easiest: the job title, the team, or what the person would actually be doing day to day." }],
+      hmMessages: [{ role: 'assistant', text: "Hi — I'm Lean. Tell me about the role you're hiring for. Start wherever's easiest: the job title, the team, or what the person would actually be doing day to day." }],
       createdAt: new Date().toLocaleDateString([], { month: 'short', day: 'numeric' }),
     };
     setRoles((prev) => [...prev, newRole]);
@@ -1398,7 +1400,7 @@ export default function LeeannApp() {
     updateRole(id, { hmMessages: newMsgs });
     setHmInput('');
     setHmLoading(true);
-    const system = `You are Leeann, an AI hiring liaison helping ${account?.name || 'a hiring manager'} at ${account?.company || 'their company'} describe an open role in their own words, conversationally — like a recruiter on a real intake call, not a form. Ask one focused follow-up question at a time until you understand: job title, what the team does, day-to-day tasks/responsibilities, must-have skills, team culture/vibe, and interview stages. Keep replies short (2-4 sentences), warm, and human — never robotic. Once you have a reasonably full picture, mention they can hit 'Sync Profile' whenever they're ready.`;
+    const system = `You are Lean, an AI hiring liaison helping ${account?.name || 'a hiring manager'} at ${account?.company || 'their company'} describe an open role in their own words, conversationally — like a recruiter on a real intake call, not a form. Ask one focused follow-up question at a time until you understand: job title, what the team does, day-to-day tasks/responsibilities, must-have skills, team culture/vibe, and interview stages. Keep replies short (2-4 sentences), warm, and human — never robotic. Once you have a reasonably full picture, mention they can hit 'Sync Profile' whenever they're ready.`;
     const apiMsgs = newMsgs.map((m) => ({ role: m.role, content: m.text }));
     const reply = await callClaude(apiMsgs, system);
     updateRole(id, (r) => ({ hmMessages: [...r.hmMessages, { role: 'assistant', text: reply }] }));
@@ -1417,7 +1419,7 @@ export default function LeeannApp() {
     if (syncing || !activeRole || activeRole.hmMessages.length < 2) return;
     const id = activeRole.id;
     setSyncing(true);
-    const transcript = activeRole.hmMessages.map((m) => `${m.role === 'user' ? 'Hiring Manager' : 'Leeann'}: ${m.text}`).join('\n');
+    const transcript = activeRole.hmMessages.map((m) => `${m.role === 'user' ? 'Hiring Manager' : 'Lean'}: ${m.text}`).join('\n');
     const system = "Extract a structured role profile from this hiring-manager conversation. Return ONLY valid JSON, no other text, in exactly this shape: {\"title\": string, \"team\": string, \"tasks\": string[], \"mustHaves\": string[], \"culture\": string, \"stages\": string[]}. Leave fields as empty string or empty array if not yet discussed. Infer reasonable interview stages if none were stated explicitly but a title/team is clear.";
     const result = await callClaude([{ role: 'user', content: transcript }], system);
     const parsed = parseJSON(result);
@@ -1431,7 +1433,7 @@ export default function LeeannApp() {
 
   function buildCandidateSystem(candidate) {
     const role = roles.find((r) => r.id === candidate?.roleId);
-    return `You are Leeann, an AI hiring liaison representing this open role at ${role?.company || 'the company'} to a candidate on behalf of the hiring team. Role profile: ${JSON.stringify(role || {})}. Candidate name: ${candidate?.name || 'the candidate'}. Candidate background: ${candidate?.resume || 'not provided'}. Answer questions about the role honestly and specifically using only the role profile — never invent details that aren't in it, and say so if something wasn't specified. Be warm, direct, concise (3-5 sentences max), and personable — you're a helpful person, not a script. You can also ask the candidate light screening questions conversationally, one at a time.`;
+    return `You are Lean, an AI hiring liaison representing this open role at ${role?.company || 'the company'} to a candidate on behalf of the hiring team. Role profile: ${JSON.stringify(role || {})}. Candidate name: ${candidate?.name || 'the candidate'}. Candidate background: ${candidate?.resume || 'not provided'}. Answer questions about the role honestly and specifically using only the role profile — never invent details that aren't in it, and say so if something wasn't specified. Be warm, direct, concise (3-5 sentences max), and personable — you're a helpful person, not a script. You can also ask the candidate light screening questions conversationally, one at a time.`;
   }
 
   async function startApplication(roleId) {
@@ -1489,7 +1491,7 @@ export default function LeeannApp() {
     const target = candidates.find((c) => c.id === candidateId);
     if (!target) return;
     updateCandidate(candidateId, { feedbackLoading: true });
-    const transcript = target.messages.map((m) => `${m.role === 'user' ? target.name || 'Candidate' : 'Leeann'}: ${m.text}`).join('\n');
+    const transcript = target.messages.map((m) => `${m.role === 'user' ? target.name || 'Candidate' : 'Lean'}: ${m.text}`).join('\n');
     const system = 'Based on this conversation between a candidate and an AI hiring liaison, give the candidate constructive interview-prep feedback. Return ONLY valid JSON in this shape: {"strengths": string[2], "improvements": string[2], "tip": string}.';
     const result = await callClaude([{ role: 'user', content: transcript || 'No conversation yet.' }], system);
     updateCandidate(candidateId, { feedback: parseJSON(result), feedbackLoading: false });
@@ -1513,7 +1515,7 @@ export default function LeeannApp() {
     if (!target) return;
     const role = roles.find((r) => r.id === target.roleId);
     updateCandidate(candidateId, { dashLoading: true });
-    const transcript = target.messages.map((m) => `${m.role === 'user' ? target.name || 'Candidate' : 'Leeann'}: ${m.text}`).join('\n');
+    const transcript = target.messages.map((m) => `${m.role === 'user' ? target.name || 'Candidate' : 'Lean'}: ${m.text}`).join('\n');
     const system = 'Generate a hiring summary comparing this candidate conversation against the role profile, for the hiring manager. Return ONLY valid JSON: {"fitScore": number (0-100), "recommendation": "Strong Match"|"Possible Match"|"Not a Fit", "strengths": string[], "concerns": string[], "nextStep": string}.';
     const result = await callClaude(
       [{ role: 'user', content: `Role profile: ${JSON.stringify(role || {})}\n\nConversation:\n${transcript || 'No conversation yet.'}` }],
@@ -1559,7 +1561,7 @@ export default function LeeannApp() {
     };
     setAccount(newAccount);
     try {
-      await storage.set('leeann-account', JSON.stringify(newAccount));
+      await storage.set('lean-account', JSON.stringify(newAccount));
     } catch (e) {
       // best-effort — the session still works for this visit even if saving fails
     }
@@ -1633,7 +1635,7 @@ export default function LeeannApp() {
   function resetPractice() {
     if (window.speechSynthesis) window.speechSynthesis.cancel();
     stopListening();
-    setLeeannSpeaking(false);
+    setLeanSpeaking(false);
     setMicConsent(false);
     setMicError(null);
     setPracticeCategoryKey(null);
@@ -1653,7 +1655,7 @@ export default function LeeannApp() {
       'Mid-level': 'Calibrate for someone with a few years of experience — realistic depth, expect them to reason through tradeoffs.',
       'Senior-level': 'Calibrate for a senior candidate — push harder, ask about edge cases, leadership/ownership, and probe weak answers more.',
     };
-    return `You are Leeann, running a realistic mock interview to help a candidate practice for a ${practiceCurrentType?.label} role in ${practiceCurrentCategory?.label}, at a ${practiceDifficulty} level. ${difficultyGuidance[practiceDifficulty] || ''} Ask one interview question at a time, in the authentic style of a real interview for this kind of role (e.g. live coding and algorithmic reasoning for technical roles, clinical or ethical scenarios for medical roles, Socratic case analysis for legal roles, situational and behavioral questions for service/retail/hospitality roles). Acknowledge their answer briefly, then ask a natural follow-up or move to the next question — don't lecture. Keep it realistic and appropriately challenging for that level. ${isTechnical ? 'The candidate has a code editor alongside this chat — you can ask them to write or reason through code, and reference what they write.' : ''} After 4-5 solid exchanges, let them know they can wrap up whenever they're ready by ending the session.`;
+    return `You are Lean, running a realistic mock interview to help a candidate practice for a ${practiceCurrentType?.label} role in ${practiceCurrentCategory?.label}, at a ${practiceDifficulty} level. ${difficultyGuidance[practiceDifficulty] || ''} Ask one interview question at a time, in the authentic style of a real interview for this kind of role (e.g. live coding and algorithmic reasoning for technical roles, clinical or ethical scenarios for medical roles, Socratic case analysis for legal roles, situational and behavioral questions for service/retail/hospitality roles). Acknowledge their answer briefly, then ask a natural follow-up or move to the next question — don't lecture. Keep it realistic and appropriately challenging for that level. ${isTechnical ? 'The candidate has a code editor alongside this chat — you can ask them to write or reason through code, and reference what they write.' : ''} After 4-5 solid exchanges, let them know they can wrap up whenever they're ready by ending the session.`;
   }
 
   function startListening(onAnswer) {
@@ -1716,15 +1718,15 @@ export default function LeeannApp() {
       const voices = window.speechSynthesis.getVoices();
       const preferred = voices.find((v) => /Samantha|Victoria|Google US English|Female/i.test(v.name)) || voices.find((v) => v.lang?.startsWith('en')) || voices[0];
       if (preferred) utter.voice = preferred;
-      utter.onstart = () => setLeeannSpeaking(true);
+      utter.onstart = () => setLeanSpeaking(true);
       utter.onend = () => {
-        setLeeannSpeaking(false);
+        setLeanSpeaking(false);
         if (onAnswer && micSupported) setTimeout(() => startListening(onAnswer), 350);
       };
-      utter.onerror = () => setLeeannSpeaking(false);
+      utter.onerror = () => setLeanSpeaking(false);
       window.speechSynthesis.speak(utter);
     } catch (e) {
-      setLeeannSpeaking(false);
+      setLeanSpeaking(false);
     }
   }
 
@@ -1763,9 +1765,9 @@ export default function LeeannApp() {
   async function finishPractice() {
     if (window.speechSynthesis) window.speechSynthesis.cancel();
     stopListening();
-    setLeeannSpeaking(false);
+    setLeanSpeaking(false);
     setPracticeFeedbackLoading(true);
-    const transcript = practiceMessages.map((m) => `${m.role === 'user' ? 'Candidate' : 'Leeann'}: ${m.text}`).join('\n');
+    const transcript = practiceMessages.map((m) => `${m.role === 'user' ? 'Candidate' : 'Lean'}: ${m.text}`).join('\n');
     const system = `Based on this mock interview transcript for a ${practiceCurrentType?.label} (${practiceCurrentCategory?.label}) role, give the candidate an honest practice report. Return ONLY valid JSON: {"readiness": "Not yet ready"|"Getting there"|"Ready to interview", "strengths": string[3], "improvements": string[3], "tip": string}.`;
     const result = await callClaude([{ role: 'user', content: transcript || 'No conversation yet.' }], system);
     const feedbackResult = parseJSON(result);
@@ -1854,7 +1856,7 @@ export default function LeeannApp() {
               <button onClick={() => setShowApiKeyModal(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: 18, cursor: 'pointer', lineHeight: 1 }}>×</button>
             </div>
             <div style={{ fontSize: 12.5, color: 'var(--text-muted)', marginBottom: 16, lineHeight: 1.55 }}>
-              Since this site is hosted on GitHub Pages (no backend server), Leeann talks to Anthropic
+              Since this site is hosted on GitHub Pages (no backend server), Lean talks to Anthropic
               directly from your browser using a key you provide. It's saved only in this browser's
               storage — never sent anywhere but Anthropic. Get a key at{' '}
               <a href="https://console.anthropic.com" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--wine)' }}>console.anthropic.com</a>.
@@ -1944,7 +1946,7 @@ export default function LeeannApp() {
                 Where hiring becomes a conversation.
               </div>
               <div style={{ fontSize: 14.5, color: 'var(--text-muted)', maxWidth: 460, margin: '0 auto 30px', lineHeight: 1.65 }}>
-                Leeann sits between hiring teams and candidates — understanding what a role really needs, answering candidates honestly, and turning every conversation into a clear, comparable readout.
+                Lean sits between hiring teams and candidates — understanding what a role really needs, answering candidates honestly, and turning every conversation into a clear, comparable readout.
               </div>
               <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginBottom: 44 }}>
                 <button onClick={goSignupType} className="lea-cta-pulse" style={{ background: 'var(--wine)', border: 'none', borderRadius: 8, padding: '12px 26px', fontSize: 13.5, fontWeight: 600, color: 'var(--on-accent)', cursor: 'pointer' }}>
@@ -1957,7 +1959,7 @@ export default function LeeannApp() {
                 <div style={{ position: 'relative', width: 168, height: 168 }}>
                   <div
                     className="lea-idle-glow lea-orb-interactive"
-                    onClick={() => speak("Hi, I'm Leeann.")}
+                    onClick={() => speak("Hi, I'm Lean.")}
                     title="Say hi"
                     style={{
                       width: 168, height: 168, borderRadius: '50%', background: 'var(--panel-alt)',
@@ -1992,13 +1994,13 @@ export default function LeeannApp() {
           </div>
           </Reveal>
 
-          {/* WHY LEEANN — condensed, merges the old benefit cards + comparison table */}
+          {/* WHY LEAN — condensed, merges the old benefit cards + comparison table */}
           <Reveal>
           <div style={{ padding: '8px 40px 48px' }}>
             <div style={{ textAlign: 'center', marginBottom: 40 }}>
               <Eyebrow color="var(--text-muted)">The difference</Eyebrow>
               <div className="lea-display" style={{ fontSize: 38, fontWeight: 700, color: 'var(--text)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0 }}>
-                <span>Why&nbsp;</span><LogoMark size={30} /><span style={{ marginLeft: -3 }}>eeann?</span>
+                <span>Why&nbsp;</span><LogoMark size={30} /><span style={{ marginLeft: -3 }}>ean?</span>
               </div>
               <div style={{ fontSize: 14, color: 'var(--text-muted)', marginTop: 12, maxWidth: 460, margin: '12px auto 0' }}>
                 Built to close the gaps that cost companies the most.
@@ -2008,7 +2010,7 @@ export default function LeeannApp() {
             <div style={{ display: 'flex', gap: 20, maxWidth: 900, margin: '0 auto', flexWrap: 'wrap', justifyContent: 'center' }}>
               <FlipCard
                 icon={Sparkles} before="42-day average" after="~7 days" label="Time to fill a role"
-                detail="Leeann runs role calibration and candidate conversations in real time, so a strong match can go from first conversation to decision fast — before they're gone. (SHRM, 2025)"
+                detail="Lean runs role calibration and candidate conversations in real time, so a strong match can go from first conversation to decision fast — before they're gone. (SHRM, 2025)"
                 color="var(--wine)" delay="0s"
               />
               <FlipCard
@@ -2018,7 +2020,7 @@ export default function LeeannApp() {
               />
               <FlipCard
                 icon={CheckCircle2} before="Screened, not prepped" after="Set up to succeed" label="Candidate readiness"
-                detail="Leeann gets candidates genuinely ready for the specific role and team — not just impressive on paper. Most new-hire failures come down to fit, not skill."
+                detail="Lean gets candidates genuinely ready for the specific role and team — not just impressive on paper. Most new-hire failures come down to fit, not skill."
                 color="var(--wine)" delay="1.1s"
               />
             </div>
@@ -2033,8 +2035,8 @@ export default function LeeannApp() {
             </div>
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'center', width: '100%', maxWidth: 920, margin: '0 auto' }}>
               {[
-                { n: '01', icon: Users, title: 'Calibrate', text: 'A hiring manager describes the role in conversation. Leeann structures it into a shared profile.', c: 'var(--wine)' },
-                { n: '02', icon: MessageSquare, title: 'Converse', text: 'Candidates ask Leeann anything about the role and get grounded, honest answers — plus tailored prep.', c: 'var(--gold)' },
+                { n: '01', icon: Users, title: 'Calibrate', text: 'A hiring manager describes the role in conversation. Lean structures it into a shared profile.', c: 'var(--wine)' },
+                { n: '02', icon: MessageSquare, title: 'Converse', text: 'Candidates ask Lean anything about the role and get grounded, honest answers — plus tailored prep.', c: 'var(--gold)' },
                 { n: '03', icon: ClipboardList, title: 'Readout', text: 'Every conversation becomes a clear, comparable summary the hiring team can act on.', c: 'var(--wine)' },
               ].map((s, i, arr) => (
                 <React.Fragment key={i}>
@@ -2152,10 +2154,10 @@ export default function LeeannApp() {
           {!practiceStarted && (
             <div style={{ padding: '48px 24px', maxWidth: 640, margin: '0 auto' }}>
               <div style={{ textAlign: 'center', marginBottom: 28 }}>
-                <Eyebrow color="var(--wine)">Practice with Leeann</Eyebrow>
+                <Eyebrow color="var(--wine)">Practice with Lean</Eyebrow>
                 <div className="lea-display" style={{ fontSize: 24, fontWeight: 600, color: 'var(--text)' }}>Rehearse the real thing, not a generic quiz</div>
                 <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 8, maxWidth: 460, margin: '8px auto 0' }}>
-                  Pick any role — Leeann runs a live, realistic interview for it and gives you honest feedback afterward. No employer, no application, just practice.
+                  Pick any role — Lean runs a live, realistic interview for it and gives you honest feedback afterward. No employer, no application, just practice.
                 </div>
               </div>
 
@@ -2247,7 +2249,7 @@ export default function LeeannApp() {
                   {micSupported && (
                     <div style={{ textAlign: 'left', background: 'var(--gold-dim)', border: '1px solid var(--gold)', borderRadius: 10, padding: '14px 16px', marginBottom: 16 }}>
                       <div style={{ fontSize: 12.5, color: 'var(--text)', lineHeight: 1.55, marginBottom: 10 }}>
-                        <strong>Before you start:</strong> your microphone will stay on for the whole session. Leeann listens continuously and takes notes on what you say to build your feedback report afterward.
+                        <strong>Before you start:</strong> your microphone will stay on for the whole session. Lean listens continuously and takes notes on what you say to build your feedback report afterward.
                       </div>
                       <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 12, color: 'var(--text-muted)', cursor: 'pointer' }}>
                         <input type="checkbox" checked={micConsent} onChange={(e) => setMicConsent(e.target.checked)} style={{ marginTop: 2 }} />
@@ -2301,11 +2303,11 @@ export default function LeeannApp() {
                 <Eyebrow color="var(--wine)">Mock interview · {practiceCurrentType?.label}</Eyebrow>
 
                 <div
-                  className={leeannSpeaking ? 'lea-speaking' : 'lea-idle-glow'}
+                  className={leanSpeaking ? 'lea-speaking' : 'lea-idle-glow'}
                   onClick={() => { const m = [...practiceMessages].reverse().find((x) => x.role === 'assistant'); if (m) speak(m.text); }}
                   title="Hear that again"
                   style={{
-                    width: leeannSpeaking ? 168 : 140, height: leeannSpeaking ? 168 : 140, borderRadius: '50%',
+                    width: leanSpeaking ? 168 : 140, height: leanSpeaking ? 168 : 140, borderRadius: '50%',
                     background: 'var(--panel-alt)', border: '2px solid var(--wine)', overflow: 'hidden', position: 'relative',
                     margin: '28px 0 22px', cursor: 'pointer', transition: 'width 0.35s ease, height 0.35s ease',
                   }}
@@ -2314,8 +2316,8 @@ export default function LeeannApp() {
                   <div className="lea-orb-b" style={{ position: 'absolute', width: '86%', height: '86%', bottom: '-7%', right: '-7%', borderRadius: '50%', background: 'var(--gold)', filter: 'blur(22px)', opacity: 0.85 }} />
                 </div>
 
-                <div className="lea-mono" style={{ fontSize: 10, color: leeannSpeaking ? 'var(--wine)' : isListening ? 'var(--gold)' : 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 16, minHeight: 14 }}>
-                  {practiceLoading ? 'Leeann is thinking…' : leeannSpeaking ? 'Leeann is speaking…' : isListening ? "Listening — go ahead…" : 'Tap the circle to hear that again'}
+                <div className="lea-mono" style={{ fontSize: 10, color: leanSpeaking ? 'var(--wine)' : isListening ? 'var(--gold)' : 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 16, minHeight: 14 }}>
+                  {practiceLoading ? 'Lean is thinking…' : leanSpeaking ? 'Lean is speaking…' : isListening ? "Listening — go ahead…" : 'Tap the circle to hear that again'}
                 </div>
 
                 {showCaptions && (
@@ -2335,7 +2337,7 @@ export default function LeeannApp() {
                         border: `2px solid ${isListening ? 'var(--gold)' : 'var(--line)'}`,
                         background: isListening ? 'var(--gold-dim)' : 'var(--panel-alt)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        opacity: leeannSpeaking || practiceLoading ? 0.4 : 1,
+                        opacity: leanSpeaking || practiceLoading ? 0.4 : 1,
                         transition: 'all 0.2s ease',
                       }}
                       className={isListening ? 'lea-speaking' : ''}
@@ -2343,7 +2345,7 @@ export default function LeeannApp() {
                       <Mic size={18} color={isListening ? 'var(--gold)' : 'var(--text-muted)'} />
                     </div>
                     <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 8, minHeight: 18, textAlign: 'center' }}>
-                      {interimTranscript || (isListening ? 'listening…' : leeannSpeaking ? '' : practiceLoading ? '' : 'the mic reopens automatically after Leeann speaks')}
+                      {interimTranscript || (isListening ? 'listening…' : leanSpeaking ? '' : practiceLoading ? '' : 'the mic reopens automatically after Lean speaks')}
                     </div>
                     {micError && (
                       <div style={{ fontSize: 11.5, color: 'var(--danger)', background: 'rgba(217,98,46,0.1)', border: '1px solid var(--danger)', borderRadius: 8, padding: '8px 12px', marginTop: 10, lineHeight: 1.5, textAlign: 'center' }}>
@@ -2392,7 +2394,7 @@ export default function LeeannApp() {
                   <textarea
                     value={practiceCode}
                     onChange={(e) => setPracticeCode(e.target.value)}
-                    placeholder="// write or sketch your solution here — Leeann can see it when you respond"
+                    placeholder="// write or sketch your solution here — Lean can see it when you respond"
                     style={{
                       flex: 1, width: '100%', background: theme === 'dark' ? '#0A0D18' : '#FAFBFD', border: '1px solid var(--line)', borderRadius: 10,
                       padding: '14px 16px', fontFamily: "'IBM Plex Mono', monospace", fontSize: 12, lineHeight: 1.7, color: 'var(--text)',
@@ -2448,7 +2450,7 @@ export default function LeeannApp() {
           </div>
           <div style={{ marginBottom: 36 }}><Wordmark size={20} animated /></div>
           <div className="lea-display" style={{ fontSize: 24, fontWeight: 600, color: 'var(--text)', textAlign: 'center', maxWidth: 480, marginBottom: 10 }}>
-            How are you using Leeann?
+            How are you using Lean?
           </div>
           <div style={{ fontSize: 13.5, color: 'var(--text-muted)', textAlign: 'center', maxWidth: 400, marginBottom: 36 }}>
             Your account is one or the other — this is where you'll land every time you sign in.
@@ -2458,13 +2460,13 @@ export default function LeeannApp() {
             <button onClick={() => chooseSignupType('employer')} className="lea-card" style={{ width: 260, textAlign: 'left', padding: 22, borderRadius: 12, cursor: 'pointer', background: 'var(--panel)', border: '1px solid var(--line)' }}>
               <Users size={20} color="var(--wine)" style={{ marginBottom: 12 }} />
               <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)', marginBottom: 6 }}>I'm hiring</div>
-              <div style={{ fontSize: 12.5, color: 'var(--text-muted)', lineHeight: 1.5 }}>Describe roles in your own words. Leeann structures them, screens candidates, and hands you a clear readout.</div>
+              <div style={{ fontSize: 12.5, color: 'var(--text-muted)', lineHeight: 1.5 }}>Describe roles in your own words. Lean structures them, screens candidates, and hands you a clear readout.</div>
             </button>
 
             <button onClick={() => chooseSignupType('candidate')} className="lea-card" style={{ width: 260, textAlign: 'left', padding: 22, borderRadius: 12, cursor: 'pointer', background: 'var(--panel)', border: '1px solid var(--line)' }}>
               <User size={20} color="var(--gold)" style={{ marginBottom: 12 }} />
               <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)', marginBottom: 6 }}>I'm looking for a job</div>
-              <div style={{ fontSize: 12.5, color: 'var(--text-muted)', lineHeight: 1.5 }}>Find roles, talk to Leeann, prep and practice, and track every application in one place.</div>
+              <div style={{ fontSize: 12.5, color: 'var(--text-muted)', lineHeight: 1.5 }}>Find roles, talk to Lean, prep and practice, and track every application in one place.</div>
             </button>
           </div>
         </div>
@@ -2482,14 +2484,14 @@ export default function LeeannApp() {
           <div style={{ width: '100%', maxWidth: 380 }}>
             <div style={{ marginBottom: 20, display: 'flex', justifyContent: 'center' }}><Wordmark /></div>
             <Eyebrow color={signupType === 'employer' ? 'var(--wine)' : 'var(--gold)'}>{signupType === 'employer' ? 'Hiring' : 'Candidate'} · Sign in or create an account</Eyebrow>
-            <div className="lea-display" style={{ fontSize: 20, fontWeight: 600, color: 'var(--text)', marginBottom: 18 }}>Tell Leeann about you</div>
+            <div className="lea-display" style={{ fontSize: 20, fontWeight: 600, color: 'var(--text)', marginBottom: 18 }}>Tell Lean about you</div>
             <input value={authName} onChange={(e) => setAuthName(e.target.value)} placeholder="Your name"
               style={{ width: '100%', background: 'var(--panel-alt)', border: '1px solid var(--line)', borderRadius: 8, padding: '11px 12px', color: 'var(--text)', fontSize: 13, marginBottom: 10, outline: 'none' }} />
             <input value={authEmail} onChange={(e) => setAuthEmail(e.target.value)} placeholder={signupType === 'employer' ? 'Work email — you@yourcompany.com' : 'Email'} type="email"
               style={{ width: '100%', background: 'var(--panel-alt)', border: '1px solid var(--line)', borderRadius: 8, padding: '11px 12px', color: 'var(--text)', fontSize: 13, marginBottom: signupType === 'employer' && isPersonalEmailDomain(authEmail) ? 6 : 10, outline: 'none' }} />
             {signupType === 'employer' && isPersonalEmailDomain(authEmail) && (
               <div style={{ fontSize: 11, color: 'var(--gold)', marginBottom: 10, lineHeight: 1.4 }}>
-                That looks like a personal email — Leeann works best tied to your company domain, so teammates can find the same roles. Fine for a demo, though.
+                That looks like a personal email — Lean works best tied to your company domain, so teammates can find the same roles. Fine for a demo, though.
               </div>
             )}
             {signupType === 'employer' ? (
@@ -2582,7 +2584,7 @@ export default function LeeannApp() {
                       {micSupported && (
                         <div style={{ textAlign: 'left', background: 'var(--wine-dim)', border: '1px solid var(--wine)', borderRadius: 10, padding: '14px 16px', marginBottom: 16 }}>
                           <div style={{ fontSize: 12.5, color: 'var(--text)', lineHeight: 1.55, marginBottom: 10 }}>
-                            <strong>Before you start:</strong> your microphone will stay on for this conversation. Leeann listens continuously and takes notes to build the role profile.
+                            <strong>Before you start:</strong> your microphone will stay on for this conversation. Lean listens continuously and takes notes to build the role profile.
                           </div>
                           <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 12, color: 'var(--text-muted)', cursor: 'pointer' }}>
                             <input type="checkbox" checked={micConsent} onChange={(e) => setMicConsent(e.target.checked)} style={{ marginTop: 2 }} />
@@ -2598,7 +2600,7 @@ export default function LeeannApp() {
                           fontSize: 13, fontWeight: 600, color: 'var(--on-accent)', cursor: micSupported && !micConsent ? 'not-allowed' : 'pointer',
                         }}
                       >
-                        Start talking with Leeann
+                        Start talking with Lean
                       </button>
                       {!micSupported && (
                         <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 10 }}>Voice isn't supported in this browser — you'll type instead.</div>
@@ -2607,11 +2609,11 @@ export default function LeeannApp() {
                   ) : (
                     <>
                       <div
-                        className={leeannSpeaking ? 'lea-speaking' : 'lea-idle-glow'}
+                        className={leanSpeaking ? 'lea-speaking' : 'lea-idle-glow'}
                         onClick={() => { const m = [...activeRole.hmMessages].reverse().find((x) => x.role === 'assistant'); if (m) speak(m.text); }}
                         title="Hear that again"
                         style={{
-                          width: leeannSpeaking ? 150 : 126, height: leeannSpeaking ? 150 : 126, borderRadius: '50%',
+                          width: leanSpeaking ? 150 : 126, height: leanSpeaking ? 150 : 126, borderRadius: '50%',
                           background: 'var(--panel-alt)', border: '2px solid var(--wine)', overflow: 'hidden', position: 'relative',
                           margin: '20px 0 16px', cursor: 'pointer', transition: 'width 0.35s ease, height 0.35s ease',
                         }}
@@ -2620,8 +2622,8 @@ export default function LeeannApp() {
                         <div className="lea-orb-b" style={{ position: 'absolute', width: '86%', height: '86%', bottom: '-7%', right: '-7%', borderRadius: '50%', background: 'var(--gold)', filter: 'blur(20px)', opacity: 0.85 }} />
                       </div>
 
-                      <div className="lea-mono" style={{ fontSize: 10, color: leeannSpeaking ? 'var(--wine)' : isListening ? 'var(--gold)' : 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 14, minHeight: 14 }}>
-                        {hmLoading ? 'Leeann is thinking…' : leeannSpeaking ? 'Leeann is speaking…' : isListening ? 'Listening — go ahead…' : 'Tap the circle to hear that again'}
+                      <div className="lea-mono" style={{ fontSize: 10, color: leanSpeaking ? 'var(--wine)' : isListening ? 'var(--gold)' : 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 14, minHeight: 14 }}>
+                        {hmLoading ? 'Lean is thinking…' : leanSpeaking ? 'Lean is speaking…' : isListening ? 'Listening — go ahead…' : 'Tap the circle to hear that again'}
                       </div>
 
                       {showCaptions && (
@@ -2635,7 +2637,7 @@ export default function LeeannApp() {
                           <div style={{
                             width: 34, height: 34, borderRadius: '50%', border: `2px solid ${isListening ? 'var(--gold)' : 'var(--line)'}`,
                             background: isListening ? 'var(--gold-dim)' : 'var(--panel-alt)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            opacity: leeannSpeaking || hmLoading ? 0.4 : 1, transition: 'all 0.2s ease',
+                            opacity: leanSpeaking || hmLoading ? 0.4 : 1, transition: 'all 0.2s ease',
                           }} className={isListening ? 'lea-speaking' : ''}>
                             <Mic size={15} color={isListening ? 'var(--gold)' : 'var(--text-muted)'} />
                           </div>
@@ -2782,7 +2784,7 @@ export default function LeeannApp() {
                   </div>
                   {roleCandidates.length === 0 ? (
                     <div style={{ fontSize: 12.5, color: 'var(--text-muted)', background: 'var(--panel)', border: '1px dashed var(--line)', borderRadius: 10, padding: 18 }}>
-                      No candidates yet for this role — once someone talks to Leeann about it, they'll show up here.
+                      No candidates yet for this role — once someone talks to Lean about it, they'll show up here.
                     </div>
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -2822,7 +2824,7 @@ export default function LeeannApp() {
                 <div style={{ flex: 1.6, minWidth: 300 }}>
                   {!pipelineCandidate || pipelineCandidate.roleId !== activeRoleId ? (
                     <div style={{ fontSize: 12.5, color: 'var(--text-muted)', background: 'var(--panel)', border: '1px dashed var(--line)', borderRadius: 10, padding: 18 }}>
-                      Select a candidate from the list to see their conversation, Leeann's recommendation, and record a decision.
+                      Select a candidate from the list to see their conversation, Lean's recommendation, and record a decision.
                     </div>
                   ) : (
                     <div style={{ background: 'var(--panel)', border: '1px solid var(--line)', borderRadius: 10, padding: 18 }}>
@@ -2841,7 +2843,7 @@ export default function LeeannApp() {
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, borderTop: '1px solid var(--line)', paddingTop: 14 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                           <ClipboardList size={14} color="var(--text)" />
-                          <span className="lea-mono" style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Leeann's recommendation</span>
+                          <span className="lea-mono" style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Lean's recommendation</span>
                         </div>
                         <button onClick={() => generateDashSummary(pipelineCandidate.id)} disabled={pipelineCandidate.dashLoading || pipelineCandidate.messages.length === 0}
                           style={{ fontSize: 11, background: 'transparent', border: '1px solid var(--line)', borderRadius: 6, padding: '6px 10px', color: 'var(--text)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -2857,7 +2859,7 @@ export default function LeeannApp() {
                             <div style={{ fontSize: 13, color: 'var(--text)', fontWeight: 600 }}>{pipelineCandidate.dashSummary.recommendation}</div>
                           </div>
                           <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 14 }}>
-                            This is Leeann's read, not a decision — nothing is sent to the candidate until you confirm below.
+                            This is Lean's read, not a decision — nothing is sent to the candidate until you confirm below.
                           </div>
                           <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', fontSize: 12.5 }}>
                             <div style={{ flex: 1, minWidth: 180 }}>
@@ -2871,7 +2873,7 @@ export default function LeeannApp() {
                           </div>
                           {pipelineCandidate.dashSummary.nextStep && (
                             <div style={{ marginTop: 12, fontSize: 12.5, color: 'var(--text-muted)', borderTop: '1px solid var(--line)', paddingTop: 10 }}>
-                              Leeann suggests: {pipelineCandidate.dashSummary.nextStep}
+                              Lean suggests: {pipelineCandidate.dashSummary.nextStep}
                             </div>
                           )}
 
@@ -2903,7 +2905,7 @@ export default function LeeannApp() {
                               </div>
                             )}
                             <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 10, lineHeight: 1.5 }}>
-                              Whatever you decide, Leeann automatically prepares the candidate's feedback — every candidate hears what they did well and what to work on, not just the ones who move forward.
+                              Whatever you decide, Lean automatically prepares the candidate's feedback — every candidate hears what they did well and what to work on, not just the ones who move forward.
                             </div>
                           </div>
                         </div>
@@ -2953,10 +2955,10 @@ export default function LeeannApp() {
                 ) : (
                   <div style={{ display: 'flex' }}>
                     <div style={{ flex: 1.4, display: 'flex', flexDirection: 'column', padding: 20, borderRight: '1px solid var(--line)' }}>
-                      <Eyebrow color="var(--gold)">Talking with Leeann about {candidateRole?.title}</Eyebrow>
+                      <Eyebrow color="var(--gold)">Talking with Lean about {candidateRole?.title}</Eyebrow>
                       <div ref={candScrollRef} className="lea-scroll" style={{ flex: 1, overflowY: 'auto', padding: '8px 4px', minHeight: 340 }}>
                         {activeCandidate.messages.map((m, i) => <ChatBubble key={i} role={m.role} text={m.text} accent="var(--gold)" />)}
-                        {activeCandidate.loading && <div className="lea-mono" style={{ fontSize: 11, color: 'var(--text-muted)' }}>Leeann is typing…</div>}
+                        {activeCandidate.loading && <div className="lea-mono" style={{ fontSize: 11, color: 'var(--text-muted)' }}>Lean is typing…</div>}
                       </div>
                       <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
                         <input value={candInput} onChange={(e) => setCandInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && sendCand()}
@@ -2976,8 +2978,8 @@ export default function LeeannApp() {
                           color: activeCandidate.hmDecision === 'decline' ? 'var(--danger)' : 'var(--text)',
                           border: `1px solid ${activeCandidate.hmDecision === 'decline' ? 'var(--danger)' : 'var(--gold)'}`,
                         }}>
-                          {activeCandidate.hmDecision === 'advance' && <>The hiring team wants to move forward — Leeann will help set up your next step.</>}
-                          {activeCandidate.hmDecision === 'more' && <>The hiring team would like to continue the conversation — Leeann may follow up with more questions.</>}
+                          {activeCandidate.hmDecision === 'advance' && <>The hiring team wants to move forward — Lean will help set up your next step.</>}
+                          {activeCandidate.hmDecision === 'more' && <>The hiring team would like to continue the conversation — Lean may follow up with more questions.</>}
                           {activeCandidate.hmDecision === 'decline' && <>The hiring team has decided not to move forward with this role right now. Your feedback is below either way.</>}
                         </div>
                       )}
@@ -3086,7 +3088,7 @@ export default function LeeannApp() {
                               </button>
                             ) : (
                               <button onClick={() => startApplication(r.id)} style={{ fontSize: 12, fontWeight: 600, padding: '8px 14px', borderRadius: 7, border: 'none', background: 'var(--gold)', color: 'var(--on-accent)', cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                                Talk to Leeann
+                                Talk to Lean
                               </button>
                             )}
                           </div>
@@ -3102,7 +3104,7 @@ export default function LeeannApp() {
                   <Eyebrow color="var(--text-muted)">My applications</Eyebrow>
                   {candidates.filter((c) => c.accountEmail === account?.email).length === 0 ? (
                     <div style={{ fontSize: 12.5, color: 'var(--text-muted)', background: 'var(--panel)', border: '1px dashed var(--line)', borderRadius: 10, padding: 24, marginTop: 12 }}>
-                      You haven't talked to Leeann about a role yet — find one under "Find Roles."
+                      You haven't talked to Lean about a role yet — find one under "Find Roles."
                     </div>
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 12, maxWidth: 560 }}>

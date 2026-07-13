@@ -6,7 +6,7 @@
 // NOT a real multi-device account system. See README.md for what a real
 // backend upgrade would look like.
 
-const PREFIX = 'leeann:';
+const PREFIX = 'lean:';
 
 function safeParse(raw) {
   try {
