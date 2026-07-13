@@ -451,48 +451,39 @@ function Eyebrow({ children, color }) {
   );
 }
 
-function ComparisonTable() {
-  const rows = [
-    { old: '42-day average time to fill a role', neu: 'Decisions in about a week' },
-    { old: 'Mass applications, resumes screened blind', neu: 'A real conversation before you see a resume' },
-    { old: 'Candidates hear nothing for weeks', neu: 'Always-on updates, honest answers' },
-    { old: 'AI screens silently, no one accountable', neu: 'Leeann recommends — a human always decides' },
-    { old: 'Rejected candidates get no feedback', neu: 'Every candidate learns what to improve' },
-    { old: 'One generic process for every role', neu: 'Tailored to the specific role and team' },
-  ];
+function FlipCard({ icon: Icon, before, after, label, detail, color, delay }) {
+  const [flipped, setFlipped] = useState(false);
   return (
-    <div style={{ padding: '0 40px 56px' }}>
-      <div style={{ textAlign: 'center', marginBottom: 28 }}>
-        <Eyebrow color="var(--text-muted)">The difference</Eyebrow>
-        <div className="lea-display" style={{ fontSize: 22, fontWeight: 600, color: 'var(--text)' }}>Hiring, before and after Leeann</div>
-      </div>
-      <div style={{ maxWidth: 780, margin: '0 auto', border: '1px solid var(--line)', borderRadius: 12, overflow: 'hidden', position: 'relative' }}>
-        <div style={{ display: 'flex', borderBottom: '1px solid var(--line)' }}>
-          <div style={{ flex: 1, padding: '12px 20px', background: 'var(--panel-alt)' }}>
-            <span className="lea-mono" style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase' }}>The old way</span>
+    <div className="lea-float-card" style={{ flex: 1, minWidth: 240, maxWidth: 280, animationDelay: delay }}>
+      <div onClick={() => setFlipped((f) => !f)} style={{ perspective: 1000, cursor: 'pointer', height: 200 }}>
+        <div style={{
+          position: 'relative', width: '100%', height: '100%', transition: 'transform 0.6s cubic-bezier(.4,.2,.2,1)',
+          transformStyle: 'preserve-3d', transform: flipped ? 'rotateY(180deg)' : 'none',
+        }}>
+          <div style={{
+            position: 'absolute', inset: 0, backfaceVisibility: 'hidden', background: 'var(--panel)', border: '1px solid var(--line)',
+            borderRadius: 14, padding: 22, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center',
+            textAlign: 'center', overflow: 'hidden', boxShadow: '0 4px 14px rgba(0,0,0,0.06)',
+          }}>
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: color }} />
+            <Icon size={22} color={color} style={{ marginBottom: 12 }} />
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', textDecoration: 'line-through', marginBottom: 4 }}>{before}</div>
+            <div className="lea-display" style={{ fontSize: 21, fontWeight: 700, color }}>{after}</div>
+            <div style={{ fontSize: 11.5, color: 'var(--text-muted)', marginTop: 10 }}>{label}</div>
+            <div className="lea-mono" style={{ fontSize: 9, color: 'var(--text-muted)', marginTop: 16, opacity: 0.6, letterSpacing: '0.06em' }}>TAP TO LEARN MORE</div>
           </div>
-          <div style={{ flex: 1, padding: '12px 20px', background: 'var(--panel-alt)', borderLeft: '2px solid var(--wine)' }}>
-            <span className="lea-mono" style={{ fontSize: 10, color: 'var(--wine)', textTransform: 'uppercase', fontWeight: 700 }}>With Leeann</span>
+          <div style={{
+            position: 'absolute', inset: 0, backfaceVisibility: 'hidden', background: color, borderRadius: 14, padding: 24,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', transform: 'rotateY(180deg)',
+          }}>
+            <div style={{ fontSize: 13, lineHeight: 1.65, color: 'var(--on-accent)' }}>{detail}</div>
           </div>
         </div>
-        {rows.map((r, i) => (
-          <Reveal key={i} delay={i * 0.07}>
-          <div className="lea-compare-row" style={{ display: 'flex', borderBottom: i < rows.length - 1 ? '1px solid var(--line)' : 'none' }}>
-            <div style={{ flex: 1, padding: '14px 20px', display: 'flex', alignItems: 'flex-start', gap: 8, background: 'var(--panel)' }}>
-              <XCircle size={15} color="var(--danger)" style={{ flexShrink: 0, marginTop: 2, opacity: 0.8 }} />
-              <span style={{ color: 'var(--text-muted)', fontSize: 13, lineHeight: 1.5 }}>{r.old}</span>
-            </div>
-            <div style={{ flex: 1, padding: '14px 20px', display: 'flex', alignItems: 'flex-start', gap: 8, background: 'var(--panel)', borderLeft: '2px solid var(--wine)' }}>
-              <CheckCircle2 size={15} color="var(--wine)" style={{ flexShrink: 0, marginTop: 2 }} />
-              <span style={{ color: 'var(--text)', fontSize: 13, lineHeight: 1.5, fontWeight: 600 }}>{r.neu}</span>
-            </div>
-          </div>
-          </Reveal>
-        ))}
       </div>
     </div>
   );
 }
+
 
 function PrinciplesSection() {
   const principles = [
@@ -1868,10 +1859,10 @@ export default function LeeannApp() {
           </div>
           </Reveal>
 
-          {/* WHY LEEANN — benefit-forward */}
+          {/* WHY LEEANN — condensed, merges the old benefit cards + comparison table */}
           <Reveal>
           <div style={{ padding: '8px 40px 48px' }}>
-            <div style={{ textAlign: 'center', marginBottom: 44 }}>
+            <div style={{ textAlign: 'center', marginBottom: 40 }}>
               <Eyebrow color="var(--text-muted)">The difference</Eyebrow>
               <div className="lea-display" style={{ fontSize: 38, fontWeight: 700, color: 'var(--text)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0 }}>
                 <span>Why&nbsp;</span><LogoMark size={30} /><span style={{ marginLeft: -3 }}>eeann?</span>
@@ -1881,48 +1872,22 @@ export default function LeeannApp() {
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: 20, maxWidth: 940, margin: '0 auto', flexWrap: 'wrap' }}>
-              {[
-                {
-                  icon: Sparkles,
-                  title: 'Fills roles in about a week',
-                  body: 'Leeann runs role calibration and candidate conversations in real time, so a strong match can go from first conversation to decision fast — before they\u2019re gone.',
-                  context: 'Industry average sits near 42 days (SHRM, 2025)',
-                  color: 'var(--wine)',
-                  floatDelay: '0s',
-                },
-                {
-                  icon: MessageSquare,
-                  title: 'Never goes silent',
-                  body: 'Every candidate gets real, honest answers and status updates from Leeann throughout the process — no black hole, no wondering.',
-                  context: 'Most candidates say silence is what drives them away (iHire, 2025)',
-                  color: 'var(--gold)',
-                  floatDelay: '1.3s',
-                },
-                {
-                  icon: CheckCircle2,
-                  title: 'Prepares candidates, not just screens them',
-                  body: 'Leeann gets candidates genuinely ready for the specific role and team — so the people who make it through are set up to succeed, not just impressive on paper.',
-                  context: 'Most new-hire failures come down to fit, not skill',
-                  color: 'var(--wine)',
-                  floatDelay: '0.7s',
-                },
-              ].map((c, i) => (
-                <div key={i} className="lea-float-card" style={{ flex: 1, minWidth: 260, animationDelay: c.floatDelay }}>
-                  <div className="lea-benefit-card" style={{ height: '100%', background: 'var(--panel)', border: '1px solid var(--line)', borderRadius: 14, padding: '24px 22px 22px', position: 'relative', overflow: 'hidden' }}>
-                    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: c.color }} />
-                    <div className="lea-benefit-icon" style={{ width: 44, height: 44, borderRadius: 12, background: `${c.color}1A`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
-                      <c.icon size={19} color={c.color} />
-                    </div>
-                    <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text)', marginBottom: 9, lineHeight: 1.3 }}>{c.title}</div>
-                    <div style={{ fontSize: 12.5, color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: 16 }}>{c.body}</div>
-                    <div className="lea-mono" style={{
-                      display: 'inline-block', fontSize: 10, color: c.color, background: `${c.color}14`,
-                      padding: '5px 10px', borderRadius: 20, lineHeight: 1.4,
-                    }}>{c.context}</div>
-                  </div>
-                </div>
-              ))}
+            <div style={{ display: 'flex', gap: 20, maxWidth: 900, margin: '0 auto', flexWrap: 'wrap', justifyContent: 'center' }}>
+              <FlipCard
+                icon={Sparkles} before="42-day average" after="~7 days" label="Time to fill a role"
+                detail="Leeann runs role calibration and candidate conversations in real time, so a strong match can go from first conversation to decision fast — before they're gone. (SHRM, 2025)"
+                color="var(--wine)" delay="0s"
+              />
+              <FlipCard
+                icon={MessageSquare} before="Weeks of silence" after="Always-on" label="Candidate communication"
+                detail="Every candidate gets real, honest answers and status updates throughout the process — no black hole, no wondering. Most candidates say silence is what drives them away. (iHire, 2025)"
+                color="var(--gold)" delay="0.6s"
+              />
+              <FlipCard
+                icon={CheckCircle2} before="Screened, not prepped" after="Set up to succeed" label="Candidate readiness"
+                detail="Leeann gets candidates genuinely ready for the specific role and team — not just impressive on paper. Most new-hire failures come down to fit, not skill."
+                color="var(--wine)" delay="1.1s"
+              />
             </div>
           </div>
           </Reveal>
@@ -1963,8 +1928,6 @@ export default function LeeannApp() {
             </div>
           </div>
           </Reveal>
-
-          <Reveal><ComparisonTable /></Reveal>
 
           <Reveal>
           <div style={{ padding: '0 40px 48px' }}>
