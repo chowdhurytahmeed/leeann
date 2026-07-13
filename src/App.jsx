@@ -294,7 +294,8 @@ function GlobalStyles() {
         36% { transform: scale(1); box-shadow: 0 0 0 0 var(--wine-dim); }
       }
       .lea-heartbeat { animation: lea-heartbeat 2.4s ease-in-out infinite; }
-      @keyframes lea-ekg-run { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -900; } }
+      @keyframes lea-ekg-run { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -670; } }
+      @keyframes lea-ekg-run-r { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -510; } }
       @keyframes lea-ring-burst { 0% { transform: scale(1); opacity: 0.9; } 100% { transform: scale(1.9); opacity: 0; } }
       @keyframes lea-glow-pulse {
         0%, 100% { opacity: 0.25; transform: scale(0.85); }
@@ -690,13 +691,13 @@ function ClosingCTA({ onSignup }) {
   );
 }
 
-function buildEkgSegment(xStart, xEnd) {
+function buildEkgSegment(xStart, xEnd, baseline = 72) {
   let d = '';
   let started = false;
   for (let x = 0; x <= 1000; x += 125) {
     if (x < xStart || x + 60 > xEnd) continue;
-    if (!started) { d += `M${x},60`; started = true; }
-    d += ` L${x},60 L${x + 18},60 L${x + 27},46 L${x + 36},74 L${x + 45},58 L${x + 60},60`;
+    if (!started) { d += `M${x},${baseline}`; started = true; }
+    d += ` L${x},${baseline} L${x + 18},${baseline} L${x + 27},${baseline - 14} L${x + 36},${baseline + 14} L${x + 45},${baseline - 2} L${x + 60},${baseline}`;
   }
   return d;
 }
@@ -724,9 +725,9 @@ function PulseSection() {
             if (cancelled) return;
             setPhase('pause');
             timers.push(setTimeout(cycle, 1100));
-          }, 1500));
+          }, 950));
         }, 380));
-      }, 1500));
+      }, 1150));
     }
     cycle();
     return () => { cancelled = true; timers.forEach(clearTimeout); };
@@ -750,11 +751,11 @@ function PulseSection() {
         <path d={dimRight} stroke="#3A3226" strokeWidth="2" fill="none" opacity="0.6" />
         {phase === 'left' && (
           <path key={`l-${pulseKey}`} d={dimLeft} stroke="var(--gold)" strokeWidth="2.5" fill="none"
-            strokeDasharray="90 1000" style={{ animation: 'lea-ekg-run 1.5s linear forwards' }} opacity="0.95" />
+            strokeDasharray="80 650" style={{ animation: 'lea-ekg-run 1.15s linear forwards' }} opacity="0.95" />
         )}
         {phase === 'right' && (
           <path key={`r-${pulseKey}`} d={dimRight} stroke="var(--gold)" strokeWidth="2.5" fill="none"
-            strokeDasharray="90 1000" style={{ animation: 'lea-ekg-run 1.5s linear forwards' }} opacity="0.95" />
+            strokeDasharray="80 480" style={{ animation: 'lea-ekg-run-r 0.95s linear forwards' }} opacity="0.95" />
         )}
       </svg>
       <div className="lea-mono" style={{
