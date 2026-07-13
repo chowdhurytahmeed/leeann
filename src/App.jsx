@@ -276,6 +276,12 @@ function GlobalStyles() {
         50% { box-shadow: 0 0 0 10px var(--wine-dim), 0 0 46px 14px var(--wine-dim), 0 0 70px 22px var(--gold-dim); }
       }
       .lea-idle-glow { animation: lea-idle 2.4s ease-in-out infinite; }
+      .lea-principles-grid { display: grid; grid-template-columns: 1fr 1fr; }
+      .lea-principle-cell:hover { background: var(--panel-alt); }
+      @media (max-width: 620px) {
+        .lea-principles-grid { grid-template-columns: 1fr; }
+        .lea-principle-cell { border-right: none !important; }
+      }
       @keyframes lea-float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-9px); } }
       .lea-float-card { animation: lea-float 4.5s ease-in-out infinite; }
       .lea-benefit-card { transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease; }
@@ -487,28 +493,28 @@ function FlipCard({ icon: Icon, before, after, label, detail, color, delay }) {
 
 function PrinciplesSection() {
   const principles = [
-    { icon: CheckCircle2, title: 'A human always decides', text: "Leeann recommends. A hiring manager confirms every outcome — nothing is automatic.", color: 'var(--wine)', delay: '0s' },
-    { icon: MessageSquare, title: 'Feedback is mandatory', text: 'Every candidate learns what they did well and what to improve — not just the ones who advance.', color: 'var(--gold)', delay: '1s' },
-    { icon: User, title: 'Transparent by design', text: "Candidates always know they're talking with an AI hiring liaison, from the first message.", color: 'var(--wine)', delay: '0.4s' },
-    { icon: Sparkles, title: 'Built for fit, not filtering', text: 'Leeann prepares candidates for the specific role — the goal is readiness, not a faster reject pile.', color: 'var(--gold)', delay: '1.6s' },
+    { icon: CheckCircle2, title: 'A human always decides', text: "Leeann recommends. A hiring manager confirms every outcome — nothing is automatic.", color: 'var(--wine)' },
+    { icon: MessageSquare, title: 'Feedback is mandatory', text: 'Every candidate learns what they did well and what to improve — not just the ones who advance.', color: 'var(--gold)' },
+    { icon: User, title: 'Transparent by design', text: "Candidates always know they're talking with an AI hiring liaison, from the first message.", color: 'var(--wine)' },
+    { icon: Sparkles, title: 'Built for fit, not filtering', text: 'Leeann prepares candidates for the specific role — the goal is readiness, not a faster reject pile.', color: 'var(--gold)' },
   ];
   return (
-    <div style={{ padding: '0 40px 56px' }}>
-      <div style={{ textAlign: 'center', marginBottom: 36 }}>
+    <div style={{ padding: '0 40px 64px' }}>
+      <div style={{ textAlign: 'center', marginBottom: 40 }}>
         <Eyebrow color="var(--text-muted)">Principles</Eyebrow>
         <div className="lea-display" style={{ fontSize: 26, fontWeight: 700, color: 'var(--text)' }}>Built with guardrails, not just features</div>
       </div>
-      <div style={{ display: 'flex', gap: 18, maxWidth: 980, margin: '0 auto', flexWrap: 'wrap' }}>
+      <div className="lea-principles-grid" style={{ maxWidth: 840, margin: '0 auto', border: '1px solid var(--line)', borderRadius: 16, overflow: 'hidden', background: 'var(--panel)' }}>
         {principles.map((p, i) => (
-          <div key={i} className="lea-float-card" style={{ flex: 1, minWidth: 220, animationDelay: p.delay }}>
-            <div className="lea-benefit-card" style={{ height: '100%', textAlign: 'center', background: 'var(--panel)', border: '1px solid var(--line)', borderRadius: 14, padding: '24px 18px', position: 'relative', overflow: 'hidden' }}>
-              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: p.color }} />
-              <div className="lea-benefit-icon" style={{ width: 42, height: 42, borderRadius: 11, background: `${p.color}1A`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
-                <p.icon size={19} color={p.color} />
-              </div>
-              <div style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--text)', marginBottom: 7 }}>{p.title}</div>
-              <div style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.55 }}>{p.text}</div>
-            </div>
+          <div key={i} className="lea-principle-cell" style={{
+            padding: '34px 30px',
+            borderRight: i % 2 === 0 ? '1px solid var(--line)' : 'none',
+            borderBottom: i < 2 ? '1px solid var(--line)' : 'none',
+            transition: 'background 0.2s ease',
+          }}>
+            <p.icon size={22} color={p.color} style={{ marginBottom: 16 }} />
+            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)', marginBottom: 9 }}>{p.title}</div>
+            <div style={{ fontSize: 12.5, color: 'var(--text-muted)', lineHeight: 1.6 }}>{p.text}</div>
           </div>
         ))}
       </div>
