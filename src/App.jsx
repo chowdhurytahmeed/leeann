@@ -232,6 +232,9 @@ function GlobalStyles() {
   return (
     <style>{`
       * { box-sizing: border-box; }
+      .lea-root, .lea-root * {
+        transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+      }
       @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
       .lea-root { font-family: 'Inter', sans-serif; }
       .lea-display { font-family: 'Sora', sans-serif; font-weight: 700; }
