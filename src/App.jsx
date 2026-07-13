@@ -2056,8 +2056,6 @@ export default function LeeannApp() {
           </div>
           </Reveal>
 
-          <Reveal><ProductPeek /></Reveal>
-
           <Reveal><PulseSection /></Reveal>
 
           <Reveal><PrinciplesSection /></Reveal>
