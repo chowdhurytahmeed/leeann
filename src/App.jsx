@@ -691,10 +691,10 @@ function ClosingCTA({ onSignup }) {
   );
 }
 
-function buildEkgSegment(xStart, xEnd, baseline = 72) {
+function buildEkgSegment(xStart, xEnd, baseline = 72, gridStart = 0) {
   let d = '';
   let started = false;
-  for (let x = 0; x <= 1000; x += 125) {
+  for (let x = gridStart; x <= 1000; x += 125) {
     if (x < xStart || x + 60 > xEnd) continue;
     if (!started) { d += `M${x},${baseline}`; started = true; }
     d += ` L${x},${baseline} L${x + 18},${baseline} L${x + 27},${baseline - 14} L${x + 36},${baseline + 14} L${x + 45},${baseline - 2} L${x + 60},${baseline}`;
@@ -704,7 +704,7 @@ function buildEkgSegment(xStart, xEnd, baseline = 72) {
 
 function PulseSection() {
   const dimLeft = buildEkgSegment(0, 460);
-  const dimRight = buildEkgSegment(560, 1000);
+  const dimRight = buildEkgSegment(565, 1000, 72, 565);
   const [phase, setPhase] = useState('left'); // left | hit | right | pause
   const [pulseKey, setPulseKey] = useState(0);
 
@@ -725,7 +725,7 @@ function PulseSection() {
             if (cancelled) return;
             setPhase('pause');
             timers.push(setTimeout(cycle, 1100));
-          }, 950));
+          }, 1150));
         }, 380));
       }, 1150));
     }
@@ -755,7 +755,7 @@ function PulseSection() {
         )}
         {phase === 'right' && (
           <path key={`r-${pulseKey}`} d={dimRight} stroke="var(--gold)" strokeWidth="2.5" fill="none"
-            strokeDasharray="80 480" style={{ animation: 'lea-ekg-run-r 0.95s linear forwards' }} opacity="0.95" />
+            strokeDasharray="80 650" style={{ animation: 'lea-ekg-run 1.15s linear forwards' }} opacity="0.95" />
         )}
       </svg>
       <div className="lea-mono" style={{
