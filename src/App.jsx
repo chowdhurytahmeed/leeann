@@ -1921,13 +1921,6 @@ export default function LeeannApp() {
             style={{ position: 'relative', padding: '56px 40px 48px', textAlign: 'center', overflow: 'hidden' }}
           >
             <div
-              style={{
-                position: 'absolute', inset: 0, pointerEvents: 'none',
-                background: `radial-gradient(420px circle at ${(heroMouse.x / 2 + 0.5) * 100}% ${(heroMouse.y / 2 + 0.5) * 100}%, rgba(255,255,255,0.4), transparent 70%)`,
-                transition: 'background 0.2s ease-out',
-              }}
-            />
-            <div
               className="lea-blob"
               style={{
                 position: 'absolute', top: -60, left: '18%', width: 220, height: 220, borderRadius: '50%',
@@ -1961,11 +1954,7 @@ export default function LeeannApp() {
 
               {/* one big orb, actually talking to you */}
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <div style={{
-                  position: 'relative', width: 168, height: 168,
-                  transform: `translate(${heroMouse.x * 6}px, ${heroMouse.y * 5}px)`,
-                  transition: 'transform 0.3s ease-out',
-                }}>
+                <div style={{ position: 'relative', width: 168, height: 168 }}>
                   <div
                     className="lea-idle-glow lea-orb-interactive"
                     onClick={() => speak("Hi, I'm Leeann.")}
