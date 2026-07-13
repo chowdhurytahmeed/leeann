@@ -1119,6 +1119,47 @@ function EmployerGlyph() {
   );
 }
 
+function HeroGreeting() {
+  const lines = [
+    "Hi, I'm Leeann.",
+    "I sit between hiring teams and candidates.",
+    "Ask me anything — I'll give it to you straight.",
+  ];
+  const [text, setText] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+    const timers = [];
+    function type(i, charI) {
+      if (cancelled) return;
+      const full = lines[i];
+      setText(full.slice(0, charI));
+      if (charI < full.length) {
+        timers.push(setTimeout(() => type(i, charI + 1), 38));
+      } else {
+        timers.push(setTimeout(() => erase(i, full.length), 1900));
+      }
+    }
+    function erase(i, charI) {
+      if (cancelled) return;
+      setText(lines[i].slice(0, charI));
+      if (charI > 0) {
+        timers.push(setTimeout(() => erase(i, charI - 1), 16));
+      } else {
+        timers.push(setTimeout(() => type((i + 1) % lines.length, 0), 250));
+      }
+    }
+    type(0, 0);
+    return () => { cancelled = true; timers.forEach(clearTimeout); };
+  }, []);
+
+  return (
+    <span>
+      {text}<span className="lea-cursor" style={{ display: 'inline-block', marginLeft: 2 }}>▌</span>
+    </span>
+  );
+}
+
 function FlowLine({ color }) {
   return (
     <div style={{ position: 'relative', flex: 1, minWidth: 50, height: 2, background: 'repeating-linear-gradient(to right, var(--line) 0 6px, transparent 6px 12px)' }}>
@@ -1911,33 +1952,28 @@ export default function LeeannApp() {
                 </button>
               </div>
 
-              {/* both sides, talking to Leeann at once */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, maxWidth: 560, margin: '0 auto' }}>
-                <div className="lea-bob">
-                  <CandidateGlyph />
-                </div>
-                <FlowLine color="var(--wine)" />
+              {/* one big orb, actually talking to you */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                 <div
                   className="lea-idle-glow lea-orb-interactive"
                   onClick={() => speak("Hi, I'm Leeann.")}
                   title="Say hi"
                   style={{
-                    width: 88, height: 88, borderRadius: '50%', background: 'var(--panel-alt)',
+                    width: 168, height: 168, borderRadius: '50%', background: 'var(--panel-alt)',
                     border: '2px solid var(--wine)', overflow: 'hidden', flexShrink: 0, position: 'relative',
                   }}
                 >
-                  <span className="lea-orb-ring-pulse" style={{ position: 'absolute', inset: -2, borderRadius: '50%', border: '2px solid var(--wine)', pointerEvents: 'none' }} />
-                  <div className="lea-orb-a" style={{ position: 'absolute', width: 68, height: 68, top: -8, left: -8, borderRadius: '50%', background: 'var(--wine)', filter: 'blur(16px)', opacity: 0.85 }} />
-                  <div className="lea-orb-b" style={{ position: 'absolute', width: 68, height: 68, bottom: -8, right: -8, borderRadius: '50%', background: 'var(--gold)', filter: 'blur(16px)', opacity: 0.85 }} />
+                  <span className="lea-orb-ring-pulse" style={{ position: 'absolute', inset: -3, borderRadius: '50%', border: '2px solid var(--wine)', pointerEvents: 'none' }} />
+                  <div className="lea-orb-a" style={{ position: 'absolute', width: '86%', height: '86%', top: '-7%', left: '-7%', borderRadius: '50%', background: 'var(--wine)', filter: 'blur(24px)', opacity: 0.88 }} />
+                  <div className="lea-orb-b" style={{ position: 'absolute', width: '86%', height: '86%', bottom: '-7%', right: '-7%', borderRadius: '50%', background: 'var(--gold)', filter: 'blur(24px)', opacity: 0.88 }} />
                 </div>
-                <FlowLine color="var(--gold)" />
-                <div className="lea-bob" style={{ animationDelay: '0.6s' }}>
-                  <EmployerGlyph />
+                <div style={{
+                  marginTop: 22, background: 'var(--panel)', border: '1px solid var(--line)', borderRadius: 10,
+                  padding: '10px 18px', fontSize: 13, color: 'var(--text)', minHeight: 40, display: 'flex', alignItems: 'center',
+                  boxShadow: '0 6px 18px rgba(0,0,0,0.06)',
+                }}>
+                  <HeroGreeting />
                 </div>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'center', gap: 8, maxWidth: 560, margin: '10px auto 0', fontSize: 11, color: 'var(--text-muted)' }}>
-                <span style={{ flex: 1, textAlign: 'left', paddingLeft: 4 }}>Candidate</span>
-                <span style={{ flex: 1, textAlign: 'right', paddingRight: 4 }}>Employer</span>
               </div>
             </div>
           </div>
