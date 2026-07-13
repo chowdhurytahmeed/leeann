@@ -696,7 +696,7 @@ function buildEkgSegment(xStart, xEnd) {
   for (let x = 0; x <= 1000; x += 125) {
     if (x < xStart || x + 60 > xEnd) continue;
     if (!started) { d += `M${x},60`; started = true; }
-    d += ` L${x},60 L${x + 18},60 L${x + 27},20 L${x + 36},95 L${x + 45},55 L${x + 60},60`;
+    d += ` L${x},60 L${x + 18},60 L${x + 27},46 L${x + 36},74 L${x + 45},58 L${x + 60},60`;
   }
   return d;
 }
@@ -740,7 +740,11 @@ function PulseSection() {
   }
 
   return (
-    <div style={{ position: 'relative', background: '#15120E', padding: '72px 40px', overflow: 'hidden', textAlign: 'center' }}>
+    <div style={{
+      position: 'relative', background: '#15120E', padding: '72px 40px', overflow: 'hidden', textAlign: 'center',
+      backgroundImage: 'linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)',
+      backgroundSize: '32px 32px',
+    }}>
       <svg viewBox="0 0 1000 120" preserveAspectRatio="none" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
         <path d={dimLeft} stroke="#3A3226" strokeWidth="2" fill="none" opacity="0.6" />
         <path d={dimRight} stroke="#3A3226" strokeWidth="2" fill="none" opacity="0.6" />
@@ -753,6 +757,13 @@ function PulseSection() {
             strokeDasharray="90 1000" style={{ animation: 'lea-ekg-run 1.5s linear forwards' }} opacity="0.95" />
         )}
       </svg>
+      <div className="lea-mono" style={{
+        position: 'absolute', top: 18, right: 24, display: 'flex', alignItems: 'center', gap: 6,
+        fontSize: 10, color: '#8B92AC', textTransform: 'uppercase', letterSpacing: '0.06em',
+      }}>
+        <span className="lea-heartbeat" style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--gold)', display: 'inline-block' }} />
+        Live
+      </div>
       <div style={{ position: 'relative' }}>
         <Eyebrow color="var(--gold)">Always on</Eyebrow>
         <div className="lea-display" style={{ fontSize: 26, fontWeight: 700, color: '#F1E9DA', maxWidth: 560, margin: '0 auto 32px' }}>
