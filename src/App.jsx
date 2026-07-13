@@ -579,11 +579,20 @@ function SiteFooter({ onNav }) {
 }
 
 function ProductPeek() {
+  const candidates = [
+    { name: 'Jordan R.', score: 82, tag: 'Strong Match', summary: 'Strong systems-design background, directly relevant to the payments work this role owns.', color: 'var(--wine)' },
+    { name: 'Sam K.', score: 64, tag: 'Possible Match', summary: 'Solid fundamentals but limited production experience at this scale — worth a deeper conversation.', color: 'var(--gold)' },
+    { name: 'Priya M.', score: 91, tag: 'Strong Match', summary: 'Five years owning reliability for a payments system at similar scale — closest fit on paper so far.', color: 'var(--wine)' },
+  ];
+  const [selected, setSelected] = useState(0);
+  const c = candidates[selected];
+
   return (
     <div style={{ padding: '0 40px 56px' }}>
       <div style={{ textAlign: 'center', marginBottom: 30 }}>
         <Eyebrow color="var(--text-muted)">Inside the product</Eyebrow>
         <div className="lea-display" style={{ fontSize: 22, fontWeight: 600, color: 'var(--text)' }}>What a hiring manager actually sees</div>
+        <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 6 }}>Try it — click a candidate below</div>
       </div>
       <div style={{ maxWidth: 760, margin: '0 auto', border: '1px solid var(--line)', borderRadius: 14, overflow: 'hidden', boxShadow: '0 16px 40px rgba(0,0,0,0.12)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 14px', background: 'var(--panel-alt)', borderBottom: '1px solid var(--line)' }}>
@@ -595,32 +604,40 @@ function ProductPeek() {
         <div style={{ display: 'flex', background: 'var(--panel)' }}>
           <div style={{ flex: 1, padding: 18, borderRight: '1px solid var(--line)' }}>
             <div className="lea-mono" style={{ fontSize: 9.5, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 10 }}>Candidates · 3</div>
-            {[
-              { name: 'Jordan R.', score: 82, active: true },
-              { name: 'Sam K.', score: 64, active: false },
-              { name: 'Priya M.', score: 91, active: false },
-            ].map((c, i) => (
-              <div key={i} style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', borderRadius: 8, marginBottom: 6,
-                background: c.active ? 'var(--wine-dim)' : 'transparent', border: `1px solid ${c.active ? 'var(--wine)' : 'var(--line)'}`,
-              }}>
-                <span style={{ fontSize: 12.5, color: 'var(--text)', fontWeight: c.active ? 600 : 400 }}>{c.name}</span>
-                <span className="lea-mono" style={{ fontSize: 11, color: 'var(--wine)' }}>{c.score}</span>
-              </div>
+            {candidates.map((cand, i) => (
+              <button
+                key={i}
+                onClick={() => setSelected(i)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '9px 12px', borderRadius: 8, marginBottom: 6,
+                  background: selected === i ? 'var(--wine-dim)' : 'transparent', border: `1px solid ${selected === i ? 'var(--wine)' : 'var(--line)'}`,
+                  cursor: 'pointer', textAlign: 'left', transition: 'all 0.15s ease',
+                }}
+              >
+                <div style={{
+                  width: 26, height: 26, borderRadius: '50%', background: cand.color, color: 'var(--on-accent)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, flexShrink: 0,
+                }}>{cand.name[0]}</div>
+                <span style={{ fontSize: 12.5, color: 'var(--text)', fontWeight: selected === i ? 600 : 400, flex: 1 }}>{cand.name}</span>
+                <span className="lea-mono" style={{ fontSize: 11, color: cand.color }}>{cand.score}</span>
+              </button>
             ))}
           </div>
           <div style={{ flex: 1.4, padding: 18 }}>
-            <div className="lea-mono" style={{ fontSize: 9.5, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 8 }}>Leeann's recommendation</div>
+            <div className="lea-mono" style={{ fontSize: 9.5, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 8 }}>Leeann's recommendation for {c.name}</div>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 10 }}>
-              <div className="lea-display" style={{ fontSize: 24, fontWeight: 600, color: 'var(--wine)' }}>82</div>
-              <div style={{ fontSize: 12, color: 'var(--text)', fontWeight: 600 }}>Strong Match</div>
+              <div className="lea-display" style={{ fontSize: 24, fontWeight: 600, color: c.color }}>{c.score}</div>
+              <div style={{ fontSize: 12, color: 'var(--text)', fontWeight: 600 }}>{c.tag}</div>
             </div>
             <div style={{ fontSize: 11.5, color: 'var(--text-muted)', marginBottom: 14, lineHeight: 1.5 }}>
-              Strong systems-design background, directly relevant to the payments work this role owns.
+              {c.summary}
             </div>
-            <div style={{ display: 'flex', gap: 8 }}>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
               <div style={{ fontSize: 11, fontWeight: 600, padding: '7px 12px', borderRadius: 6, background: 'var(--wine)', color: 'var(--on-accent)' }}>Advance</div>
               <div style={{ fontSize: 11, padding: '7px 12px', borderRadius: 6, border: '1px solid var(--line)', color: 'var(--text-muted)' }}>Not a fit</div>
+            </div>
+            <div style={{ fontSize: 10, color: 'var(--text-muted)', lineHeight: 1.4 }}>
+              Leeann only recommends — a hiring manager clicks one of these to decide.
             </div>
           </div>
         </div>
