@@ -1275,6 +1275,8 @@ export default function LeanApp() {
   const [authEmail, setAuthEmail] = useState('');
   const [authCompany, setAuthCompany] = useState('');
   const [authResume, setAuthResume] = useState('');
+  const [ssoPhase, setSsoPhase] = useState(null); // null | 'redirecting' | 'explain'
+  const [ssoCompany, setSsoCompany] = useState('');
 
   const [micError, setMicError] = useState(null);
   const [interimTranscript, setInterimTranscript] = useState('');
@@ -1553,13 +1555,16 @@ export default function LeanApp() {
     else { setSignupType('candidate'); setScreen('authForm'); }
   }
 
-  async function submitAuth() {
-    if (!authName.trim() || !authEmail.trim() || !signupType) return;
+  async function submitAuth(overrides = {}) {
+    const name = overrides.name ?? authName;
+    const email = overrides.email ?? authEmail;
+    const company = overrides.company ?? authCompany;
+    if (!name.trim() || !email.trim() || !signupType) return;
     const newAccount = {
       type: signupType,
-      name: authName.trim(),
-      email: authEmail.trim().toLowerCase(),
-      company: signupType === 'employer' ? authCompany.trim() : undefined,
+      name: name.trim(),
+      email: email.trim().toLowerCase(),
+      company: signupType === 'employer' ? company.trim() : undefined,
       resume: signupType === 'candidate' ? authResume.trim() : undefined,
     };
     setAccount(newAccount);
@@ -1572,7 +1577,33 @@ export default function LeanApp() {
     setAuthEmail('');
     setAuthCompany('');
     setAuthResume('');
+    setSsoPhase(null);
     setScreen(newAccount.type === 'employer' ? 'employerHome' : 'candidateHome');
+  }
+
+  function handleAuthContinue() {
+    if (signupType === 'employer') {
+      const known = getKnownCompany(authEmail);
+      if (known) {
+        setSsoCompany(known);
+        setSsoPhase('redirecting');
+        setTimeout(() => setSsoPhase('explain'), 1800);
+        return;
+      }
+    }
+    submitAuth();
+  }
+
+  function continueWithDemoCompany() {
+    setAuthName('Jordan Lee');
+    setAuthEmail('jordan@lean.io');
+    setAuthCompany('Lean');
+    submitAuth({ name: 'Jordan Lee', email: 'jordan@lean.io', company: 'Lean' });
+  }
+
+  function continueWithOwnInfo() {
+    setSsoPhase(null);
+    submitAuth();
   }
 
   function signOut() {
@@ -1587,6 +1618,17 @@ export default function LeanApp() {
 
   function goSignupType() { setScreen('signupType'); }
 
+  const KNOWN_COMPANY_DOMAINS = {
+    'apple.com': 'Apple', 'google.com': 'Google', 'microsoft.com': 'Microsoft', 'amazon.com': 'Amazon',
+    'meta.com': 'Meta', 'netflix.com': 'Netflix', 'tesla.com': 'Tesla', 'stripe.com': 'Stripe',
+    'airbnb.com': 'Airbnb', 'spacex.com': 'SpaceX',
+  };
+
+  function getKnownCompany(email) {
+    const domain = email.split('@')[1]?.toLowerCase().trim();
+    return domain && KNOWN_COMPANY_DOMAINS[domain] ? KNOWN_COMPANY_DOMAINS[domain] : null;
+  }
+
   function isPersonalEmailDomain(email) {
     const personalDomains = ['gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 'icloud.com', 'aol.com', 'protonmail.com', 'live.com'];
     const domain = email.split('@')[1]?.toLowerCase().trim();
@@ -1595,8 +1637,8 @@ export default function LeanApp() {
 
   function fillDemoEmployer() {
     setAuthName('Jordan Lee');
-    setAuthEmail('jordan@acmecorp.io');
-    setAuthCompany('Acme Corp');
+    setAuthEmail('jordan@lean.io');
+    setAuthCompany('Lean');
   }
   function chooseSignupType(type) { setSignupType(type); setScreen('authForm'); }
   function toggleTheme() { setTheme((t) => (t === 'light' ? 'dark' : 'light')); }
@@ -2484,45 +2526,76 @@ export default function LeanApp() {
           <div style={{ position: 'absolute', top: 24, right: 24 }}>
             <ThemeToggle theme={theme} onToggle={toggleTheme} />
           </div>
-          <div style={{ width: '100%', maxWidth: 380 }}>
-            <div style={{ marginBottom: 20, display: 'flex', justifyContent: 'center' }}><Wordmark /></div>
-            <Eyebrow color={signupType === 'employer' ? 'var(--wine)' : 'var(--gold)'}>{signupType === 'employer' ? 'Hiring' : 'Candidate'} · Sign in or create an account</Eyebrow>
-            <div className="lea-display" style={{ fontSize: 20, fontWeight: 600, color: 'var(--text)', marginBottom: 18 }}>Tell Lean about you</div>
-            <input value={authName} onChange={(e) => setAuthName(e.target.value)} placeholder="Your name"
-              style={{ width: '100%', background: 'var(--panel-alt)', border: '1px solid var(--line)', borderRadius: 8, padding: '11px 12px', color: 'var(--text)', fontSize: 13, marginBottom: 10, outline: 'none' }} />
-            <input value={authEmail} onChange={(e) => setAuthEmail(e.target.value)} placeholder={signupType === 'employer' ? 'Work email — you@yourcompany.com' : 'Email'} type="email"
-              style={{ width: '100%', background: 'var(--panel-alt)', border: '1px solid var(--line)', borderRadius: 8, padding: '11px 12px', color: 'var(--text)', fontSize: 13, marginBottom: signupType === 'employer' && isPersonalEmailDomain(authEmail) ? 6 : 10, outline: 'none' }} />
-            {signupType === 'employer' && isPersonalEmailDomain(authEmail) && (
-              <div style={{ fontSize: 11, color: 'var(--gold)', marginBottom: 10, lineHeight: 1.4 }}>
-                That looks like a personal email — Lean works best tied to your company domain, so teammates can find the same roles. Fine for a demo, though.
+
+          {ssoPhase === 'redirecting' ? (
+            <div style={{ textAlign: 'center' }}>
+              <Loader2 size={28} className="lea-live-dot" color="var(--wine)" style={{ marginBottom: 18 }} />
+              <div className="lea-display" style={{ fontSize: 18, fontWeight: 600, color: 'var(--text)' }}>
+                Redirecting to {ssoCompany}'s login…
               </div>
-            )}
-            {signupType === 'employer' ? (
-              <input value={authCompany} onChange={(e) => setAuthCompany(e.target.value)} placeholder="Company name"
-                style={{ width: '100%', background: 'var(--panel-alt)', border: '1px solid var(--line)', borderRadius: 8, padding: '11px 12px', color: 'var(--text)', fontSize: 13, marginBottom: 12, outline: 'none' }} />
-            ) : (
-              <textarea value={authResume} onChange={(e) => setAuthResume(e.target.value)} placeholder="Paste a quick summary of your background / resume… (you can update this anytime)" rows={5}
-                style={{ width: '100%', background: 'var(--panel-alt)', border: '1px solid var(--line)', borderRadius: 8, padding: '10px 12px', color: 'var(--text)', fontSize: 13, marginBottom: 18, outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
-            )}
-            {signupType === 'employer' && (
-              <button onClick={fillDemoEmployer} style={{ fontSize: 11, color: 'var(--wine)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginBottom: 18, textDecoration: 'underline' }}>
-                Use demo account for a pitch
-              </button>
-            )}
-            <button
-              onClick={submitAuth}
-              disabled={!authName.trim() || !authEmail.trim()}
-              style={{
-                width: '100%', background: authName.trim() && authEmail.trim() ? (signupType === 'employer' ? 'var(--wine)' : 'var(--gold)') : 'var(--line)', border: 'none', borderRadius: 8, padding: '11px 0',
-                fontSize: 13, fontWeight: 600, color: 'var(--on-accent)', cursor: authName.trim() && authEmail.trim() ? 'pointer' : 'not-allowed',
-              }}
-            >
-              Continue
-            </button>
-            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 12, textAlign: 'center' }}>
-              Demo mode — entering any name and email signs you in. Returning with the same email restores your account.
             </div>
-          </div>
+          ) : ssoPhase === 'explain' ? (
+            <div style={{ width: '100%', maxWidth: 380, textAlign: 'center' }}>
+              <Building2 size={26} color="var(--wine)" style={{ marginBottom: 16 }} />
+              <div className="lea-display" style={{ fontSize: 19, fontWeight: 600, color: 'var(--text)', marginBottom: 10 }}>
+                This is where {ssoCompany}'s SSO would take over
+              </div>
+              <div style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: 24 }}>
+                In a real deployment, recognizing a company email domain like this would hand off to {ssoCompany}'s own login and sync your account automatically — no separate Lean password needed. That handoff needs a real integration with {ssoCompany}, which isn't something a demo can do.
+              </div>
+              <button onClick={continueWithDemoCompany} style={{ width: '100%', background: 'var(--wine)', border: 'none', borderRadius: 8, padding: '11px 0', fontSize: 13, fontWeight: 600, color: 'var(--on-accent)', cursor: 'pointer', marginBottom: 10 }}>
+                Continue with our demo company instead
+              </button>
+              <button onClick={continueWithOwnInfo} style={{ width: '100%', background: 'transparent', border: '1px solid var(--line)', borderRadius: 8, padding: '11px 0', fontSize: 13, fontWeight: 600, color: 'var(--text-muted)', cursor: 'pointer' }}>
+                Use what I entered anyway
+              </button>
+            </div>
+          ) : (
+            <div style={{ width: '100%', maxWidth: 380 }}>
+              <div style={{ marginBottom: 20, display: 'flex', justifyContent: 'center' }}><Wordmark /></div>
+              <Eyebrow color={signupType === 'employer' ? 'var(--wine)' : 'var(--gold)'}>{signupType === 'employer' ? 'Hiring' : 'Candidate'} · Sign in or create an account</Eyebrow>
+              <div className="lea-display" style={{ fontSize: 20, fontWeight: 600, color: 'var(--text)', marginBottom: 18 }}>Tell Lean about you</div>
+              <input value={authName} onChange={(e) => setAuthName(e.target.value)} placeholder="Your name"
+                style={{ width: '100%', background: 'var(--panel-alt)', border: '1px solid var(--line)', borderRadius: 8, padding: '11px 12px', color: 'var(--text)', fontSize: 13, marginBottom: 10, outline: 'none' }} />
+              <input value={authEmail} onChange={(e) => setAuthEmail(e.target.value)} placeholder={signupType === 'employer' ? 'Work email — you@yourcompany.com' : 'Email'} type="email"
+                style={{ width: '100%', background: 'var(--panel-alt)', border: '1px solid var(--line)', borderRadius: 8, padding: '11px 12px', color: 'var(--text)', fontSize: 13, marginBottom: signupType === 'employer' && isPersonalEmailDomain(authEmail) ? 6 : 10, outline: 'none' }} />
+              {signupType === 'employer' && isPersonalEmailDomain(authEmail) && (
+                <div style={{ fontSize: 11, color: 'var(--gold)', marginBottom: 10, lineHeight: 1.4 }}>
+                  That looks like a personal email — Lean works best tied to your company domain, so teammates can find the same roles. Fine for a demo, though.
+                </div>
+              )}
+              {signupType === 'employer' && getKnownCompany(authEmail) && (
+                <div style={{ fontSize: 11, color: 'var(--wine)', marginBottom: 10, lineHeight: 1.4 }}>
+                  Recognized as a {getKnownCompany(authEmail)} email — continuing will simulate redirecting to their company login.
+                </div>
+              )}
+              {signupType === 'employer' ? (
+                <input value={authCompany} onChange={(e) => setAuthCompany(e.target.value)} placeholder="Company name"
+                  style={{ width: '100%', background: 'var(--panel-alt)', border: '1px solid var(--line)', borderRadius: 8, padding: '11px 12px', color: 'var(--text)', fontSize: 13, marginBottom: 12, outline: 'none' }} />
+              ) : (
+                <textarea value={authResume} onChange={(e) => setAuthResume(e.target.value)} placeholder="Paste a quick summary of your background / resume… (you can update this anytime)" rows={5}
+                  style={{ width: '100%', background: 'var(--panel-alt)', border: '1px solid var(--line)', borderRadius: 8, padding: '10px 12px', color: 'var(--text)', fontSize: 13, marginBottom: 18, outline: 'none', resize: 'vertical', fontFamily: 'inherit' }} />
+              )}
+              {signupType === 'employer' && (
+                <button onClick={fillDemoEmployer} style={{ fontSize: 11, color: 'var(--wine)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginBottom: 18, textDecoration: 'underline' }}>
+                  Use demo account for a pitch (jordan@lean.io)
+                </button>
+              )}
+              <button
+                onClick={handleAuthContinue}
+                disabled={!authName.trim() || !authEmail.trim()}
+                style={{
+                  width: '100%', background: authName.trim() && authEmail.trim() ? (signupType === 'employer' ? 'var(--wine)' : 'var(--gold)') : 'var(--line)', border: 'none', borderRadius: 8, padding: '11px 0',
+                  fontSize: 13, fontWeight: 600, color: 'var(--on-accent)', cursor: authName.trim() && authEmail.trim() ? 'pointer' : 'not-allowed',
+                }}
+              >
+                Continue
+              </button>
+              <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 12, textAlign: 'center' }}>
+                Demo mode — entering any name and email signs you in. Returning with the same email restores your account.
+              </div>
+            </div>
+          )}
         </div>
       )}
 
