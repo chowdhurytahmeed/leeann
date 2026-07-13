@@ -784,7 +784,7 @@ function buildEkgSegment(xStart, xEnd, baseline = 72, gridStart = 0) {
   return d;
 }
 
-function PulseSection() {
+function PulseSection({ onSignup }) {
   const dimLeft = buildEkgSegment(0, 460);
   const dimRight = buildEkgSegment(565, 1000, 72, 565);
   const [phase, setPhase] = useState('left'); // left | hit | right | pause
@@ -824,22 +824,10 @@ function PulseSection() {
 
   return (
     <div style={{
-      position: 'relative', background: '#15120E', padding: '72px 40px', overflow: 'hidden', textAlign: 'center',
+      position: 'relative', background: '#15120E', padding: '72px 40px 60px', overflow: 'hidden', textAlign: 'center',
       backgroundImage: 'linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)',
       backgroundSize: '32px 32px',
     }}>
-      <svg viewBox="0 0 1000 120" preserveAspectRatio="none" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
-        <path d={dimLeft} stroke="#3A3226" strokeWidth="2" fill="none" opacity="0.6" />
-        <path d={dimRight} stroke="#3A3226" strokeWidth="2" fill="none" opacity="0.6" />
-        {phase === 'left' && (
-          <path key={`l-${pulseKey}`} d={dimLeft} stroke="var(--gold)" strokeWidth="2.5" fill="none"
-            strokeDasharray="80 650" style={{ animation: 'lea-ekg-run 1.15s linear forwards' }} opacity="0.95" />
-        )}
-        {phase === 'right' && (
-          <path key={`r-${pulseKey}`} d={dimRight} stroke="var(--gold)" strokeWidth="2.5" fill="none"
-            strokeDasharray="80 650" style={{ animation: 'lea-ekg-run 1.15s linear forwards' }} opacity="0.95" />
-        )}
-      </svg>
       <div className="lea-mono" style={{
         position: 'absolute', top: 18, right: 24, display: 'flex', alignItems: 'center', gap: 6,
         fontSize: 10, color: '#8B92AC', textTransform: 'uppercase', letterSpacing: '0.06em',
@@ -847,39 +835,66 @@ function PulseSection() {
         <span className="lea-heartbeat" style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--gold)', display: 'inline-block' }} />
         Live
       </div>
+
       <div style={{ position: 'relative' }}>
-        <Eyebrow color="var(--gold)">Always on</Eyebrow>
-        <div className="lea-display" style={{ fontSize: 26, fontWeight: 700, color: '#F1E9DA', maxWidth: 560, margin: '0 auto 32px' }}>
-          Always listening. Always human where it counts.
-        </div>
-        <div style={{ position: 'relative', width: 108, height: 108, margin: '0 auto' }}>
-          <div
-            key={`ring-${pulseKey}`}
-            style={{
-              position: 'absolute', inset: 0, borderRadius: '50%', border: '2px solid var(--gold)',
-              animation: 'lea-ring-burst 0.9s ease-out forwards', pointerEvents: 'none',
-            }}
-          />
-          <div
-            className="lea-orb-interactive"
-            onClick={handleClick}
-            title="Hear Leeann"
-            style={{
-              width: hit ? 128 : 108, height: hit ? 128 : 108,
-              borderRadius: '50%', background: 'rgba(255,255,255,0.04)',
-              border: '2px solid var(--wine)', position: 'absolute', top: '50%', left: '50%',
-              transform: 'translate(-50%, -50%)', overflow: 'hidden', cursor: 'pointer',
-              boxShadow: hit ? '0 0 46px 14px var(--wine-dim), 0 0 66px 20px var(--gold-dim)' : '0 0 0 0 transparent',
-              transition: 'width 0.3s cubic-bezier(.2,.8,.2,1), height 0.3s cubic-bezier(.2,.8,.2,1), box-shadow 0.3s ease',
-            }}
-          >
-            <div className="lea-orb-a" style={{ position: 'absolute', width: '86%', height: '86%', top: '-7%', left: '-7%', borderRadius: '50%', background: 'var(--wine)', filter: 'blur(20px)', opacity: 0.9 }} />
-            <div className="lea-orb-b" style={{ position: 'absolute', width: '86%', height: '86%', bottom: '-7%', right: '-7%', borderRadius: '50%', background: 'var(--gold)', filter: 'blur(20px)', opacity: 0.9 }} />
+        <svg viewBox="0 0 1000 120" preserveAspectRatio="none" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
+          <path d={dimLeft} stroke="#3A3226" strokeWidth="2" fill="none" opacity="0.6" />
+          <path d={dimRight} stroke="#3A3226" strokeWidth="2" fill="none" opacity="0.6" />
+          {phase === 'left' && (
+            <path key={`l-${pulseKey}`} d={dimLeft} stroke="var(--gold)" strokeWidth="2.5" fill="none"
+              strokeDasharray="80 650" style={{ animation: 'lea-ekg-run 1.15s linear forwards' }} opacity="0.95" />
+          )}
+          {phase === 'right' && (
+            <path key={`r-${pulseKey}`} d={dimRight} stroke="var(--gold)" strokeWidth="2.5" fill="none"
+              strokeDasharray="80 650" style={{ animation: 'lea-ekg-run 1.15s linear forwards' }} opacity="0.95" />
+          )}
+        </svg>
+        <div style={{ position: 'relative' }}>
+          <Eyebrow color="var(--gold)">Always on</Eyebrow>
+          <div className="lea-display" style={{ fontSize: 26, fontWeight: 700, color: '#F1E9DA', maxWidth: 560, margin: '0 auto 32px' }}>
+            Always listening. Always human where it counts.
+          </div>
+          <div style={{ position: 'relative', width: 108, height: 108, margin: '0 auto' }}>
+            <div
+              key={`ring-${pulseKey}`}
+              style={{
+                position: 'absolute', inset: 0, borderRadius: '50%', border: '2px solid var(--gold)',
+                animation: 'lea-ring-burst 0.9s ease-out forwards', pointerEvents: 'none',
+              }}
+            />
+            <div
+              className="lea-orb-interactive"
+              onClick={handleClick}
+              title="Hear Leeann"
+              style={{
+                width: hit ? 128 : 108, height: hit ? 128 : 108,
+                borderRadius: '50%', background: 'rgba(255,255,255,0.04)',
+                border: '2px solid var(--wine)', position: 'absolute', top: '50%', left: '50%',
+                transform: 'translate(-50%, -50%)', overflow: 'hidden', cursor: 'pointer',
+                boxShadow: hit ? '0 0 46px 14px var(--wine-dim), 0 0 66px 20px var(--gold-dim)' : '0 0 0 0 transparent',
+                transition: 'width 0.3s cubic-bezier(.2,.8,.2,1), height 0.3s cubic-bezier(.2,.8,.2,1), box-shadow 0.3s ease',
+              }}
+            >
+              <div className="lea-orb-a" style={{ position: 'absolute', width: '86%', height: '86%', top: '-7%', left: '-7%', borderRadius: '50%', background: 'var(--wine)', filter: 'blur(20px)', opacity: 0.9 }} />
+              <div className="lea-orb-b" style={{ position: 'absolute', width: '86%', height: '86%', bottom: '-7%', right: '-7%', borderRadius: '50%', background: 'var(--gold)', filter: 'blur(20px)', opacity: 0.9 }} />
+            </div>
+          </div>
+          <div className="lea-mono" style={{ fontSize: 10.5, color: '#8B92AC', marginTop: 14, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+            Tap to hear her
           </div>
         </div>
-        <div className="lea-mono" style={{ fontSize: 10.5, color: '#8B92AC', marginTop: 14, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-          Tap to hear her
+      </div>
+
+      <div style={{ marginTop: 48, position: 'relative' }}>
+        <div className="lea-display" style={{ fontSize: 24, fontWeight: 700, color: '#F1E9DA', marginBottom: 8 }}>
+          Ready to see Leeann in action?
         </div>
+        <div style={{ fontSize: 13, color: '#8B92AC', marginBottom: 22 }}>
+          No sales call required to start.
+        </div>
+        <button onClick={onSignup} style={{ background: 'var(--wine)', border: 'none', borderRadius: 8, padding: '13px 28px', fontSize: 13.5, fontWeight: 600, color: 'var(--on-accent)', cursor: 'pointer' }}>
+          Get started
+        </button>
       </div>
     </div>
   );
@@ -2062,12 +2077,10 @@ export default function LeeannApp() {
           </div>
           </Reveal>
 
-          <Reveal><PulseSection /></Reveal>
-
           <Reveal><PrinciplesSection /></Reveal>
           <Reveal><FAQSection /></Reveal>
           <Reveal><RoadmapSection /></Reveal>
-          <Reveal><ClosingCTA onSignup={goSignupType} /></Reveal>
+          <Reveal><PulseSection onSignup={goSignupType} /></Reveal>
           <SiteFooter onNav={{ signup: goSignupType, login: goSignupType, practice: goPractice }} />
         </div>
       )}
