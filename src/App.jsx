@@ -1893,34 +1893,38 @@ export default function LeeannApp() {
           </Reveal>
 
           <Reveal>
-          <div style={{ padding: '0 40px 56px' }}>
-            <div style={{ textAlign: 'center', marginBottom: 36 }}>
+          <div style={{ padding: '0 40px 64px' }}>
+            <div style={{ textAlign: 'center', marginBottom: 50 }}>
               <Eyebrow color="var(--text-muted)">How it works</Eyebrow>
               <div className="lea-display" style={{ fontSize: 26, fontWeight: 700, color: 'var(--text)' }}>Three steps, one conversation</div>
             </div>
-            <div style={{ display: 'flex', gap: 12, maxWidth: 900, margin: '0 auto', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'stretch' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', maxWidth: 920, margin: '0 auto' }}>
               {[
-                { n: '01', icon: Users, title: 'Calibrate', text: 'A hiring manager describes the role in conversation. Leeann structures it into a shared profile.', c: 'var(--wine)', delay: '0s' },
-                { n: '02', icon: MessageSquare, title: 'Converse', text: 'Candidates ask Leeann anything about the role and get grounded, honest answers — plus tailored prep.', c: 'var(--gold)', delay: '0.8s' },
-                { n: '03', icon: ClipboardList, title: 'Readout', text: 'Every conversation becomes a clear, comparable summary the hiring team can act on.', c: 'var(--wine)', delay: '1.6s' },
+                { n: '01', icon: Users, title: 'Calibrate', text: 'A hiring manager describes the role in conversation. Leeann structures it into a shared profile.', c: 'var(--wine)' },
+                { n: '02', icon: MessageSquare, title: 'Converse', text: 'Candidates ask Leeann anything about the role and get grounded, honest answers — plus tailored prep.', c: 'var(--gold)' },
+                { n: '03', icon: ClipboardList, title: 'Readout', text: 'Every conversation becomes a clear, comparable summary the hiring team can act on.', c: 'var(--wine)' },
               ].map((s, i, arr) => (
                 <React.Fragment key={i}>
-                  <div className="lea-float-card" style={{ flex: 1, minWidth: 220, maxWidth: 260, animationDelay: s.delay }}>
-                    <div className="lea-benefit-card" style={{ height: '100%', background: 'var(--panel)', border: '1px solid var(--line)', borderRadius: 14, padding: '22px 20px', position: 'relative', overflow: 'hidden' }}>
-                      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: s.c }} />
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-                        <div className="lea-benefit-icon" style={{ width: 38, height: 38, borderRadius: 10, background: `${s.c}1A`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                          <s.icon size={17} color={s.c} />
-                        </div>
-                        <span className="lea-mono" style={{ fontSize: 11, color: s.c, fontWeight: 700 }}>{s.n}</span>
-                      </div>
-                      <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)', marginBottom: 8 }}>{s.title}</div>
-                      <div style={{ fontSize: 12.5, color: 'var(--text-muted)', lineHeight: 1.55 }}>{s.text}</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', width: 220, flexShrink: 0 }}>
+                    <div style={{
+                      width: 78, height: 78, borderRadius: '50%', position: 'relative',
+                      background: 'var(--panel)', border: `2px solid ${s.c}`, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      marginBottom: 22,
+                    }}>
+                      <div style={{ position: 'absolute', inset: -10, borderRadius: '50%', background: s.c, opacity: 0.16, filter: 'blur(14px)' }} />
+                      <s.icon size={26} color={s.c} style={{ position: 'relative' }} />
+                      <div className="lea-mono" style={{
+                        position: 'absolute', top: -6, right: -6, background: s.c, color: 'var(--on-accent)',
+                        width: 24, height: 24, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 10, fontWeight: 700,
+                      }}>{s.n}</div>
                     </div>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text)', marginBottom: 9 }}>{s.title}</div>
+                    <div style={{ fontSize: 12.5, color: 'var(--text-muted)', lineHeight: 1.55 }}>{s.text}</div>
                   </div>
                   {i < arr.length - 1 && (
-                    <div style={{ display: 'flex', alignItems: 'center', color: 'var(--text-muted)', opacity: 0.5 }}>
-                      <ArrowRight size={18} />
+                    <div style={{ paddingTop: 38 }}>
+                      <FlowLine color={s.c} />
                     </div>
                   )}
                 </React.Fragment>
