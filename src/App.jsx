@@ -496,25 +496,28 @@ function ComparisonTable() {
 
 function PrinciplesSection() {
   const principles = [
-    { icon: CheckCircle2, title: 'A human always decides', text: "Leeann recommends. A hiring manager confirms every outcome — nothing is automatic.", color: 'var(--wine)' },
-    { icon: MessageSquare, title: 'Feedback is mandatory', text: 'Every candidate learns what they did well and what to improve — not just the ones who advance.', color: 'var(--gold)' },
-    { icon: User, title: 'Transparent by design', text: "Candidates always know they're talking with an AI hiring liaison, from the first message.", color: 'var(--wine)' },
-    { icon: Sparkles, title: 'Built for fit, not filtering', text: 'Leeann prepares candidates for the specific role — the goal is readiness, not a faster reject pile.', color: 'var(--gold)' },
+    { icon: CheckCircle2, title: 'A human always decides', text: "Leeann recommends. A hiring manager confirms every outcome — nothing is automatic.", color: 'var(--wine)', delay: '0s' },
+    { icon: MessageSquare, title: 'Feedback is mandatory', text: 'Every candidate learns what they did well and what to improve — not just the ones who advance.', color: 'var(--gold)', delay: '1s' },
+    { icon: User, title: 'Transparent by design', text: "Candidates always know they're talking with an AI hiring liaison, from the first message.", color: 'var(--wine)', delay: '0.4s' },
+    { icon: Sparkles, title: 'Built for fit, not filtering', text: 'Leeann prepares candidates for the specific role — the goal is readiness, not a faster reject pile.', color: 'var(--gold)', delay: '1.6s' },
   ];
   return (
     <div style={{ padding: '0 40px 56px' }}>
-      <div style={{ textAlign: 'center', marginBottom: 30 }}>
+      <div style={{ textAlign: 'center', marginBottom: 36 }}>
         <Eyebrow color="var(--text-muted)">Principles</Eyebrow>
-        <div className="lea-display" style={{ fontSize: 22, fontWeight: 600, color: 'var(--text)' }}>Built with guardrails, not just features</div>
+        <div className="lea-display" style={{ fontSize: 26, fontWeight: 700, color: 'var(--text)' }}>Built with guardrails, not just features</div>
       </div>
-      <div style={{ display: 'flex', gap: 16, maxWidth: 900, margin: '0 auto', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: 18, maxWidth: 980, margin: '0 auto', flexWrap: 'wrap' }}>
         {principles.map((p, i) => (
-          <div key={i} style={{ flex: 1, minWidth: 200, textAlign: 'center', padding: '0 8px' }}>
-            <div style={{ width: 40, height: 40, borderRadius: 10, background: `${p.color}1A`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
-              <p.icon size={18} color={p.color} />
+          <div key={i} className="lea-float-card" style={{ flex: 1, minWidth: 220, animationDelay: p.delay }}>
+            <div className="lea-benefit-card" style={{ height: '100%', textAlign: 'center', background: 'var(--panel)', border: '1px solid var(--line)', borderRadius: 14, padding: '24px 18px', position: 'relative', overflow: 'hidden' }}>
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: p.color }} />
+              <div className="lea-benefit-icon" style={{ width: 42, height: 42, borderRadius: 11, background: `${p.color}1A`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
+                <p.icon size={19} color={p.color} />
+              </div>
+              <div style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--text)', marginBottom: 7 }}>{p.title}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.55 }}>{p.text}</div>
             </div>
-            <div style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--text)', marginBottom: 6 }}>{p.title}</div>
-            <div style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.55 }}>{p.text}</div>
           </div>
         ))}
       </div>
@@ -1983,20 +1986,36 @@ export default function LeeannApp() {
 
           <Reveal>
           <div style={{ padding: '0 40px 56px' }}>
-            <div style={{ textAlign: 'center', marginBottom: 30 }}>
+            <div style={{ textAlign: 'center', marginBottom: 36 }}>
               <Eyebrow color="var(--text-muted)">How it works</Eyebrow>
+              <div className="lea-display" style={{ fontSize: 26, fontWeight: 700, color: 'var(--text)' }}>Three steps, one conversation</div>
             </div>
-            <div style={{ display: 'flex', gap: 20, maxWidth: 820, margin: '0 auto', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <div style={{ display: 'flex', gap: 12, maxWidth: 900, margin: '0 auto', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'stretch' }}>
               {[
-                { n: '01', title: 'Calibrate', text: 'A hiring manager describes the role in conversation. Leeann structures it into a shared profile.', c: 'var(--wine)' },
-                { n: '02', title: 'Converse', text: 'Candidates ask Leeann anything about the role and get grounded, honest answers — plus tailored prep.', c: 'var(--gold)' },
-                { n: '03', title: 'Readout', text: 'Every conversation becomes a clear, comparable summary the hiring team can act on.', c: 'var(--text)' },
-              ].map((s, i) => (
-                <div key={i} style={{ flex: 1, minWidth: 200, maxWidth: 240 }}>
-                  <div className="lea-mono" style={{ fontSize: 11, color: s.c, marginBottom: 8 }}>{s.n}</div>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', marginBottom: 6 }}>{s.title}</div>
-                  <div style={{ fontSize: 12.5, color: 'var(--text-muted)', lineHeight: 1.5 }}>{s.text}</div>
-                </div>
+                { n: '01', icon: Users, title: 'Calibrate', text: 'A hiring manager describes the role in conversation. Leeann structures it into a shared profile.', c: 'var(--wine)', delay: '0s' },
+                { n: '02', icon: MessageSquare, title: 'Converse', text: 'Candidates ask Leeann anything about the role and get grounded, honest answers — plus tailored prep.', c: 'var(--gold)', delay: '0.8s' },
+                { n: '03', icon: ClipboardList, title: 'Readout', text: 'Every conversation becomes a clear, comparable summary the hiring team can act on.', c: 'var(--wine)', delay: '1.6s' },
+              ].map((s, i, arr) => (
+                <React.Fragment key={i}>
+                  <div className="lea-float-card" style={{ flex: 1, minWidth: 220, maxWidth: 260, animationDelay: s.delay }}>
+                    <div className="lea-benefit-card" style={{ height: '100%', background: 'var(--panel)', border: '1px solid var(--line)', borderRadius: 14, padding: '22px 20px', position: 'relative', overflow: 'hidden' }}>
+                      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: s.c }} />
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+                        <div className="lea-benefit-icon" style={{ width: 38, height: 38, borderRadius: 10, background: `${s.c}1A`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <s.icon size={17} color={s.c} />
+                        </div>
+                        <span className="lea-mono" style={{ fontSize: 11, color: s.c, fontWeight: 700 }}>{s.n}</span>
+                      </div>
+                      <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)', marginBottom: 8 }}>{s.title}</div>
+                      <div style={{ fontSize: 12.5, color: 'var(--text-muted)', lineHeight: 1.55 }}>{s.text}</div>
+                    </div>
+                  </div>
+                  {i < arr.length - 1 && (
+                    <div style={{ display: 'flex', alignItems: 'center', color: 'var(--text-muted)', opacity: 0.5 }}>
+                      <ArrowRight size={18} />
+                    </div>
+                  )}
+                </React.Fragment>
               ))}
             </div>
           </div>
