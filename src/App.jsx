@@ -284,10 +284,6 @@ function GlobalStyles() {
       .lea-cta-pulse { animation: lea-cta-pulse 2.4s ease-out infinite; }
       @keyframes lea-orb-ring-pulse { 0% { transform: scale(1); opacity: 0.55; } 100% { transform: scale(1.7); opacity: 0; } }
       .lea-orb-ring-pulse { animation: lea-orb-ring-pulse 2.6s ease-out infinite; }
-      @keyframes lea-orbit-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-      .lea-orbit-a { animation: lea-orbit-spin 7s linear infinite; }
-      .lea-orbit-b { animation: lea-orbit-spin 10s linear infinite reverse; }
-      .lea-orbit-c { animation: lea-orbit-spin 13.5s linear infinite; }
       .lea-principles-grid { display: grid; grid-template-columns: 1fr 1fr; }
       .lea-principle-cell:hover { background: var(--panel-alt); }
       @media (max-width: 620px) {
@@ -1925,6 +1921,13 @@ export default function LeeannApp() {
             style={{ position: 'relative', padding: '56px 40px 48px', textAlign: 'center', overflow: 'hidden' }}
           >
             <div
+              style={{
+                position: 'absolute', inset: 0, pointerEvents: 'none',
+                background: `radial-gradient(420px circle at ${(heroMouse.x / 2 + 0.5) * 100}% ${(heroMouse.y / 2 + 0.5) * 100}%, rgba(255,255,255,0.4), transparent 70%)`,
+                transition: 'background 0.2s ease-out',
+              }}
+            />
+            <div
               className="lea-blob"
               style={{
                 position: 'absolute', top: -60, left: '18%', width: 220, height: 220, borderRadius: '50%',
@@ -1963,15 +1966,6 @@ export default function LeeannApp() {
                   transform: `translate(${heroMouse.x * 6}px, ${heroMouse.y * 5}px)`,
                   transition: 'transform 0.3s ease-out',
                 }}>
-                  <div className="lea-orbit-a" style={{ position: 'absolute', inset: -10, pointerEvents: 'none' }}>
-                    <span style={{ position: 'absolute', top: 0, left: '50%', width: 6, height: 6, borderRadius: '50%', background: 'var(--wine)', boxShadow: '0 0 8px 2px var(--wine)', transform: 'translateX(-50%)' }} />
-                  </div>
-                  <div className="lea-orbit-b" style={{ position: 'absolute', inset: -17, pointerEvents: 'none' }}>
-                    <span style={{ position: 'absolute', bottom: 2, left: '50%', width: 5, height: 5, borderRadius: '50%', background: 'var(--gold)', boxShadow: '0 0 7px 2px var(--gold)', transform: 'translateX(-50%)' }} />
-                  </div>
-                  <div className="lea-orbit-c" style={{ position: 'absolute', inset: -24, pointerEvents: 'none' }}>
-                    <span style={{ position: 'absolute', top: '50%', right: 0, width: 4, height: 4, borderRadius: '50%', background: 'var(--wine)', boxShadow: '0 0 6px 2px var(--wine)', transform: 'translateY(-50%)' }} />
-                  </div>
                   <div
                     className="lea-idle-glow lea-orb-interactive"
                     onClick={() => speak("Hi, I'm Leeann.")}
