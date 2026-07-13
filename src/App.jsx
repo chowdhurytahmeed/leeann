@@ -1958,15 +1958,19 @@ export default function LeeannApp() {
 
               {/* one big orb, actually talking to you */}
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <div style={{ position: 'relative', width: 168, height: 168 }}>
-                  <div className="lea-orbit-a" style={{ position: 'absolute', inset: -26, pointerEvents: 'none' }}>
-                    <span style={{ position: 'absolute', top: 0, left: '50%', width: 7, height: 7, borderRadius: '50%', background: 'var(--wine)', boxShadow: '0 0 9px 2px var(--wine)', transform: 'translateX(-50%)' }} />
+                <div style={{
+                  position: 'relative', width: 168, height: 168,
+                  transform: `translate(${heroMouse.x * 6}px, ${heroMouse.y * 5}px)`,
+                  transition: 'transform 0.3s ease-out',
+                }}>
+                  <div className="lea-orbit-a" style={{ position: 'absolute', inset: -10, pointerEvents: 'none' }}>
+                    <span style={{ position: 'absolute', top: 0, left: '50%', width: 6, height: 6, borderRadius: '50%', background: 'var(--wine)', boxShadow: '0 0 8px 2px var(--wine)', transform: 'translateX(-50%)' }} />
                   </div>
-                  <div className="lea-orbit-b" style={{ position: 'absolute', inset: -42, pointerEvents: 'none' }}>
-                    <span style={{ position: 'absolute', bottom: 4, left: '50%', width: 5, height: 5, borderRadius: '50%', background: 'var(--gold)', boxShadow: '0 0 8px 2px var(--gold)', transform: 'translateX(-50%)' }} />
+                  <div className="lea-orbit-b" style={{ position: 'absolute', inset: -17, pointerEvents: 'none' }}>
+                    <span style={{ position: 'absolute', bottom: 2, left: '50%', width: 5, height: 5, borderRadius: '50%', background: 'var(--gold)', boxShadow: '0 0 7px 2px var(--gold)', transform: 'translateX(-50%)' }} />
                   </div>
-                  <div className="lea-orbit-c" style={{ position: 'absolute', inset: -58, pointerEvents: 'none' }}>
-                    <span style={{ position: 'absolute', top: '50%', right: 0, width: 4, height: 4, borderRadius: '50%', background: 'var(--wine)', boxShadow: '0 0 7px 2px var(--wine)', transform: 'translateY(-50%)' }} />
+                  <div className="lea-orbit-c" style={{ position: 'absolute', inset: -24, pointerEvents: 'none' }}>
+                    <span style={{ position: 'absolute', top: '50%', right: 0, width: 4, height: 4, borderRadius: '50%', background: 'var(--wine)', boxShadow: '0 0 6px 2px var(--wine)', transform: 'translateY(-50%)' }} />
                   </div>
                   <div
                     className="lea-idle-glow lea-orb-interactive"
