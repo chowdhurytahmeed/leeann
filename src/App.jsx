@@ -262,7 +262,7 @@ function GlobalStyles() {
         88% { opacity: 1; }
         100% { left: 100%; opacity: 0; }
       }
-      .lea-flow-dot { position: absolute; top: 50%; transform: translateY(-50%); width: 6px; height: 6px; border-radius: 50%; animation: lea-flow 2.4s linear infinite; }
+      .lea-flow-dot { position: absolute; top: 50%; transform: translateY(-50%); width: 6px; height: 6px; border-radius: 50%; animation: lea-flow 2.4s linear infinite; box-shadow: 0 0 6px 1px currentColor; }
       @keyframes lea-twinkle { 0%,100% { opacity: var(--min-op, 0.15); transform: scale(0.85); } 50% { opacity: 1; transform: scale(1.2); } }
       .lea-star { animation: lea-twinkle ease-in-out infinite; }
       .lea-toggle-btn { transition: background 0.15s ease, color 0.15s ease; }
@@ -276,6 +276,14 @@ function GlobalStyles() {
         50% { box-shadow: 0 0 0 10px var(--wine-dim), 0 0 46px 14px var(--wine-dim), 0 0 70px 22px var(--gold-dim); }
       }
       .lea-idle-glow { animation: lea-idle 2.4s ease-in-out infinite; }
+      @keyframes lea-cta-pulse {
+        0% { box-shadow: 0 0 0 0 var(--wine-dim); }
+        70% { box-shadow: 0 0 0 16px rgba(0,0,0,0); }
+        100% { box-shadow: 0 0 0 0 rgba(0,0,0,0); }
+      }
+      .lea-cta-pulse { animation: lea-cta-pulse 2.4s ease-out infinite; }
+      @keyframes lea-orb-ring-pulse { 0% { transform: scale(1); opacity: 0.55; } 100% { transform: scale(1.7); opacity: 0; } }
+      .lea-orb-ring-pulse { animation: lea-orb-ring-pulse 2.6s ease-out infinite; }
       .lea-principles-grid { display: grid; grid-template-columns: 1fr 1fr; }
       .lea-principle-cell:hover { background: var(--panel-alt); }
       @media (max-width: 620px) {
@@ -1114,9 +1122,9 @@ function EmployerGlyph() {
 function FlowLine({ color }) {
   return (
     <div style={{ position: 'relative', flex: 1, minWidth: 50, height: 2, background: 'repeating-linear-gradient(to right, var(--line) 0 6px, transparent 6px 12px)' }}>
-      <span className="lea-flow-dot" style={{ left: 0, background: color, animationDelay: '0s' }} />
-      <span className="lea-flow-dot" style={{ left: 0, background: color, animationDelay: '1.2s' }} />
-      <span className="lea-flow-dot" style={{ left: 0, background: color, animationDelay: '0.6s', animationDirection: 'reverse' }} />
+      <span className="lea-flow-dot" style={{ left: 0, background: color, color, animationDelay: '0s' }} />
+      <span className="lea-flow-dot" style={{ left: 0, background: color, color, animationDelay: '1.2s' }} />
+      <span className="lea-flow-dot" style={{ left: 0, background: color, color, animationDelay: '0.6s', animationDirection: 'reverse' }} />
     </div>
   );
 }
@@ -1898,7 +1906,7 @@ export default function LeeannApp() {
                 Leeann sits between hiring teams and candidates — understanding what a role really needs, answering candidates honestly, and turning every conversation into a clear, comparable readout.
               </div>
               <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginBottom: 44 }}>
-                <button onClick={goSignupType} style={{ background: 'var(--wine)', border: 'none', borderRadius: 8, padding: '12px 26px', fontSize: 13.5, fontWeight: 600, color: 'var(--on-accent)', cursor: 'pointer' }}>
+                <button onClick={goSignupType} className="lea-cta-pulse" style={{ background: 'var(--wine)', border: 'none', borderRadius: 8, padding: '12px 26px', fontSize: 13.5, fontWeight: 600, color: 'var(--on-accent)', cursor: 'pointer' }}>
                   Get started
                 </button>
               </div>
@@ -1918,6 +1926,7 @@ export default function LeeannApp() {
                     border: '2px solid var(--wine)', overflow: 'hidden', flexShrink: 0, position: 'relative',
                   }}
                 >
+                  <span className="lea-orb-ring-pulse" style={{ position: 'absolute', inset: -2, borderRadius: '50%', border: '2px solid var(--wine)', pointerEvents: 'none' }} />
                   <div className="lea-orb-a" style={{ position: 'absolute', width: 68, height: 68, top: -8, left: -8, borderRadius: '50%', background: 'var(--wine)', filter: 'blur(16px)', opacity: 0.85 }} />
                   <div className="lea-orb-b" style={{ position: 'absolute', width: 68, height: 68, bottom: -8, right: -8, borderRadius: '50%', background: 'var(--gold)', filter: 'blur(16px)', opacity: 0.85 }} />
                 </div>
