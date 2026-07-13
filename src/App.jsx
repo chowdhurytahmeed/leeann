@@ -528,39 +528,49 @@ function PrinciplesSection() {
 function FAQSection() {
   const [openIndex, setOpenIndex] = useState(null);
   const faqs = [
-    { q: 'Does a human ever review the AI\u2019s recommendation?', a: 'Always. Leeann produces a recommendation and a summary, but a hiring manager has to explicitly confirm the outcome before anything happens. Nothing is decided automatically.' },
-    { q: 'What happens to a candidate who doesn\u2019t move forward?', a: 'They still get feedback — specific strengths and things to work on — automatically, the moment a decision is recorded. Every candidate, not just the ones who advance.' },
-    { q: 'Does Leeann replace our interview process?', a: 'No. She handles the early conversation, role calibration, and prep — your team still runs real interviews and makes the final call.' },
-    { q: 'Do candidates know they\u2019re talking to AI?', a: 'Yes, always. Leeann introduces herself as an AI hiring liaison from the first message — there\u2019s no attempt to pass her off as human.' },
-    { q: 'What kinds of roles can Leeann help with?', a: 'Any field — engineering, medicine, culinary, law, retail, and more. She adapts her questions and interview style to the specific role rather than using one generic script.' },
-    { q: 'Is this ready for our whole company to use today?', a: 'Right now it\u2019s built for individual pilot use. Shared company workspaces — where multiple hiring managers see the same roles and pipeline — are on the roadmap.' },
+    { icon: CheckCircle2, q: 'Does a human ever review the AI\u2019s recommendation?', a: 'Always. Leeann produces a recommendation and a summary, but a hiring manager has to explicitly confirm the outcome before anything happens. Nothing is decided automatically.', color: 'var(--wine)' },
+    { icon: MessageSquare, q: 'What happens to a candidate who doesn\u2019t move forward?', a: 'They still get feedback — specific strengths and things to work on — automatically, the moment a decision is recorded. Every candidate, not just the ones who advance.', color: 'var(--gold)' },
+    { icon: Users, q: 'Does Leeann replace our interview process?', a: 'No. She handles the early conversation, role calibration, and prep — your team still runs real interviews and makes the final call.', color: 'var(--wine)' },
+    { icon: Sparkles, q: 'Do candidates know they\u2019re talking to AI?', a: 'Yes, always. Leeann introduces herself as an AI hiring liaison from the first message — there\u2019s no attempt to pass her off as human.', color: 'var(--gold)' },
+    { icon: ClipboardList, q: 'What kinds of roles can Leeann help with?', a: 'Any field — engineering, medicine, culinary, law, retail, and more. She adapts her questions and interview style to the specific role rather than using one generic script.', color: 'var(--wine)' },
+    { icon: Building2, q: 'Is this ready for our whole company to use today?', a: 'Right now it\u2019s built for individual pilot use. Shared company workspaces — where multiple hiring managers see the same roles and pipeline — are on the roadmap.', color: 'var(--gold)' },
   ];
   return (
     <div style={{ padding: '0 40px 56px' }}>
-      <div style={{ textAlign: 'center', marginBottom: 26 }}>
+      <div style={{ textAlign: 'center', marginBottom: 32 }}>
         <Eyebrow color="var(--text-muted)">Questions</Eyebrow>
-        <div className="lea-display" style={{ fontSize: 22, fontWeight: 600, color: 'var(--text)' }}>Before you ask</div>
+        <div className="lea-display" style={{ fontSize: 26, fontWeight: 700, color: 'var(--text)' }}>Before you ask</div>
       </div>
-      <div style={{ maxWidth: 640, margin: '0 auto' }}>
-        {faqs.map((f, i) => (
-          <div key={i} style={{ borderBottom: '1px solid var(--line)' }}>
-            <button
-              onClick={() => setOpenIndex(openIndex === i ? null : i)}
-              style={{
-                width: '100%', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer',
-                padding: '16px 4px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
-              }}
-            >
-              <span style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--text)' }}>{f.q}</span>
-              <span style={{ fontSize: 18, color: 'var(--text-muted)', flexShrink: 0, transform: openIndex === i ? 'rotate(45deg)' : 'none', transition: 'transform 0.2s ease' }}>+</span>
-            </button>
-            {openIndex === i && (
-              <div className="lea-fade" style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.6, padding: '0 4px 18px' }}>
-                {f.a}
-              </div>
-            )}
-          </div>
-        ))}
+      <div style={{ maxWidth: 680, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {faqs.map((f, i) => {
+          const open = openIndex === i;
+          return (
+            <div key={i} className="lea-benefit-card" style={{
+              background: 'var(--panel)', border: `1px solid ${open ? f.color : 'var(--line)'}`, borderRadius: 12,
+              overflow: 'hidden', position: 'relative',
+            }}>
+              {open && <div style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: 3, background: f.color }} />}
+              <button
+                onClick={() => setOpenIndex(open ? null : i)}
+                style={{
+                  width: '100%', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer',
+                  padding: '15px 18px', display: 'flex', alignItems: 'center', gap: 14,
+                }}
+              >
+                <div className="lea-benefit-icon" style={{ width: 36, height: 36, borderRadius: 10, background: `${f.color}1A`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <f.icon size={16} color={f.color} />
+                </div>
+                <span style={{ flex: 1, fontSize: 13.5, fontWeight: 600, color: 'var(--text)' }}>{f.q}</span>
+                <span style={{ fontSize: 20, color: f.color, flexShrink: 0, transform: open ? 'rotate(45deg)' : 'none', transition: 'transform 0.25s ease' }}>+</span>
+              </button>
+              {open && (
+                <div className="lea-fade" style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.6, padding: '0 18px 18px 68px' }}>
+                  {f.a}
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -652,25 +662,30 @@ function ProductPeek() {
 
 function RoadmapSection() {
   const items = [
-    'Shared company workspaces — multiple hiring managers, one pipeline',
-    'ATS integrations (Greenhouse, Lever, Workday)',
-    'Live-hosted technical interviews with side-by-side code review',
-    'Multi-language support for candidates and hiring teams',
+    { icon: Users, text: 'Shared company workspaces — multiple hiring managers, one pipeline', color: 'var(--wine)', delay: '0s' },
+    { icon: Building2, text: 'ATS integrations (Greenhouse, Lever, Workday)', color: 'var(--gold)', delay: '0.7s' },
+    { icon: Calendar, text: 'Live-hosted technical interviews with side-by-side code review', color: 'var(--wine)', delay: '1.3s' },
+    { icon: Volume2, text: 'Multi-language support for candidates and hiring teams', color: 'var(--gold)', delay: '0.4s' },
   ];
   return (
     <div style={{ padding: '0 40px 56px' }}>
-      <div style={{ textAlign: 'center', marginBottom: 26 }}>
+      <div style={{ textAlign: 'center', marginBottom: 32 }}>
         <Eyebrow color="var(--text-muted)">Where Leeann is headed</Eyebrow>
-        <div className="lea-display" style={{ fontSize: 22, fontWeight: 600, color: 'var(--text)' }}>Built now, growing fast</div>
+        <div className="lea-display" style={{ fontSize: 26, fontWeight: 700, color: 'var(--text)' }}>Built now, growing fast</div>
       </div>
-      <div style={{ display: 'flex', gap: 12, maxWidth: 780, margin: '0 auto', flexWrap: 'wrap', position: 'relative' }}>
+      <div style={{ display: 'flex', gap: 16, maxWidth: 820, margin: '0 auto', flexWrap: 'wrap', position: 'relative' }}>
         {items.map((t, i) => (
-          <div key={i} style={{
-            flex: 1, minWidth: 260, display: 'flex', alignItems: 'center', gap: 10, padding: '14px 16px',
-            border: '1px dashed var(--line)', borderRadius: 10, background: 'var(--panel)',
-          }}>
-            <span className="lea-mono" style={{ fontSize: 9, color: 'var(--gold)', textTransform: 'uppercase', flexShrink: 0, border: '1px solid var(--gold)', borderRadius: 12, padding: '3px 8px' }}>Soon</span>
-            <span style={{ fontSize: 12.5, color: 'var(--text-muted)', lineHeight: 1.4 }}>{t}</span>
+          <div key={i} className="lea-float-card" style={{ flex: 1, minWidth: 280, animationDelay: t.delay }}>
+            <div className="lea-benefit-card" style={{
+              height: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '15px 18px',
+              border: `1px dashed ${t.color}`, borderRadius: 12, background: 'var(--panel)',
+            }}>
+              <div className="lea-benefit-icon" style={{ width: 34, height: 34, borderRadius: 9, background: `${t.color}1A`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <t.icon size={15} color={t.color} />
+              </div>
+              <span style={{ fontSize: 12.5, color: 'var(--text-muted)', lineHeight: 1.4, flex: 1 }}>{t.text}</span>
+              <span className="lea-mono" style={{ fontSize: 9, color: t.color, textTransform: 'uppercase', flexShrink: 0, border: `1px solid ${t.color}`, borderRadius: 12, padding: '3px 8px' }}>Soon</span>
+            </div>
           </div>
         ))}
       </div>
