@@ -294,8 +294,8 @@ function GlobalStyles() {
         36% { transform: scale(1); box-shadow: 0 0 0 0 var(--wine-dim); }
       }
       .lea-heartbeat { animation: lea-heartbeat 2.4s ease-in-out infinite; }
-      @keyframes lea-ekg-travel { to { stroke-dashoffset: -2000; } }
-      .lea-ekg-travel { animation: lea-ekg-travel 7s linear infinite; }
+      @keyframes lea-ekg-run { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -900; } }
+      @keyframes lea-ring-burst { 0% { transform: scale(1); opacity: 0.9; } 100% { transform: scale(1.9); opacity: 0; } }
       @keyframes lea-glow-pulse {
         0%, 100% { opacity: 0.25; transform: scale(0.85); }
         10% { opacity: 0.85; transform: scale(1.1); }
@@ -690,34 +690,98 @@ function ClosingCTA({ onSignup }) {
   );
 }
 
-function PulseSection() {
-  // Build a repeating EKG-style waveform path across the viewBox width
-  let d = 'M0,60';
+function buildEkgSegment(xStart, xEnd) {
+  let d = '';
+  let started = false;
   for (let x = 0; x <= 1000; x += 125) {
+    if (x < xStart || x + 60 > xEnd) continue;
+    if (!started) { d += `M${x},60`; started = true; }
     d += ` L${x},60 L${x + 18},60 L${x + 27},20 L${x + 36},95 L${x + 45},55 L${x + 60},60`;
   }
+  return d;
+}
+
+function PulseSection() {
+  const dimLeft = buildEkgSegment(0, 460);
+  const dimRight = buildEkgSegment(560, 1000);
+  const [phase, setPhase] = useState('left'); // left | hit | right | pause
+  const [pulseKey, setPulseKey] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    const timers = [];
+    function cycle() {
+      if (cancelled) return;
+      setPhase('left');
+      timers.push(setTimeout(() => {
+        if (cancelled) return;
+        setPhase('hit');
+        setPulseKey((k) => k + 1);
+        timers.push(setTimeout(() => {
+          if (cancelled) return;
+          setPhase('right');
+          timers.push(setTimeout(() => {
+            if (cancelled) return;
+            setPhase('pause');
+            timers.push(setTimeout(cycle, 1100));
+          }, 1500));
+        }, 380));
+      }, 1500));
+    }
+    cycle();
+    return () => { cancelled = true; timers.forEach(clearTimeout); };
+  }, []);
+
+  const hit = phase === 'hit';
+
+  function handleClick() {
+    speak("Hi, I'm Leeann. I'm always here when you need me.");
+    setPulseKey((k) => k + 1);
+  }
+
   return (
     <div style={{ position: 'relative', background: '#15120E', padding: '72px 40px', overflow: 'hidden', textAlign: 'center' }}>
       <svg viewBox="0 0 1000 120" preserveAspectRatio="none" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
-        <path d={d} stroke="#3A3226" strokeWidth="2" fill="none" opacity="0.6" />
-        <path d={d} stroke="var(--gold)" strokeWidth="2" fill="none" strokeDasharray="120 2000" className="lea-ekg-travel" opacity="0.9" />
+        <path d={dimLeft} stroke="#3A3226" strokeWidth="2" fill="none" opacity="0.6" />
+        <path d={dimRight} stroke="#3A3226" strokeWidth="2" fill="none" opacity="0.6" />
+        {phase === 'left' && (
+          <path key={`l-${pulseKey}`} d={dimLeft} stroke="var(--gold)" strokeWidth="2.5" fill="none"
+            strokeDasharray="90 1000" style={{ animation: 'lea-ekg-run 1.5s linear forwards' }} opacity="0.95" />
+        )}
+        {phase === 'right' && (
+          <path key={`r-${pulseKey}`} d={dimRight} stroke="var(--gold)" strokeWidth="2.5" fill="none"
+            strokeDasharray="90 1000" style={{ animation: 'lea-ekg-run 1.5s linear forwards' }} opacity="0.95" />
+        )}
       </svg>
       <div style={{ position: 'relative' }}>
         <Eyebrow color="var(--gold)">Always on</Eyebrow>
         <div className="lea-display" style={{ fontSize: 26, fontWeight: 700, color: '#F1E9DA', maxWidth: 560, margin: '0 auto 32px' }}>
           Always listening. Always human where it counts.
         </div>
-        <div
-          className="lea-heartbeat lea-orb-interactive"
-          onClick={() => speak("Hi, I'm Leeann. I'm always here when you need me.")}
-          title="Hear Leeann"
-          style={{
-            width: 108, height: 108, borderRadius: '50%', background: 'rgba(255,255,255,0.04)',
-            border: '2px solid var(--wine)', margin: '0 auto', position: 'relative', overflow: 'hidden', cursor: 'pointer',
-          }}
-        >
-          <div className="lea-orb-a" style={{ position: 'absolute', width: '86%', height: '86%', top: '-7%', left: '-7%', borderRadius: '50%', background: 'var(--wine)', filter: 'blur(20px)', opacity: 0.9 }} />
-          <div className="lea-orb-b" style={{ position: 'absolute', width: '86%', height: '86%', bottom: '-7%', right: '-7%', borderRadius: '50%', background: 'var(--gold)', filter: 'blur(20px)', opacity: 0.9 }} />
+        <div style={{ position: 'relative', width: 108, height: 108, margin: '0 auto' }}>
+          <div
+            key={`ring-${pulseKey}`}
+            style={{
+              position: 'absolute', inset: 0, borderRadius: '50%', border: '2px solid var(--gold)',
+              animation: 'lea-ring-burst 0.9s ease-out forwards', pointerEvents: 'none',
+            }}
+          />
+          <div
+            className="lea-orb-interactive"
+            onClick={handleClick}
+            title="Hear Leeann"
+            style={{
+              width: hit ? 128 : 108, height: hit ? 128 : 108,
+              borderRadius: '50%', background: 'rgba(255,255,255,0.04)',
+              border: '2px solid var(--wine)', position: 'absolute', top: '50%', left: '50%',
+              transform: 'translate(-50%, -50%)', overflow: 'hidden', cursor: 'pointer',
+              boxShadow: hit ? '0 0 46px 14px var(--wine-dim), 0 0 66px 20px var(--gold-dim)' : '0 0 0 0 transparent',
+              transition: 'width 0.3s cubic-bezier(.2,.8,.2,1), height 0.3s cubic-bezier(.2,.8,.2,1), box-shadow 0.3s ease',
+            }}
+          >
+            <div className="lea-orb-a" style={{ position: 'absolute', width: '86%', height: '86%', top: '-7%', left: '-7%', borderRadius: '50%', background: 'var(--wine)', filter: 'blur(20px)', opacity: 0.9 }} />
+            <div className="lea-orb-b" style={{ position: 'absolute', width: '86%', height: '86%', bottom: '-7%', right: '-7%', borderRadius: '50%', background: 'var(--gold)', filter: 'blur(20px)', opacity: 0.9 }} />
+          </div>
         </div>
         <div className="lea-mono" style={{ fontSize: 10.5, color: '#8B92AC', marginTop: 14, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
           Tap to hear her
