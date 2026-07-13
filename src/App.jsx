@@ -284,6 +284,10 @@ function GlobalStyles() {
       .lea-cta-pulse { animation: lea-cta-pulse 2.4s ease-out infinite; }
       @keyframes lea-orb-ring-pulse { 0% { transform: scale(1); opacity: 0.55; } 100% { transform: scale(1.7); opacity: 0; } }
       .lea-orb-ring-pulse { animation: lea-orb-ring-pulse 2.6s ease-out infinite; }
+      @keyframes lea-orbit-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+      .lea-orbit-a { animation: lea-orbit-spin 7s linear infinite; }
+      .lea-orbit-b { animation: lea-orbit-spin 10s linear infinite reverse; }
+      .lea-orbit-c { animation: lea-orbit-spin 13.5s linear infinite; }
       .lea-principles-grid { display: grid; grid-template-columns: 1fr 1fr; }
       .lea-principle-cell:hover { background: var(--panel-alt); }
       @media (max-width: 620px) {
@@ -1954,18 +1958,29 @@ export default function LeeannApp() {
 
               {/* one big orb, actually talking to you */}
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <div
-                  className="lea-idle-glow lea-orb-interactive"
-                  onClick={() => speak("Hi, I'm Leeann.")}
-                  title="Say hi"
-                  style={{
-                    width: 168, height: 168, borderRadius: '50%', background: 'var(--panel-alt)',
-                    border: '2px solid var(--wine)', overflow: 'hidden', flexShrink: 0, position: 'relative',
-                  }}
-                >
-                  <span className="lea-orb-ring-pulse" style={{ position: 'absolute', inset: -3, borderRadius: '50%', border: '2px solid var(--wine)', pointerEvents: 'none' }} />
-                  <div className="lea-orb-a" style={{ position: 'absolute', width: '86%', height: '86%', top: '-7%', left: '-7%', borderRadius: '50%', background: 'var(--wine)', filter: 'blur(24px)', opacity: 0.88 }} />
-                  <div className="lea-orb-b" style={{ position: 'absolute', width: '86%', height: '86%', bottom: '-7%', right: '-7%', borderRadius: '50%', background: 'var(--gold)', filter: 'blur(24px)', opacity: 0.88 }} />
+                <div style={{ position: 'relative', width: 168, height: 168 }}>
+                  <div className="lea-orbit-a" style={{ position: 'absolute', inset: -26, pointerEvents: 'none' }}>
+                    <span style={{ position: 'absolute', top: 0, left: '50%', width: 7, height: 7, borderRadius: '50%', background: 'var(--wine)', boxShadow: '0 0 9px 2px var(--wine)', transform: 'translateX(-50%)' }} />
+                  </div>
+                  <div className="lea-orbit-b" style={{ position: 'absolute', inset: -42, pointerEvents: 'none' }}>
+                    <span style={{ position: 'absolute', bottom: 4, left: '50%', width: 5, height: 5, borderRadius: '50%', background: 'var(--gold)', boxShadow: '0 0 8px 2px var(--gold)', transform: 'translateX(-50%)' }} />
+                  </div>
+                  <div className="lea-orbit-c" style={{ position: 'absolute', inset: -58, pointerEvents: 'none' }}>
+                    <span style={{ position: 'absolute', top: '50%', right: 0, width: 4, height: 4, borderRadius: '50%', background: 'var(--wine)', boxShadow: '0 0 7px 2px var(--wine)', transform: 'translateY(-50%)' }} />
+                  </div>
+                  <div
+                    className="lea-idle-glow lea-orb-interactive"
+                    onClick={() => speak("Hi, I'm Leeann.")}
+                    title="Say hi"
+                    style={{
+                      width: 168, height: 168, borderRadius: '50%', background: 'var(--panel-alt)',
+                      border: '2px solid var(--wine)', overflow: 'hidden', flexShrink: 0, position: 'relative',
+                    }}
+                  >
+                    <span className="lea-orb-ring-pulse" style={{ position: 'absolute', inset: -3, borderRadius: '50%', border: '2px solid var(--wine)', pointerEvents: 'none' }} />
+                    <div className="lea-orb-a" style={{ position: 'absolute', width: '86%', height: '86%', top: '-7%', left: '-7%', borderRadius: '50%', background: 'var(--wine)', filter: 'blur(24px)', opacity: 0.88 }} />
+                    <div className="lea-orb-b" style={{ position: 'absolute', width: '86%', height: '86%', bottom: '-7%', right: '-7%', borderRadius: '50%', background: 'var(--gold)', filter: 'blur(24px)', opacity: 0.88 }} />
+                  </div>
                 </div>
                 <div style={{
                   marginTop: 22, background: 'var(--panel)', border: '1px solid var(--line)', borderRadius: 10,
