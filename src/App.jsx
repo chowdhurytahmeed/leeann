@@ -472,6 +472,7 @@ function highlightLine(line, keyColor) {
 function GlobalStyles() {
   return (
     <style>{`
+      @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
       * { box-sizing: border-box; }
       .lea-glass {
         position: relative;
@@ -543,7 +544,6 @@ function GlobalStyles() {
       .lea-root, .lea-root * {
         transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
       }
-      @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
       .lea-root { font-family: 'Inter', sans-serif; }
       .lea-display { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; }
       .lea-signature { font-family: 'Bricolage Grotesque', sans-serif; font-style: normal; }
