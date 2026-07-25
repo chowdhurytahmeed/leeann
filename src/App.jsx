@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { storage } from './storage';
+import { GeminiLiveSession } from './geminiLive';
 import {
   supabaseReady,
   getAccount, upsertAccount,
@@ -1318,6 +1319,13 @@ export default function LeanApp() {
   const [apiKeySet, setApiKeySet] = useState(false);
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
   const [apiKeyInput, setApiKeyInput] = useState('');
+  const [geminiKeySet, setGeminiKeySet] = useState(false);
+  const [geminiKeyInput, setGeminiKeyInput] = useState('');
+  const [liveVoiceActive, setLiveVoiceActive] = useState(false);
+  const [liveVoiceConnecting, setLiveVoiceConnecting] = useState(false);
+  const [liveVoiceError, setLiveVoiceError] = useState(null);
+  const [liveVoiceTranscript, setLiveVoiceTranscript] = useState([]);
+  const geminiSessionRef = useRef(null);
   const [screen, setScreen] = useState('home'); // home | practice | signupType | authForm | employerHome | candidateHome
   const [homeSide, setHomeSide] = useState('employer');
   const [heroMouse, setHeroMouse] = useState({ x: 0, y: 0 });
@@ -1380,6 +1388,7 @@ export default function LeanApp() {
   const [micError, setMicError] = useState(null);
   const [interimTranscript, setInterimTranscript] = useState('');
   const recognitionRef = useRef(null);
+  const utteranceRef = useRef(null);
   const practiceScrollRef = useRef(null);
 
   useEffect(() => {
@@ -1407,9 +1416,21 @@ export default function LeanApp() {
   }, []);
 
   useEffect(() => {
+    if (!window.speechSynthesis) return;
+    // Trigger an initial load — on Chrome this returns [] the first time,
+    // then fires 'voiceschanged' once the real list is ready.
+    window.speechSynthesis.getVoices();
+    const onVoicesChanged = () => window.speechSynthesis.getVoices();
+    window.speechSynthesis.addEventListener('voiceschanged', onVoicesChanged);
+    return () => window.speechSynthesis.removeEventListener('voiceschanged', onVoicesChanged);
+  }, []);
+
+  useEffect(() => {
     (async () => {
       const result = await storage.get('anthropicApiKey');
       setApiKeySet(Boolean(result?.value));
+      const geminiResult = await storage.get('geminiApiKey');
+      setGeminiKeySet(Boolean(geminiResult?.value));
     })();
   }, []);
 
@@ -1424,6 +1445,18 @@ export default function LeanApp() {
   async function clearApiKey() {
     await storage.delete('anthropicApiKey');
     setApiKeySet(false);
+  }
+
+  async function saveGeminiKey() {
+    if (!geminiKeyInput.trim()) return;
+    await storage.set('geminiApiKey', geminiKeyInput.trim());
+    setGeminiKeySet(true);
+    setGeminiKeyInput('');
+  }
+
+  async function clearGeminiKey() {
+    await storage.delete('geminiApiKey');
+    setGeminiKeySet(false);
   }
 
   useEffect(() => {
@@ -1565,6 +1598,75 @@ export default function LeanApp() {
     updateRole(activeRole.id, { started: true });
     const opener = activeRole.hmMessages[activeRole.hmMessages.length - 1]?.text;
     speak(opener, sendHm);
+  }
+
+  async function startLiveVoice() {
+    if (!activeRole || liveVoiceConnecting || liveVoiceActive) return;
+    const geminiKeyResult = await storage.get('geminiApiKey');
+    const geminiKey = geminiKeyResult?.value;
+    if (!geminiKey) {
+      setLiveVoiceError('No Gemini key saved — add one in the key icon (top right) first.');
+      return;
+    }
+    setLiveVoiceError(null);
+    setLiveVoiceConnecting(true);
+    setLiveVoiceTranscript([]);
+
+    const system = `You are Lean, an AI hiring liaison having a real-time spoken conversation with ${account?.name || 'a hiring manager'} at ${account?.company || 'their company'} to understand a role they're hiring for. Ask one focused follow-up question at a time — job title, what the team does, day-to-day responsibilities, must-have skills, team culture, and interview stages. Sound warm and human, like a real recruiter on a call, not a script. Keep responses short and conversational. Open by greeting them and asking what role they're hiring for.`;
+
+    const session = new GeminiLiveSession({
+      apiKey: geminiKey,
+      systemInstruction: system,
+      voiceName: 'Kore',
+      onOpen: async () => {
+        setLiveVoiceConnecting(false);
+        setLiveVoiceActive(true);
+        try {
+          await session.startMic();
+        } catch (e) {
+          setLiveVoiceError('Could not access your microphone — check your browser permissions.');
+        }
+      },
+      onError: () => {
+        setLiveVoiceConnecting(false);
+        setLiveVoiceActive(false);
+        setLiveVoiceError('Connection to Gemini failed — check your key and try again.');
+      },
+      onClose: () => {
+        setLiveVoiceActive(false);
+        setLiveVoiceConnecting(false);
+      },
+      onSpeakingChange: setLeanSpeaking,
+      onListeningChange: setIsListening,
+      onTranscript: (role, textDelta) => {
+        setLiveVoiceTranscript((prev) => {
+          const last = prev[prev.length - 1];
+          if (last && last.role === role) {
+            return [...prev.slice(0, -1), { role, text: last.text + textDelta }];
+          }
+          return [...prev, { role, text: textDelta }];
+        });
+      },
+    });
+
+    geminiSessionRef.current = session;
+    try {
+      await session.connect();
+    } catch (e) {
+      setLiveVoiceConnecting(false);
+      setLiveVoiceError('Connection to Gemini failed — check your key and try again.');
+    }
+  }
+
+  function stopLiveVoice() {
+    if (geminiSessionRef.current) {
+      geminiSessionRef.current.disconnect();
+      geminiSessionRef.current = null;
+    }
+    setLiveVoiceActive(false);
+    setLiveVoiceConnecting(false);
+    setLeanSpeaking(false);
+    setIsListening(false);
   }
 
   async function syncProfile() {
@@ -1927,18 +2029,49 @@ export default function LeanApp() {
     try {
       if (!window.speechSynthesis || !text) return;
       window.speechSynthesis.cancel();
+
       const utter = new SpeechSynthesisUtterance(text);
       utter.rate = 1;
       utter.pitch = 1.02;
       const voices = window.speechSynthesis.getVoices();
       const preferred = voices.find((v) => /Samantha|Victoria|Google US English|Female/i.test(v.name)) || voices.find((v) => v.lang?.startsWith('en')) || voices[0];
       if (preferred) utter.voice = preferred;
-      utter.onstart = () => setLeanSpeaking(true);
-      utter.onend = () => {
+
+      // Keep a live reference — some browsers silently drop callbacks if the
+      // utterance object gets garbage-collected while still queued/speaking.
+      utteranceRef.current = utter;
+
+      let settled = false;
+      const finish = () => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(safetyTimer);
+        clearInterval(resumeInterval);
         setLeanSpeaking(false);
         if (onAnswer && micSupported) setTimeout(() => startListening(onAnswer), 350);
       };
-      utter.onerror = () => setLeanSpeaking(false);
+
+      utter.onstart = () => setLeanSpeaking(true);
+      utter.onend = finish;
+      utter.onerror = finish;
+
+      // Chrome has a long-standing bug where it auto-pauses speech synthesis
+      // after ~15s, especially on longer utterances or when the tab loses
+      // focus, and never fires onend. Nudging pause/resume periodically
+      // keeps it actually moving instead of silently freezing.
+      const resumeInterval = setInterval(() => {
+        if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+          window.speechSynthesis.pause();
+          window.speechSynthesis.resume();
+        }
+      }, 12000);
+
+      // Absolute safety net: if the browser never fires onend/onerror at all
+      // (it happens), force the UI out of "speaking" after a generous
+      // duration instead of leaving it stuck forever.
+      const estimatedMs = Math.max(2500, text.length * 70);
+      const safetyTimer = setTimeout(finish, estimatedMs + 4000);
+
       window.speechSynthesis.speak(utter);
     } catch (e) {
       setLeanSpeaking(false);
@@ -2095,6 +2228,37 @@ export default function LeanApp() {
               </button>
               {apiKeySet && (
                 <button onClick={clearApiKey} style={{ background: 'transparent', border: '1px solid var(--line)', borderRadius: 8, padding: '10px 16px', fontSize: 13, color: 'var(--danger)', cursor: 'pointer' }}>
+                  Remove
+                </button>
+              )}
+            </div>
+
+            <div style={{ borderTop: '1px solid var(--line)', margin: '20px 0 16px' }} />
+
+            <div className="lea-display" style={{ fontSize: 16, fontWeight: 600, color: 'var(--text)', marginBottom: 6 }}>Gemini API key (Live Voice)</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 12, lineHeight: 1.55 }}>
+              Optional — powers real-time voice conversation. Get a key at{' '}
+              <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--wine)' }}>aistudio.google.com/apikey</a>.
+            </div>
+            {geminiKeySet && (
+              <div style={{ fontSize: 12, color: 'var(--gold)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <CheckCircle2 size={13} /> A Gemini key is currently saved in this browser.
+              </div>
+            )}
+            <input
+              value={geminiKeyInput}
+              onChange={(e) => setGeminiKeyInput(e.target.value)}
+              placeholder="AIza..."
+              type="password"
+              onKeyDown={(e) => e.key === 'Enter' && saveGeminiKey()}
+              style={{ width: '100%', background: 'var(--panel-alt)', border: '1px solid var(--line)', borderRadius: 8, padding: '11px 12px', color: 'var(--text)', fontSize: 13, marginBottom: 14, outline: 'none' }}
+            />
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button onClick={saveGeminiKey} disabled={!geminiKeyInput.trim()} style={{ flex: 1, background: geminiKeyInput.trim() ? 'var(--gold)' : 'var(--line)', border: 'none', borderRadius: 8, padding: '10px 0', fontSize: 13, fontWeight: 600, color: 'var(--on-accent)', cursor: geminiKeyInput.trim() ? 'pointer' : 'not-allowed' }}>
+                Save key
+              </button>
+              {geminiKeySet && (
+                <button onClick={clearGeminiKey} style={{ background: 'transparent', border: '1px solid var(--line)', borderRadius: 8, padding: '10px 16px', fontSize: 13, color: 'var(--danger)', cursor: 'pointer' }}>
                   Remove
                 </button>
               )}
@@ -2857,6 +3021,39 @@ export default function LeanApp() {
                       {!micSupported && (
                         <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 10 }}>Voice isn't supported in this browser — you'll type instead.</div>
                       )}
+                      <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid var(--line)' }}>
+                        <button
+                          onClick={startLiveVoice}
+                          disabled={liveVoiceConnecting}
+                          style={{ background: 'transparent', border: '1px solid var(--gold)', borderRadius: 8, padding: '9px 18px', fontSize: 12.5, fontWeight: 600, color: 'var(--gold)', cursor: liveVoiceConnecting ? 'default' : 'pointer' }}
+                        >
+                          {liveVoiceConnecting ? 'Connecting…' : '🔴 Try Live Voice (Gemini, beta)'}
+                        </button>
+                        {liveVoiceError && (
+                          <div style={{ fontSize: 11, color: 'var(--danger)', marginTop: 8 }}>{liveVoiceError}</div>
+                        )}
+                      </div>
+                    </div>
+                  ) : liveVoiceActive ? (
+                    <div style={{ marginTop: 24, width: '100%', maxWidth: 420, textAlign: 'center' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 16 }}>
+                        <span className="lea-live-dot" style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--gold)', display: 'inline-block' }} />
+                        <span className="lea-mono" style={{ fontSize: 11, color: 'var(--gold)', textTransform: 'uppercase' }}>
+                          {leanSpeaking ? 'Lean is speaking…' : isListening ? 'Listening…' : 'Live — go ahead'}
+                        </span>
+                      </div>
+                      <div style={{ textAlign: 'left', background: 'var(--panel-alt)', border: '1px solid var(--line)', borderRadius: 10, padding: 14, maxHeight: 260, overflowY: 'auto', marginBottom: 14 }}>
+                        {liveVoiceTranscript.length === 0 ? (
+                          <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Say hello — Lean will greet you and start asking about the role.</div>
+                        ) : liveVoiceTranscript.map((t, i) => (
+                          <div key={i} style={{ marginBottom: 8, fontSize: 12.5, color: t.role === 'user' ? 'var(--text)' : 'var(--gold-deep)' }}>
+                            <strong>{t.role === 'user' ? 'You' : 'Lean'}:</strong> {t.text}
+                          </div>
+                        ))}
+                      </div>
+                      <button onClick={stopLiveVoice} style={{ background: 'transparent', border: '1px solid var(--line)', borderRadius: 8, padding: '9px 18px', fontSize: 12.5, fontWeight: 600, color: 'var(--text-muted)', cursor: 'pointer' }}>
+                        End live voice session
+                      </button>
                     </div>
                   ) : (
                     <>
