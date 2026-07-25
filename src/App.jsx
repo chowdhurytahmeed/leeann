@@ -580,6 +580,10 @@ function GlobalStyles() {
       }
       .lea-speaking { animation: lea-glow 1.1s ease-in-out infinite; }
       .lea-idle-glow { box-shadow: 0 0 30px 8px var(--wine-dim), 0 0 54px 16px var(--gold-dim); }
+      @keyframes lea-ray-sweep-a { 0% { transform: rotate(-8deg) translateX(0); } 50% { transform: rotate(8deg) translateX(30px); } 100% { transform: rotate(-8deg) translateX(0); } }
+      @keyframes lea-ray-sweep-b { 0% { transform: rotate(6deg) translateX(0); } 50% { transform: rotate(-10deg) translateX(-24px); } 100% { transform: rotate(6deg) translateX(0); } }
+      .lea-ray-a { animation: lea-ray-sweep-a 18s ease-in-out infinite; }
+      .lea-ray-b { animation: lea-ray-sweep-b 22s ease-in-out infinite; }
       @keyframes lea-orb-wave-sweep { 0% { background-position: 0% 0%; } 100% { background-position: 200% 200%; } }
       .lea-orb-wave {
         background: linear-gradient(115deg, transparent 25%, rgba(240,86,110,0.32) 48%, rgba(240,86,110,0.32) 56%, transparent 78%);
@@ -1558,6 +1562,108 @@ function FlowLine({ color }) {
 // wrapping div rather than the orb itself, since the orb's own classes
 // already animate its glow and hover scale — keeping them on separate
 // elements means neither fights the other for control of `transform`.
+// Floating particles drifting slowly upward like embers/stars, looping back
+// to the bottom once they drift off the top, each twinkling gently via its
+// own opacity pulse so they don't all flicker in unison.
+function HeroParticles() {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    let raf;
+    let w = 0, h = 0;
+
+    function resize() {
+      const rect = canvas.getBoundingClientRect();
+      w = rect.width; h = rect.height;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    const colors = ['#F0566E', '#7B9FFF', '#F5F1EA'];
+    const particles = Array.from({ length: 46 }, () => ({
+      x: Math.random(),
+      y: Math.random(),
+      size: 1 + Math.random() * 2.2,
+      speed: 0.008 + Math.random() * 0.014,
+      twinkleSpeed: 0.6 + Math.random() * 1.4,
+      twinklePhase: Math.random() * Math.PI * 2,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      drift: (Math.random() - 0.5) * 0.15,
+    }));
+
+    function draw(t) {
+      ctx.clearRect(0, 0, w, h);
+      const time = t / 1000;
+      particles.forEach((p) => {
+        p.y -= p.speed * 0.006;
+        if (p.y < -0.02) p.y = 1.02;
+        const x = (p.x + Math.sin(time * 0.3 + p.twinklePhase) * p.drift * 0.05) * w;
+        const y = p.y * h;
+        const twinkle = 0.35 + Math.abs(Math.sin(time * p.twinkleSpeed + p.twinklePhase)) * 0.5;
+        ctx.beginPath();
+        ctx.arc(x, y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = twinkle;
+        ctx.shadowColor = p.color;
+        ctx.shadowBlur = 6;
+        ctx.fill();
+      });
+      raf = requestAnimationFrame(draw);
+    }
+    raf = requestAnimationFrame(draw);
+
+    return () => { cancelAnimationFrame(raf); window.removeEventListener('resize', resize); };
+  }, []);
+
+  return <canvas ref={canvasRef} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }} />;
+}
+
+// A subtle animated film-grain texture — SVG turbulence noise, redrawn with
+// a new random seed a few times a second, low enough opacity that it reads
+// as texture rather than visible static.
+function GrainOverlay() {
+  const [seed, setSeed] = useState(1);
+  useEffect(() => {
+    const id = setInterval(() => setSeed((s) => (s % 9) + 1), 120);
+    return () => clearInterval(id);
+  }, []);
+  return (
+    <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', opacity: 0.05, mixBlendMode: 'overlay' }}>
+      <filter id="lea-grain">
+        <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed={seed} stitchTiles="stitch" />
+      </filter>
+      <rect width="100%" height="100%" filter="url(#lea-grain)" />
+    </svg>
+  );
+}
+
+// A couple of soft, wide light beams slowly sweeping across the hero —
+// heavily blurred gradient bars rotating at different, very slow speeds.
+function LightRays() {
+  return (
+    <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+      <div className="lea-ray-a" style={{
+        position: 'absolute', top: '-40%', left: '10%', width: 260, height: '180%',
+        background: 'linear-gradient(180deg, transparent, rgba(240,86,110,0.14), transparent)',
+        filter: 'blur(40px)', transformOrigin: 'center',
+      }} />
+      <div className="lea-ray-b" style={{
+        position: 'absolute', top: '-40%', right: '15%', width: 220, height: '180%',
+        background: 'linear-gradient(180deg, transparent, rgba(123,159,255,0.13), transparent)',
+        filter: 'blur(40px)', transformOrigin: 'center',
+      }} />
+    </div>
+  );
+}
+
+
 function InteractiveOrb({ onClick }) {
   const wrapRef = useRef(null);
   const targetRef = useRef({ x: 0, y: 0 });
@@ -2872,6 +2978,9 @@ export default function LeanApp() {
                 transform: `translate(${heroMouse.x * -14}px, ${heroMouse.y * -8}px)`,
               }}
             />
+            <LightRays />
+            <HeroParticles />
+            <GrainOverlay />
             <div style={{ position: 'relative' }}>
               <div className="lea-mono" style={{ fontSize: 11, letterSpacing: '0.14em', color: 'var(--gold)', marginBottom: 20, textTransform: 'uppercase' }}>
                 Your hiring liaison
