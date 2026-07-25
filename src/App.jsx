@@ -1,12 +1,47 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { storage } from './storage';
 import {
+  supabaseReady,
+  getAccount, upsertAccount,
+  getRolesForEmployer, getOpenRoles, createRole as dbCreateRole, updateRole as dbUpdateRole,
+} from './supabaseClient';
+import {
   Users, User, Activity, Send, Loader2, CheckCircle2, Circle, XCircle,
   Sparkles, Calendar, ArrowRight, ArrowLeft, ClipboardList, MessageSquare,
   Building2, Sun, Moon, Volume2, Search, Mic, Key
 } from 'lucide-react';
 
 const MODEL = 'claude-sonnet-4-6';
+
+// The app's role objects use camelCase (mustHaves, hmMessages); the database
+// columns are snake_case (must_haves, hm_messages). These two helpers convert
+// between them so the rest of the app never has to think about the difference.
+function mapDbRoleToAppRole(row) {
+  return {
+    id: row.id,
+    title: row.title || '',
+    team: row.team || '',
+    tasks: row.tasks || [],
+    mustHaves: row.must_haves || [],
+    culture: row.culture || '',
+    stages: row.stages || [],
+    company: row.company || '',
+    started: Boolean(row.started),
+    hmMessages: row.hm_messages || [],
+    createdAt: row.created_at ? new Date(row.created_at).toLocaleDateString([], { month: 'short', day: 'numeric' }) : '',
+  };
+}
+
+function toDbRoleChanges(changes) {
+  const keyMap = { mustHaves: 'must_haves', hmMessages: 'hm_messages' };
+  const out = {};
+  for (const [key, value] of Object.entries(changes)) {
+    if (key === 'createdAt') continue; // server-managed, never written back
+    out[keyMap[key] || key] = value;
+  }
+  return out;
+}
+
 
 async function callClaude(messages, system) {
   try {
@@ -1291,6 +1326,7 @@ export default function LeanApp() {
   const [dashboardView, setDashboardView] = useState('list'); // 'list' | 'compare'
 
   const [roles, setRoles] = useState([]); // every open role this employer is hiring for
+  const [allOpenRoles, setAllOpenRoles] = useState([]); // the shared job board — every company's open roles, from Supabase
   const [activeRoleId, setActiveRoleId] = useState(null); // which role is currently open in Calibrate/Dashboard
   const [hmInput, setHmInput] = useState('');
   const [hmLoading, setHmLoading] = useState(false);
@@ -1405,6 +1441,31 @@ export default function LeanApp() {
   }, []);
 
   useEffect(() => {
+    if (!account || account.type !== 'employer' || !supabaseReady) return;
+    (async () => {
+      try {
+        const rows = await getRolesForEmployer(account.email);
+        setRoles(rows.map(mapDbRoleToAppRole));
+      } catch (e) {
+        // Supabase not reachable — the employer just starts with an empty local list
+      }
+    })();
+  }, [account]);
+
+  useEffect(() => {
+    if (!account || account.type !== 'candidate' || !supabaseReady) return;
+    (async () => {
+      try {
+        const rows = await getOpenRoles();
+        setAllOpenRoles(rows.map(mapDbRoleToAppRole));
+      } catch (e) {
+        // Supabase not reachable — falls back to whatever roles exist locally
+      }
+    })();
+  }, [account]);
+
+
+  useEffect(() => {
     if (!account) { setPracticeHistory([]); setHistoryLoading(false); return; }
     setHistoryLoading(true);
     (async () => {
@@ -1422,9 +1483,9 @@ export default function LeanApp() {
 
 
   const activeRole = roles.find((r) => r.id === activeRoleId) || null;
-  const openRoles = roles.filter((r) => r.title && r.team); // roles Lean has enough to represent to candidates
+  const openRoles = allOpenRoles.length > 0 ? allOpenRoles : roles.filter((r) => r.title && r.team); // roles Lean has enough to represent to candidates
   const activeCandidate = candidates.find((c) => c.id === activeCandidateId) || null;
-  const candidateRole = roles.find((r) => r.id === activeCandidate?.roleId) || null;
+  const candidateRole = roles.find((r) => r.id === activeCandidate?.roleId) || allOpenRoles.find((r) => r.id === activeCandidate?.roleId) || null;
   const roleCandidates = candidates.filter((c) => c.roleId === activeRoleId);
   const pipelineCandidate = candidates.find((c) => c.id === selectedPipelineId) || null;
   const vars = theme === 'dark' ? {
@@ -1444,10 +1505,31 @@ export default function LeanApp() {
   };
 
   function updateRole(id, changes) {
-    setRoles((prev) => prev.map((r) => (r.id === id ? { ...r, ...(typeof changes === 'function' ? changes(r) : changes) } : r)));
+    setRoles((prev) => prev.map((r) => {
+      if (r.id !== id) return r;
+      const computed = typeof changes === 'function' ? changes(r) : changes;
+      if (supabaseReady) {
+        dbUpdateRole(id, toDbRoleChanges(computed)).catch(() => {
+          // best-effort background sync — local state already has the change
+        });
+      }
+      return { ...r, ...computed };
+    }));
   }
 
-  function createRole() {
+  async function createRole() {
+    if (supabaseReady && account?.email) {
+      try {
+        const row = await dbCreateRole(account.email, account.company || '');
+        const newRole = mapDbRoleToAppRole(row);
+        setRoles((prev) => [...prev, newRole]);
+        setActiveRoleId(newRole.id);
+        setTab('hm');
+        return;
+      } catch (e) {
+        // Supabase not reachable — fall through to a local-only role below
+      }
+    }
     const id = `${Date.now()}`;
     const newRole = {
       id, title: '', team: '', tasks: [], mustHaves: [], culture: '', stages: [],
@@ -1502,7 +1584,7 @@ export default function LeanApp() {
   }
 
   function buildCandidateSystem(candidate) {
-    const role = roles.find((r) => r.id === candidate?.roleId);
+    const role = roles.find((r) => r.id === candidate?.roleId) || allOpenRoles.find((r) => r.id === candidate?.roleId);
     return `You are Lean, an AI hiring liaison representing this open role at ${role?.company || 'the company'} to a candidate on behalf of the hiring team. Role profile: ${JSON.stringify(role || {})}. Candidate name: ${candidate?.name || 'the candidate'}. Candidate background: ${candidate?.resume || 'not provided'}. Answer questions about the role honestly and specifically using only the role profile — never invent details that aren't in it, and say so if something wasn't specified. Be warm, direct, concise (3-5 sentences max), and personable — you're a helpful person, not a script. You can also ask the candidate light screening questions conversationally, one at a time.`;
   }
 
@@ -1625,16 +1707,39 @@ export default function LeanApp() {
     const email = overrides.email ?? authEmail;
     const company = overrides.company ?? authCompany;
     if (!name.trim() || !email.trim() || !signupType) return;
-    const newAccount = {
+    const cleanEmail = email.trim().toLowerCase();
+    let finalAccount = {
       type: signupType,
       name: name.trim(),
-      email: email.trim().toLowerCase(),
+      email: cleanEmail,
       company: signupType === 'employer' ? company.trim() : undefined,
       resume: signupType === 'candidate' ? authResume.trim() : undefined,
     };
-    setAccount(newAccount);
+
+    if (supabaseReady) {
+      try {
+        const existing = await getAccount(cleanEmail);
+        if (existing) {
+          // returning account — use what's already saved, not whatever was just typed
+          finalAccount = {
+            type: existing.type, name: existing.name, email: existing.email,
+            company: existing.company ?? undefined, resume: existing.resume ?? undefined,
+          };
+        } else {
+          const created = await upsertAccount(finalAccount);
+          finalAccount = {
+            type: created.type, name: created.name, email: created.email,
+            company: created.company ?? undefined, resume: created.resume ?? undefined,
+          };
+        }
+      } catch (e) {
+        // Supabase not reachable — fall back to the local-only account below
+      }
+    }
+
+    setAccount(finalAccount);
     try {
-      await storage.set('lean-account', JSON.stringify(newAccount));
+      await storage.set('lean-account', JSON.stringify(finalAccount));
     } catch (e) {
       // best-effort — the session still works for this visit even if saving fails
     }
@@ -1643,7 +1748,7 @@ export default function LeanApp() {
     setAuthCompany('');
     setAuthResume('');
     setSsoPhase(null);
-    setScreen(newAccount.type === 'employer' ? 'employerHome' : 'candidateHome');
+    setScreen(finalAccount.type === 'employer' ? 'employerHome' : 'candidateHome');
   }
 
   function handleAuthContinue() {
