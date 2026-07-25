@@ -232,6 +232,13 @@ function GlobalStyles() {
   return (
     <style>{`
       * { box-sizing: border-box; }
+      .lea-glass {
+        background: var(--glass-bg);
+        backdrop-filter: blur(18px) saturate(160%);
+        -webkit-backdrop-filter: blur(18px) saturate(160%);
+        border: 1px solid var(--glass-border);
+        box-shadow: inset 0 1px 0 var(--glass-highlight), 0 8px 32px rgba(0,0,0,0.10);
+      }
       .lea-root, .lea-root * {
         transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
       }
@@ -479,10 +486,10 @@ function FlipCard({ icon: Icon, before, after, label, detail, color, delay }) {
           position: 'relative', width: '100%', height: '100%', transition: 'transform 0.6s cubic-bezier(.4,.2,.2,1)',
           transformStyle: 'preserve-3d', transform: flipped ? 'rotateY(180deg)' : 'none',
         }}>
-          <div style={{
-            position: 'absolute', inset: 0, backfaceVisibility: 'hidden', background: 'var(--panel)', border: '1px solid var(--line)',
+          <div className="lea-glass" style={{
+            position: 'absolute', inset: 0, backfaceVisibility: 'hidden',
             borderRadius: 14, padding: 22, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center',
-            textAlign: 'center', overflow: 'hidden', boxShadow: '0 4px 14px rgba(0,0,0,0.06)',
+            textAlign: 'center', overflow: 'hidden',
           }}>
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: color }} />
             <Icon size={22} color={color} style={{ marginBottom: 12 }} />
@@ -517,7 +524,7 @@ function PrinciplesSection() {
         <Eyebrow color="var(--text-muted)">Principles</Eyebrow>
         <div className="lea-display" style={{ fontSize: 26, fontWeight: 700, color: 'var(--text)' }}>Built with guardrails, not just features</div>
       </div>
-      <div className="lea-principles-grid" style={{ maxWidth: 840, margin: '0 auto', border: '1px solid var(--line)', borderRadius: 16, overflow: 'hidden', background: 'var(--panel)' }}>
+      <div className="lea-principles-grid lea-glass" style={{ maxWidth: 840, margin: '0 auto', borderRadius: 16, overflow: 'hidden' }}>
         {principles.map((p, i) => (
           <div key={i} className="lea-principle-cell" style={{
             padding: '34px 30px',
@@ -555,8 +562,8 @@ function FAQSection() {
         {faqs.map((f, i) => {
           const open = openIndex === i;
           return (
-            <div key={i} className="lea-benefit-card" style={{
-              background: 'var(--panel)', border: `1px solid ${open ? f.color : 'var(--line)'}`, borderRadius: 12,
+            <div key={i} className="lea-benefit-card lea-glass" style={{
+              border: `1px solid ${open ? f.color : 'var(--glass-border)'}`, borderRadius: 12,
               overflow: 'hidden', position: 'relative',
             }}>
               {open && <div style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: 3, background: f.color }} />}
@@ -753,9 +760,9 @@ function RoadmapSection() {
       <div style={{ display: 'flex', gap: 16, maxWidth: 820, margin: '0 auto', flexWrap: 'wrap', position: 'relative' }}>
         {items.map((t, i) => (
           <div key={i} className="lea-float-card" style={{ flex: 1, minWidth: 280, animationDelay: t.delay }}>
-            <div className="lea-benefit-card" style={{
+            <div className="lea-benefit-card lea-glass" style={{
               height: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '15px 18px',
-              border: `1px dashed ${t.color}`, borderRadius: 12, background: 'var(--panel)',
+              border: `1px dashed ${t.color}`, borderRadius: 12,
             }}>
               <div className="lea-benefit-icon" style={{ width: 34, height: 34, borderRadius: 9, background: `${t.color}1A`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <t.icon size={15} color={t.color} />
@@ -1370,12 +1377,14 @@ export default function LeanApp() {
     '--wine': '#F0566E', '--wine-deep': '#B8264A', '--wine-dim': 'rgba(240,86,110,0.18)', '--wine-glow': 'rgba(240,86,110,0.55)',
     '--gold': '#7B9FFF', '--gold-deep': '#2947C4', '--gold-dim': 'rgba(123,159,255,0.18)', '--gold-glow': 'rgba(123,159,255,0.55)',
     '--danger': '#FF9152', '--on-accent': '#10131F',
+    '--glass-bg': 'rgba(23,27,44,0.5)', '--glass-border': 'rgba(255,255,255,0.09)', '--glass-highlight': 'rgba(255,255,255,0.06)',
   } : {
     '--bg': '#F4F6FA', '--panel': '#FFFFFF', '--panel-alt': '#ECEFF5', '--line': '#D8DEE9',
     '--text': '#14161F', '--text-muted': '#666E82',
     '--wine': '#BB1F42', '--wine-deep': '#7A1230', '--wine-dim': 'rgba(187,31,66,0.10)', '--wine-glow': 'rgba(187,31,66,0.4)',
     '--gold': '#2947C4', '--gold-deep': '#152C82', '--gold-dim': 'rgba(41,71,196,0.10)', '--gold-glow': 'rgba(41,71,196,0.4)',
     '--danger': '#E0632E', '--on-accent': '#FFFFFF',
+    '--glass-bg': 'rgba(255,255,255,0.5)', '--glass-border': 'rgba(255,255,255,0.6)', '--glass-highlight': 'rgba(255,255,255,0.35)',
   };
 
   function updateRole(id, changes) {
@@ -1957,7 +1966,7 @@ export default function LeanApp() {
               }} />
             </div>
           ))}
-          <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 24px', borderBottom: '1px solid var(--line)' }}>
+          <div className="lea-glass" style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 24px', borderRadius: 0, borderTop: 'none', borderLeft: 'none', borderRight: 'none' }}>
             <Wordmark />
             <TopRightAuth />
           </div>
