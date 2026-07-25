@@ -88,9 +88,10 @@ function makeUiStops(onDarkBg, onLightBg) {
 // list, so they can never drift out of sync with each other.
 const GRADIENT_WAYPOINTS = [
   { at: 0.00, color: '#0A0812' },
-  { at: 0.15, color: '#1B2A56' },
-  { at: 0.45, color: '#141F3D' },
-  { at: 0.72, color: '#0D1428' },
+  { at: 0.15, color: '#2F4A94' },
+  { at: 0.40, color: '#1E2F5E' },
+  { at: 0.65, color: '#121D3C' },
+  { at: 0.85, color: '#0B1224' },
   { at: 1.00, color: '#15120E' },
 ];
 
