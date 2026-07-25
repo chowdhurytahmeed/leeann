@@ -1551,6 +1551,70 @@ function FlowLine({ color }) {
 // palette instead of Siri's blue/pink/green. `speaking` drives amplitude and
 // speed so it visibly reacts to real "Lean is talking" state, not just a
 // decorative loop.
+// The hero orb, now tracking the cursor — the whole circle drifts a few
+// pixels toward wherever the mouse is, falling off smoothly the further
+// away the cursor gets, so it reads as "paying attention" rather than
+// mechanically snapping to a position. The parallax motion is applied to a
+// wrapping div rather than the orb itself, since the orb's own classes
+// already animate its glow and hover scale — keeping them on separate
+// elements means neither fights the other for control of `transform`.
+function InteractiveOrb({ onClick }) {
+  const wrapRef = useRef(null);
+  const targetRef = useRef({ x: 0, y: 0 });
+  const currentRef = useRef({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const wrap = wrapRef.current;
+    if (!wrap) return;
+
+    function handleMove(e) {
+      const rect = wrap.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const dx = e.clientX - cx;
+      const dy = e.clientY - cy;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const maxDist = 480; // beyond this, the orb stops reacting at all
+      const strength = Math.max(0, 1 - dist / maxDist);
+      targetRef.current = {
+        x: Math.max(-20, Math.min(20, dx * 0.06 * strength)),
+        y: Math.max(-20, Math.min(20, dy * 0.06 * strength)),
+      };
+    }
+
+    let raf;
+    function tick() {
+      const cur = currentRef.current, tgt = targetRef.current;
+      cur.x += (tgt.x - cur.x) * 0.1;
+      cur.y += (tgt.y - cur.y) * 0.1;
+      if (wrap) wrap.style.transform = `translate(-50%, -50%) translate(${cur.x}px, ${cur.y}px)`;
+      raf = requestAnimationFrame(tick);
+    }
+    window.addEventListener('mousemove', handleMove, { passive: true });
+    raf = requestAnimationFrame(tick);
+
+    return () => { window.removeEventListener('mousemove', handleMove); cancelAnimationFrame(raf); };
+  }, []);
+
+  return (
+    <div ref={wrapRef} style={{ position: 'absolute', top: '50%', left: '50%', width: 300, height: 300 }}>
+      <div
+        className="lea-idle-glow lea-orb-interactive"
+        onClick={onClick}
+        title="Say hi"
+        style={{
+          width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,0.03)',
+          border: '2px solid var(--wine)', overflow: 'hidden', position: 'relative',
+        }}
+      >
+        <span className="lea-orb-ring-pulse" style={{ position: 'absolute', inset: -4, borderRadius: '50%', border: '2px solid var(--wine)', pointerEvents: 'none' }} />
+        <div className="lea-orb-a" style={{ position: 'absolute', width: '86%', height: '86%', top: '-7%', left: '-7%', borderRadius: '50%', background: 'var(--wine)', filter: 'blur(46px)', opacity: 0.92 }} />
+        <div className="lea-orb-b" style={{ position: 'absolute', width: '86%', height: '86%', bottom: '-7%', right: '-7%', borderRadius: '50%', background: 'var(--gold)', filter: 'blur(46px)', opacity: 0.92 }} />
+      </div>
+    </div>
+  );
+}
+
 function LeanWaveform({ height = 90 }) {
   const canvasRef = useRef(null);
 
@@ -2718,40 +2782,9 @@ export default function LeanApp() {
                 Your hiring liaison
               </div>
 
-              {/* the orb — enlarged into the actual hero centerpiece, with blueprint-style annotations */}
+              {/* the orb — enlarged into the actual hero centerpiece, now tracks the cursor */}
               <div style={{ position: 'relative', width: 460, maxWidth: '100%', height: 320, margin: '0 auto 30px' }}>
-                <svg viewBox="0 0 460 320" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
-                  <g stroke="var(--text-muted)" strokeOpacity="0.4" strokeWidth="1" strokeDasharray="2 4">
-                    <line x1="230" y1="60" x2="70" y2="20" />
-                    <line x1="230" y1="60" x2="410" y2="30" />
-                    <line x1="140" y1="160" x2="20" y2="180" />
-                    <line x1="320" y1="230" x2="430" y2="260" />
-                  </g>
-                  <g fill="none" stroke="var(--text-muted)" strokeOpacity="0.55" strokeWidth="1">
-                    <rect x="63" y="13" width="10" height="10" />
-                    <rect x="403" y="23" width="10" height="10" />
-                    <rect x="13" y="173" width="10" height="10" />
-                    <rect x="423" y="253" width="10" height="10" />
-                  </g>
-                  <text x="42" y="10" fill="var(--text-muted)" fillOpacity="0.6" fontSize="9" fontFamily="monospace">CALIBRATE</text>
-                  <text x="378" y="20" fill="var(--text-muted)" fillOpacity="0.6" fontSize="9" fontFamily="monospace">CONVERSE</text>
-                  <text x="395" y="250" fill="var(--text-muted)" fillOpacity="0.6" fontSize="9" fontFamily="monospace">READOUT</text>
-                </svg>
-                <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 300, height: 300 }}>
-                  <div
-                    className="lea-idle-glow lea-orb-interactive"
-                    onClick={sayHeyWithLeanVoice}
-                    title="Say hi"
-                    style={{
-                      width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,0.03)',
-                      border: '2px solid var(--wine)', overflow: 'hidden', position: 'relative',
-                    }}
-                  >
-                    <span className="lea-orb-ring-pulse" style={{ position: 'absolute', inset: -4, borderRadius: '50%', border: '2px solid var(--wine)', pointerEvents: 'none' }} />
-                    <div className="lea-orb-a" style={{ position: 'absolute', width: '86%', height: '86%', top: '-7%', left: '-7%', borderRadius: '50%', background: 'var(--wine)', filter: 'blur(46px)', opacity: 0.92 }} />
-                    <div className="lea-orb-b" style={{ position: 'absolute', width: '86%', height: '86%', bottom: '-7%', right: '-7%', borderRadius: '50%', background: 'var(--gold)', filter: 'blur(46px)', opacity: 0.92 }} />
-                  </div>
-                </div>
+                <InteractiveOrb onClick={sayHeyWithLeanVoice} />
               </div>
 
               <div className="lea-display" style={{ fontSize: 42, fontWeight: 700, color: 'var(--text)', maxWidth: 660, margin: '0 auto 14px', lineHeight: 1.15 }}>
