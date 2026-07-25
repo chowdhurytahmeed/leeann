@@ -2646,7 +2646,7 @@ export default function LeanApp() {
 
   return (
     <div className="lea-root" style={{
-      ...vars, background: 'var(--bg)', minHeight: 640, borderRadius: 12, overflow: 'hidden', border: '1px solid var(--line)', position: 'relative',
+      ...vars, background: 'var(--bg)', minHeight: 640, overflow: 'hidden', position: 'relative',
       backgroundImage: 'radial-gradient(var(--line) 1px, transparent 1px)', backgroundSize: '22px 22px',
     }}>
       <GlobalStyles />
