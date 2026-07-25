@@ -2772,8 +2772,6 @@ export default function LeanApp() {
           </div>
           </Reveal>
 
-          <ReadoutSection />
-
           <Reveal><PrinciplesSection /></Reveal>
           <Reveal><FAQSection /></Reveal>
           <Reveal><RoadmapSection /></Reveal>
