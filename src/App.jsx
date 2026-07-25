@@ -1671,14 +1671,24 @@ export default function LeanApp() {
   }
 
   async function syncProfile() {
-    if (syncing || !activeRole || activeRole.hmMessages.length < 2) return;
+    if (syncing || !activeRole) return;
+    // The live Gemini conversation is captured separately in liveVoiceTranscript,
+    // not in hmMessages — combine both so a sync actually sees the real conversation.
+    const liveMessages = liveVoiceTranscript.map((t) => ({ role: t.role, text: t.text }));
+    const combined = [...activeRole.hmMessages, ...liveMessages];
+    if (combined.length < 2) return;
     const id = activeRole.id;
     setSyncing(true);
-    const transcript = activeRole.hmMessages.map((m) => `${m.role === 'user' ? 'Hiring Manager' : 'Lean'}: ${m.text}`).join('\n');
+    const transcript = combined.map((m) => `${m.role === 'user' ? 'Hiring Manager' : 'Lean'}: ${m.text}`).join('\n');
     const system = "Extract a structured role profile from this hiring-manager conversation. Return ONLY valid JSON, no other text, in exactly this shape: {\"title\": string, \"team\": string, \"tasks\": string[], \"mustHaves\": string[], \"culture\": string, \"stages\": string[]}. Leave fields as empty string or empty array if not yet discussed. Infer reasonable interview stages if none were stated explicitly but a title/team is clear.";
     const result = await callClaude([{ role: 'user', content: transcript }], system);
     const parsed = parseJSON(result);
-    if (parsed) updateRole(id, parsed);
+    if (parsed) {
+      // Fold the live transcript into permanent history and clear the buffer,
+      // so a second sync later doesn't reprocess the same lines twice.
+      updateRole(id, { ...parsed, hmMessages: combined });
+      if (liveMessages.length > 0) setLiveVoiceTranscript([]);
+    }
     setSyncing(false);
   }
 
@@ -3070,7 +3080,7 @@ export default function LeanApp() {
                 <div style={{ flex: 1, padding: 20, background: 'var(--panel)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
                     <Eyebrow color="var(--text-muted)">Role Profile</Eyebrow>
-                    <button onClick={syncProfile} disabled={syncing || activeRole.hmMessages.length < 2}
+                    <button onClick={syncProfile} disabled={syncing || (activeRole.hmMessages.length + liveVoiceTranscript.length) < 2}
                       style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, padding: '6px 10px', borderRadius: 6, background: 'transparent', border: '1px solid var(--wine)', color: 'var(--wine)', cursor: 'pointer' }}>
                       {syncing ? <Loader2 size={12} className="lea-live-dot" /> : <ArrowRight size={12} />}
                       {syncing ? 'Getting up to speed…' : 'Sync Profile'}
