@@ -78,50 +78,43 @@ function makeUiStops(onDarkBg, onLightBg) {
   ];
 }
 
-// The page's whole color sequence, painted once as a real CSS gradient
-// across the full page height — dark at the very top (the hero shows this
-// immediately, no scrolling required), through navy, brightening to white
-// through the middle, then back down through navy to dark by the bottom.
-// Because this is an actual gradient rather than a JS-computed flat color,
-// there's no possibility of a visible jump — it's continuous by construction.
-//
-// BG_KEYFRAMES below must list the exact same colors and positions as this
-// CSS string — it's how the JS side knows what color the background
-// actually is at a given scroll position, so text contrast can be derived
-// from real brightness instead of a second, independently-guessed set of
-// breakpoints that can drift out of sync with what's actually on screen.
-const PAGE_GRADIENT = `linear-gradient(to bottom,
-  #0A0812 0%,
-  #1B2A56 12%,
-  #33447A 21%,
-  #5568A0 29%,
-  #8090B8 38%,
-  #B8C0D8 46%,
-  #F4F6FA 55%,
-  #F4F6FA 60%,
-  #B8C0D8 69%,
-  #8090B8 77%,
-  #5568A0 86%,
-  #33447A 94%,
-  #1B2A56 98%,
-  #0A0812 100%
-)`;
-const BG_KEYFRAMES = [
-  { at: 0, color: '#0A0812' },
-  { at: 0.12, color: '#1B2A56' },
-  { at: 0.21, color: '#33447A' },
-  { at: 0.29, color: '#5568A0' },
-  { at: 0.38, color: '#8090B8' },
-  { at: 0.46, color: '#B8C0D8' },
-  { at: 0.55, color: '#F4F6FA' },
-  { at: 0.60, color: '#F4F6FA' },
-  { at: 0.69, color: '#B8C0D8' },
-  { at: 0.77, color: '#8090B8' },
-  { at: 0.86, color: '#5568A0' },
-  { at: 0.94, color: '#33447A' },
-  { at: 0.98, color: '#1B2A56' },
-  { at: 1, color: '#0A0812' },
+// The page's whole color sequence, generated mathematically rather than
+// hand-placed — a handful of "true" waypoints (dark, navy, white, navy,
+// dark) with cosine easing computed between them into many fine-grained
+// steps. Cosine easing naturally moves slowly near each waypoint and faster
+// in between, which is what actually produces a gradual approach into white
+// rather than a hand-tuned guess at spacing. The CSS gradient string and the
+// JS keyframe array used for text-contrast are both built from this same
+// list, so they can never drift out of sync with each other.
+const GRADIENT_WAYPOINTS = [
+  { at: 0.00, color: '#0A0812' },
+  { at: 0.18, color: '#1B2A56' },
+  { at: 0.50, color: '#F4F6FA' },
+  { at: 0.82, color: '#1B2A56' },
+  { at: 1.00, color: '#0A0812' },
 ];
+
+function buildEasedKeyframes(waypoints, steps) {
+  const out = [];
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    let color = waypoints[waypoints.length - 1].color;
+    for (let w = 0; w < waypoints.length - 1; w++) {
+      const a = waypoints[w], b = waypoints[w + 1];
+      if (t >= a.at && t <= b.at) {
+        const localT = (b.at === a.at) ? 0 : (t - a.at) / (b.at - a.at);
+        const eased = (1 - Math.cos(localT * Math.PI)) / 2; // cosine ease — slow-fast-slow
+        color = mixColor(a.color, b.color, eased);
+        break;
+      }
+    }
+    out.push({ at: t, color });
+  }
+  return out;
+}
+
+const BG_KEYFRAMES = buildEasedKeyframes(GRADIENT_WAYPOINTS, 60);
+const PAGE_GRADIENT = `linear-gradient(to bottom, ${BG_KEYFRAMES.map((s) => `${s.color} ${(s.at * 100).toFixed(2)}%`).join(', ')})`;
 
 const TEXT_STOPS = makeUiStops('#EDEFF5', '#14161F');
 const TEXT_MUTED_STOPS = makeUiStops('#8B92AC', '#666E82');
@@ -550,9 +543,9 @@ function GlobalStyles() {
       .lea-root, .lea-root * {
         transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
       }
-      @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Archivo:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
       .lea-root { font-family: 'Inter', sans-serif; }
-      .lea-display { font-family: 'Archivo', sans-serif; font-weight: 700; }
+      .lea-display { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; }
       .lea-signature { font-family: 'Space Grotesk', sans-serif; font-style: normal; }
       .lea-mono { font-family: 'IBM Plex Mono', monospace; }
       .lea-scroll::-webkit-scrollbar { width: 6px; }
