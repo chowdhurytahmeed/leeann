@@ -658,8 +658,8 @@ function GlobalStyles() {
       .lea-cursor { animation: lea-blink 0.9s step-end infinite; }
       @keyframes lea-orb-a { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
       @keyframes lea-orb-b { 0%, 100% { transform: scale(1); } 50% { transform: scale(0.97); } }
-      .lea-orb-a { animation: lea-orb-a 8s ease-in-out infinite; }
-      .lea-orb-b { animation: lea-orb-b 9s ease-in-out infinite; }
+      .lea-orb-a {}
+      .lea-orb-b {}
       .lea-play-btn { transition: transform 0.12s ease, background 0.12s ease; }
       .lea-play-btn:hover { transform: scale(1.06); }
     `}</style>
@@ -1675,14 +1675,19 @@ function LightRays() {
 }
 
 
-function InteractiveOrb({ onClick }) {
+function InteractiveOrb({ onClick, amplitudeRef }) {
   const wrapRef = useRef(null);
+  const breathRef = useRef(null);
   const targetRef = useRef({ x: 0, y: 0 });
   const currentRef = useRef({ x: 0, y: 0 });
+  const glanceRef = useRef({ x: 0, y: 0, nextAt: 3 + Math.random() * 4 });
+  const breathStateRef = useRef({ cycleLen: 4.5 + Math.random() * 1.5, ampVariation: 1, cycled: false });
+  const blinkStateRef = useRef({ nextAt: 4 + Math.random() * 7, remaining: 0 });
 
   useEffect(() => {
     const wrap = wrapRef.current;
-    if (!wrap) return;
+    const breath = breathRef.current;
+    if (!wrap || !breath) return;
 
     function handleMove(e) {
       const rect = wrap.getBoundingClientRect();
@@ -1700,35 +1705,90 @@ function InteractiveOrb({ onClick }) {
     }
 
     let raf;
-    function tick() {
+    const startTime = performance.now();
+    function tick(now) {
+      const t = (now - startTime) / 1000;
+
+      // --- position: mouse-follow, plus an occasional "glance" toward a
+      // random point at irregular intervals, like attention shifting even
+      // while idle. Both combine into one smoothed position. ---
+      const glance = glanceRef.current;
+      if (t > glance.nextAt) {
+        glance.x = (Math.random() - 0.5) * 36;
+        glance.y = (Math.random() - 0.5) * 24;
+        glance.nextAt = t + 4 + Math.random() * 6;
+      }
+      glance.x *= 0.985;
+      glance.y *= 0.985;
+
       const cur = currentRef.current, tgt = targetRef.current;
-      cur.x += (tgt.x - cur.x) * 0.1;
-      cur.y += (tgt.y - cur.y) * 0.1;
-      if (wrap) wrap.style.transform = `translate(-50%, -50%) translate(${cur.x}px, ${cur.y}px)`;
+      cur.x += (tgt.x + glance.x - cur.x) * 0.1;
+      cur.y += (tgt.y + glance.y - cur.y) * 0.1;
+      wrap.style.transform = `translate(-50%, -50%) translate(${cur.x}px, ${cur.y}px)`;
+
+      // --- breathing: continuous scale pulse, but each cycle's length and
+      // depth vary slightly so it doesn't feel like a perfect metronome. ---
+      const b = breathStateRef.current;
+      const breathPhase = (t % b.cycleLen) / b.cycleLen;
+      if (breathPhase < 0.02 && !b.cycled) {
+        b.cycleLen = 4.5 + Math.random() * 1.5;
+        b.ampVariation = 0.8 + Math.random() * 0.4;
+        b.cycled = true;
+      } else if (breathPhase > 0.05) {
+        b.cycled = false;
+      }
+      const breathScale = 1 + Math.sin(breathPhase * Math.PI * 2) * 0.035 * b.ampVariation;
+
+      // --- voice amplitude: while actually speaking, real audio level
+      // (from the live playback analyser) adds an extra scale boost on
+      // top of breathing, so motion actually matches what's being said. ---
+      const amp = (amplitudeRef && amplitudeRef.current) || 0;
+      const ampScale = 1 + amp * 0.16;
+
+      // --- blink: brief, irregularly-timed dimming, since perfectly
+      // steady brightness reads as mechanical. ---
+      const blink = blinkStateRef.current;
+      if (t > blink.nextAt) {
+        blink.remaining = 0.16;
+        blink.nextAt = t + 5 + Math.random() * 8;
+      }
+      let blinkOpacity = 1;
+      if (blink.remaining > 0) {
+        blink.remaining -= 1 / 60;
+        const progress = 1 - Math.max(0, blink.remaining) / 0.16;
+        blinkOpacity = 0.72 + Math.abs(Math.sin(progress * Math.PI)) * 0.28;
+      }
+
+      breath.style.transform = `scale(${breathScale * ampScale})`;
+      breath.style.opacity = String(blinkOpacity);
+
       raf = requestAnimationFrame(tick);
     }
     window.addEventListener('mousemove', handleMove, { passive: true });
     raf = requestAnimationFrame(tick);
 
     return () => { window.removeEventListener('mousemove', handleMove); cancelAnimationFrame(raf); };
-  }, []);
+  }, [amplitudeRef]);
 
   return (
     <div ref={wrapRef} style={{ position: 'absolute', top: '50%', left: '50%', width: 300, height: 300 }}>
-      <div
-        className="lea-idle-glow lea-orb-interactive"
-        onClick={onClick}
-        title="Say hi"
-        style={{
-          width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,0.03)',
-          border: '2px solid var(--wine)', overflow: 'hidden', position: 'relative',
-        }}
-      >
-        <span className="lea-orb-ring-pulse" style={{ position: 'absolute', inset: -4, borderRadius: '50%', border: '2px solid var(--wine)', pointerEvents: 'none' }} />
-        <div className="lea-orb-a" style={{ position: 'absolute', width: '86%', height: '86%', top: '-7%', left: '-7%', borderRadius: '50%', background: 'var(--wine)', filter: 'blur(46px)', opacity: 0.92 }} />
-        <div className="lea-orb-b" style={{ position: 'absolute', width: '86%', height: '86%', bottom: '-7%', right: '-7%', borderRadius: '50%', background: 'var(--gold)', filter: 'blur(46px)', opacity: 0.92 }} />
+      <div ref={breathRef} style={{ width: '100%', height: '100%' }}>
+        <div
+          className="lea-idle-glow lea-orb-interactive"
+          onClick={onClick}
+          title="Say hi"
+          style={{
+            width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,0.03)',
+            border: '2px solid var(--wine)', overflow: 'hidden', position: 'relative',
+          }}
+        >
+          <span className="lea-orb-ring-pulse" style={{ position: 'absolute', inset: -4, borderRadius: '50%', border: '2px solid var(--wine)', pointerEvents: 'none' }} />
+          <div className="lea-orb-a" style={{ position: 'absolute', width: '86%', height: '86%', top: '-7%', left: '-7%', borderRadius: '50%', background: 'var(--wine)', filter: 'blur(46px)', opacity: 0.92 }} />
+          <div className="lea-orb-b" style={{ position: 'absolute', width: '86%', height: '86%', bottom: '-7%', right: '-7%', borderRadius: '50%', background: 'var(--gold)', filter: 'blur(46px)', opacity: 0.92 }} />
+        </div>
       </div>
     </div>
+
   );
 }
 
@@ -1937,6 +1997,7 @@ function ThemeToggle({ theme, onToggle }) {
 
 export default function LeanApp() {
   const scrollThemeVars = useScrollBg();
+  const heroOrbAmplitudeRef = useRef(0);
   const [theme, setTheme] = useState('light');
   const [apiKeySet, setApiKeySet] = useState(false);
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
@@ -2316,6 +2377,7 @@ export default function LeanApp() {
         if (speaking) hasSpoken = true;
         else if (hasSpoken) session.disconnect();
       },
+      onAmplitude: (level) => { heroOrbAmplitudeRef.current = level; },
       onError: () => {},
       onClose: () => setLeanSpeaking(false),
     });
@@ -2999,7 +3061,7 @@ export default function LeanApp() {
 
               {/* the orb — enlarged into the actual hero centerpiece, now tracks the cursor */}
               <div style={{ position: 'relative', width: 460, maxWidth: '100%', height: 320, margin: '0 auto 30px' }}>
-                <InteractiveOrb onClick={sayHeyWithLeanVoice} />
+                <InteractiveOrb onClick={sayHeyWithLeanVoice} amplitudeRef={heroOrbAmplitudeRef} />
               </div>
 
               <div className="lea-display" style={{ fontSize: 42, fontWeight: 700, color: 'var(--text)', maxWidth: 660, margin: '0 auto 14px', lineHeight: 1.15 }}>

@@ -53,7 +53,7 @@ function floatTo16kPCM(float32Array, inRate, outRate) {
 }
 
 export class GeminiLiveSession {
-  constructor({ apiKey, systemInstruction, voiceName = 'Kore', onOpen, onClose, onError, onSpeakingChange, onListeningChange, onTranscript }) {
+  constructor({ apiKey, systemInstruction, voiceName = 'Kore', onOpen, onClose, onError, onSpeakingChange, onListeningChange, onTranscript, onAmplitude }) {
     this.apiKey = apiKey;
     this.systemInstruction = systemInstruction;
     this.voiceName = voiceName;
@@ -63,6 +63,7 @@ export class GeminiLiveSession {
     this.onSpeakingChange = onSpeakingChange || (() => {});
     this.onListeningChange = onListeningChange || (() => {});
     this.onTranscript = onTranscript || (() => {});
+    this.onAmplitude = onAmplitude || (() => {});
 
     this.ws = null;
     this.audioContext = null;
@@ -195,6 +196,27 @@ export class GeminiLiveSession {
     this.onListeningChange(false);
   }
 
+  _startAmplitudeLoop() {
+    const tick = () => {
+      if (!this.analyserNode || !this.isPlaying) return;
+      this.analyserNode.getByteTimeDomainData(this._amplitudeData);
+      let sumSquares = 0;
+      for (let i = 0; i < this._amplitudeData.length; i++) {
+        const v = (this._amplitudeData[i] - 128) / 128;
+        sumSquares += v * v;
+      }
+      const rms = Math.sqrt(sumSquares / this._amplitudeData.length);
+      this.onAmplitude(Math.min(1, rms * 3.5)); // scaled up — raw RMS is quiet
+      this._amplitudeRaf = requestAnimationFrame(tick);
+    };
+    tick();
+  }
+
+  _stopAmplitudeLoop() {
+    if (this._amplitudeRaf) cancelAnimationFrame(this._amplitudeRaf);
+    this.onAmplitude(0);
+  }
+
   sendText(text) {
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return;
     this.ws.send(JSON.stringify({
@@ -206,6 +228,12 @@ export class GeminiLiveSession {
     if (!this.playbackContext) {
       this.playbackContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: OUTPUT_SAMPLE_RATE });
       this.playbackQueueTime = this.playbackContext.currentTime;
+      // Analyser taps the actual audio being played (not a side-channel
+      // guess) so onAmplitude reflects real volume, not a canned loop.
+      this.analyserNode = this.playbackContext.createAnalyser();
+      this.analyserNode.fftSize = 256;
+      this.analyserNode.connect(this.playbackContext.destination);
+      this._amplitudeData = new Uint8Array(this.analyserNode.frequencyBinCount);
     }
     const pcmBuffer = base64ToArrayBuffer(base64Data);
     const pcm16 = new Int16Array(pcmBuffer);
@@ -217,7 +245,7 @@ export class GeminiLiveSession {
 
     const source = this.playbackContext.createBufferSource();
     source.buffer = audioBuffer;
-    source.connect(this.playbackContext.destination);
+    source.connect(this.analyserNode);
 
     const startAt = Math.max(this.playbackQueueTime, this.playbackContext.currentTime);
     source.start(startAt);
@@ -226,11 +254,13 @@ export class GeminiLiveSession {
     if (!this.isPlaying) {
       this.isPlaying = true;
       this.onSpeakingChange(true);
+      this._startAmplitudeLoop();
     }
     source.onended = () => {
       if (this.playbackContext && this.playbackContext.currentTime >= this.playbackQueueTime - 0.05) {
         this.isPlaying = false;
         this.onSpeakingChange(false);
+        this._stopAmplitudeLoop();
       }
     };
   }
@@ -242,6 +272,7 @@ export class GeminiLiveSession {
     }
     this.playbackQueueTime = 0;
     this.isPlaying = false;
+    this._stopAmplitudeLoop();
   }
 
   disconnect() {
