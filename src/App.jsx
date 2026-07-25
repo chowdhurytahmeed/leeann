@@ -638,6 +638,110 @@ function FlipCard({ icon: Icon, before, after, label, detail, color, delay }) {
 }
 
 
+// Tracks how far an element has scrolled through the viewport as a smooth
+// 0-1 value — not a one-shot "is it visible" boolean like Reveal uses, but
+// a continuous value so a scroll-linked animation can track scroll position
+// directly, the way SharpLink's wireframe-to-dashboard panel does.
+function useScrollProgress(ref) {
+  const [progress, setProgress] = useState(0);
+  useEffect(() => {
+    function onScroll() {
+      const el = ref.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const vh = window.innerHeight;
+      const start = vh * 0.95;
+      const end = vh * 0.35;
+      const raw = (start - rect.top) / (start - end);
+      setProgress(Math.min(1, Math.max(0, raw)));
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    onScroll();
+    return () => { window.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onScroll); };
+  }, [ref]);
+  return progress;
+}
+
+function ReadoutPanel({ progress }) {
+  return (
+    <div style={{
+      position: 'relative', background: '#0D0B12', border: '1px solid rgba(255,255,255,0.1)',
+      borderRadius: 16, overflow: 'hidden', height: 320, maxWidth: 440, margin: '0 auto',
+    }}>
+      {/* wireframe state — fades out as you scroll past */}
+      <div style={{ position: 'absolute', inset: 0, opacity: 1 - progress, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <svg viewBox="0 0 300 300" width="72%" height="72%">
+          <circle cx="150" cy="150" r="92" fill="none" stroke="rgba(245,241,234,0.3)" strokeWidth="1" strokeDasharray="2 4" />
+          <circle cx="150" cy="150" r="58" fill="none" stroke="rgba(245,241,234,0.45)" strokeWidth="1" />
+          <line x1="150" y1="58" x2="55" y2="18" stroke="rgba(245,241,234,0.28)" strokeWidth="1" strokeDasharray="2 4" />
+          <rect x="50" y="13" width="9" height="9" fill="none" stroke="rgba(245,241,234,0.4)" />
+          <line x1="150" y1="242" x2="245" y2="282" stroke="rgba(245,241,234,0.28)" strokeWidth="1" strokeDasharray="2 4" />
+          <rect x="240" y="277" width="9" height="9" fill="none" stroke="rgba(245,241,234,0.4)" />
+          <line x1="92" y1="150" x2="20" y2="180" stroke="rgba(245,241,234,0.28)" strokeWidth="1" strokeDasharray="2 4" />
+          <rect x="15" y="175" width="9" height="9" fill="none" stroke="rgba(245,241,234,0.4)" />
+        </svg>
+      </div>
+
+      {/* live readout state — fades in */}
+      <div style={{
+        position: 'absolute', inset: 0, padding: 26, opacity: progress,
+        transform: `translateY(${(1 - progress) * 14}px)`,
+      }}>
+        <div className="lea-mono" style={{ fontSize: 10, color: 'rgba(245,241,234,0.5)', textTransform: 'uppercase', marginBottom: 6 }}>
+          Time to fill a role
+        </div>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 24 }}>
+          <span style={{ fontSize: 13, color: 'rgba(245,241,234,0.4)', textDecoration: 'line-through' }}>42 days</span>
+          <span className="lea-display" style={{ fontSize: 32, fontWeight: 700, color: '#F5F1EA' }}>~7 days</span>
+        </div>
+        <svg viewBox="0 0 300 100" width="100%" height="86" style={{ marginBottom: 16 }}>
+          <polyline points="0,85 60,80 120,55 180,45 240,20 300,10" fill="none" stroke="var(--wine)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          <circle cx="300" cy="10" r="4" fill="var(--wine)" />
+        </svg>
+        <div className="lea-mono" style={{ fontSize: 10, color: 'rgba(245,241,234,0.5)', textTransform: 'uppercase' }}>
+          Candidate readiness — trending up
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ReadoutSection() {
+  const ref = useRef(null);
+  const progress = useScrollProgress(ref);
+  const items = [
+    { n: '01', t: 'Live from day one', d: 'No setup lag — Lean starts calibrating the moment the conversation starts.' },
+    { n: '02', t: 'Every word logged', d: "Nothing gets lost between what's said and what's on record." },
+    { n: '03', t: 'Trackable in real time', d: 'Watch the role profile fill in as the conversation actually happens.' },
+  ];
+  return (
+    <div ref={ref} style={{ padding: '70px 40px', display: 'flex', gap: 56, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', maxWidth: 1000, margin: '0 auto' }}>
+      <div style={{ flex: 1, minWidth: 280, maxWidth: 420 }}>
+        <Eyebrow color="var(--gold)">From conversation to readout</Eyebrow>
+        <div className="lea-display" style={{ fontSize: 32, fontWeight: 700, color: '#F5F1EA', marginBottom: 14, lineHeight: 1.2 }}>
+          Every conversation becomes real signal.
+        </div>
+        <div style={{ fontSize: 14, color: 'rgba(245,241,234,0.6)', lineHeight: 1.65, marginBottom: 30 }}>
+          What starts as a loose conversation with a hiring manager gets structured, tracked, and turned into something the whole team can actually act on.
+        </div>
+        {items.map((item, i) => (
+          <div key={i} style={{ display: 'flex', gap: 14, marginBottom: 20 }}>
+            <span className="lea-mono" style={{ fontSize: 11, color: 'var(--gold)', flexShrink: 0, paddingTop: 2 }}>{item.n}</span>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: '#F5F1EA', marginBottom: 3 }}>{item.t}</div>
+              <div style={{ fontSize: 12.5, color: 'rgba(245,241,234,0.55)', lineHeight: 1.5 }}>{item.d}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div style={{ flex: 1, minWidth: 280 }}>
+        <ReadoutPanel progress={progress} />
+      </div>
+    </div>
+  );
+}
+
 function PrinciplesSection() {
   const principles = [
     { icon: CheckCircle2, title: 'A human always decides', text: "Lean recommends. A hiring manager confirms every outcome — nothing is automatic.", color: 'var(--wine)' },
@@ -2677,6 +2781,8 @@ export default function LeanApp() {
             </div>
           </div>
           </Reveal>
+
+          <ReadoutSection />
 
           <Reveal><PrinciplesSection /></Reveal>
           <Reveal><FAQSection /></Reveal>
