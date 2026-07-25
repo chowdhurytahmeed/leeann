@@ -79,6 +79,36 @@ async function callClaude(messages, system) {
   }
 }
 
+// Same shape as callClaude — takes [{role, content}] + a system prompt, returns
+// plain text — but calls Gemini's REST API instead, using the same Gemini key
+// already saved for Live Voice. Used anywhere text-extraction is needed
+// without requiring a separate funded Anthropic key.
+async function callGemini(messages, system) {
+  try {
+    const apiKey = localStorage.getItem('lean:geminiApiKey');
+    if (!apiKey) {
+      return "I don't have a Gemini key set up yet — add one in Settings.";
+    }
+    const contents = messages.map((m) => ({
+      role: m.role === 'assistant' ? 'model' : 'user',
+      parts: [{ text: m.content }],
+    }));
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents, systemInstruction: { parts: [{ text: system }] } }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      return `Gemini API error: ${data?.error?.message || res.statusText}. Check your Gemini key in Settings.`;
+    }
+    const text = (data?.candidates?.[0]?.content?.parts || []).map((p) => p.text || '').join('');
+    return text || "I couldn't quite process that — try rephrasing.";
+  } catch (e) {
+    return "I'm having trouble connecting to Gemini right now. Try again in a moment.";
+  }
+}
+
 function speak(text) {
   try {
     if (!window.speechSynthesis || !text) return;
@@ -1619,7 +1649,7 @@ export default function LeanApp() {
     const session = new GeminiLiveSession({
       apiKey: geminiKey,
       systemInstruction: system,
-      voiceName: 'Kore',
+      voiceName: 'Sulafat', // "Warm" per Google's voice list — friendlier than Kore's "Firm"
       onOpen: async () => {
         setLiveVoiceConnecting(false);
         setLiveVoiceActive(true);
@@ -1682,7 +1712,7 @@ export default function LeanApp() {
     setSyncing(true);
     const transcript = combined.map((m) => `${m.role === 'user' ? 'Hiring Manager' : 'Lean'}: ${m.text}`).join('\n');
     const system = "Extract a structured role profile from this hiring-manager conversation. Return ONLY valid JSON, no other text, in exactly this shape: {\"title\": string, \"team\": string, \"tasks\": string[], \"mustHaves\": string[], \"culture\": string, \"stages\": string[]}. Leave fields as empty string or empty array if not yet discussed. Infer reasonable interview stages if none were stated explicitly but a title/team is clear.";
-    const result = await callClaude([{ role: 'user', content: transcript }], system);
+    const result = await callGemini([{ role: 'user', content: transcript }], system);
     const parsed = parseJSON(result);
     if (parsed) {
       // Fold the live transcript into permanent history and clear the buffer,
@@ -1691,7 +1721,7 @@ export default function LeanApp() {
       if (liveMessages.length > 0) setLiveVoiceTranscript([]);
       setSyncError(null);
     } else {
-      setSyncError(result?.slice(0, 200) || 'Sync failed — check your Anthropic API key in Settings.');
+      setSyncError(result?.slice(0, 200) || 'Sync failed — check your Gemini API key in Settings.');
     }
     setSyncing(false);
   }
