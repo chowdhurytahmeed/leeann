@@ -1205,7 +1205,7 @@ function buildEkgSegment(xStart, xEnd, baseline = 72, gridStart = 0) {
   return d;
 }
 
-function PulseSection({ onSignup, onOrbClick }) {
+function PulseSection({ onSignup, onOrbClick, amplitudeRef }) {
   const dimLeft = buildEkgSegment(0, 460);
   const dimRight = buildEkgSegment(565, 1000, 72, 565);
   const [phase, setPhase] = useState('left'); // left | hit | right | pause
@@ -1254,7 +1254,7 @@ function PulseSection({ onSignup, onOrbClick }) {
       </div>
 
       <div style={{ position: 'relative' }}>
-        <svg viewBox="0 0 1000 120" preserveAspectRatio="none" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
+        <svg viewBox="0 0 1000 120" preserveAspectRatio="none" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', transform: 'translateY(50px)' }}>
           <path d={dimLeft} stroke="#3A3226" strokeWidth="2" fill="none" opacity="0.6" />
           <path d={dimRight} stroke="#3A3226" strokeWidth="2" fill="none" opacity="0.6" />
           {phase === 'left' && (
@@ -1279,22 +1279,7 @@ function PulseSection({ onSignup, onOrbClick }) {
                 animation: 'lea-ring-burst 0.9s ease-out forwards', pointerEvents: 'none',
               }}
             />
-            <div
-              className="lea-orb-interactive"
-              onClick={handleClick}
-              title="Hear Lean"
-              style={{
-                width: hit ? 128 : 108, height: hit ? 128 : 108,
-                borderRadius: '50%', background: 'rgba(255,255,255,0.04)',
-                border: '2px solid var(--wine)', position: 'absolute', top: '50%', left: '50%',
-                transform: 'translate(-50%, -50%)', overflow: 'hidden', cursor: 'pointer',
-                boxShadow: hit ? '0 0 46px 14px var(--wine-dim), 0 0 66px 20px var(--gold-dim)' : '0 0 0 0 transparent',
-                transition: 'width 0.3s cubic-bezier(.2,.8,.2,1), height 0.3s cubic-bezier(.2,.8,.2,1), box-shadow 0.3s ease',
-              }}
-            >
-              <div className="lea-orb-a" style={{ position: 'absolute', width: '86%', height: '86%', top: '-7%', left: '-7%', borderRadius: '50%', background: 'var(--wine)', filter: 'blur(20px)', opacity: 0.9 }} />
-              <div className="lea-orb-b" style={{ position: 'absolute', width: '86%', height: '86%', bottom: '-7%', right: '-7%', borderRadius: '50%', background: 'var(--gold)', filter: 'blur(20px)', opacity: 0.9 }} />
-            </div>
+            <InteractiveOrb onClick={handleClick} amplitudeRef={amplitudeRef} size={108} hit={hit} title="Hear Lean" />
           </div>
           <div className="lea-mono" style={{ fontSize: 10.5, color: '#8B92AC', marginTop: 14, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
             Tap to hear her
@@ -1705,7 +1690,7 @@ function LightRays() {
 }
 
 
-function InteractiveOrb({ onClick, amplitudeRef }) {
+function InteractiveOrb({ onClick, amplitudeRef, size = 300, hit = false, title = 'Say hi' }) {
   const wrapRef = useRef(null);
   const breathRef = useRef(null);
   const targetRef = useRef({ x: 0, y: 0 });
@@ -1729,9 +1714,10 @@ function InteractiveOrb({ onClick, amplitudeRef }) {
       const dist = Math.sqrt(dx * dx + dy * dy);
       const maxDist = 480; // beyond this, the orb stops reacting at all
       const strength = Math.max(0, 1 - dist / maxDist);
+      const reach = size / 300; // smaller orbs drift a proportionally smaller distance
       targetRef.current = {
-        x: Math.max(-20, Math.min(20, dx * 0.06 * strength)),
-        y: Math.max(-20, Math.min(20, dy * 0.06 * strength)),
+        x: Math.max(-20, Math.min(20, dx * 0.06 * strength)) * reach,
+        y: Math.max(-20, Math.min(20, dy * 0.06 * strength)) * reach,
       };
     }
 
@@ -1745,8 +1731,8 @@ function InteractiveOrb({ onClick, amplitudeRef }) {
       // while idle. Both combine into one smoothed position. ---
       const glance = glanceRef.current;
       if (t > glance.nextAt) {
-        glance.x = (Math.random() - 0.5) * 36;
-        glance.y = (Math.random() - 0.5) * 24;
+        glance.x = (Math.random() - 0.5) * 36 * (size / 300);
+        glance.y = (Math.random() - 0.5) * 24 * (size / 300);
         glance.nextAt = t + 4 + Math.random() * 6;
       }
       glance.x *= 0.985;
@@ -1802,23 +1788,33 @@ function InteractiveOrb({ onClick, amplitudeRef }) {
     raf = requestAnimationFrame(tick);
 
     return () => { window.removeEventListener('mousemove', handleMove); cancelAnimationFrame(raf); };
-  }, [amplitudeRef]);
+  }, [amplitudeRef, size]);
+
+  const blurAmount = Math.round(size * 0.153); // scales proportionally — 46px at the hero's 300px size
+  const circleMask = 'radial-gradient(circle, black 99%, transparent 100%)';
 
   return (
-    <div ref={wrapRef} style={{ position: 'absolute', top: '50%', left: '50%', width: 300, height: 300 }}>
-      <div ref={breathRef} style={{ width: '100%', height: '100%' }}>
+    <div ref={wrapRef} style={{ position: 'absolute', top: '50%', left: '50%', width: size, height: size }}>
+      <div ref={breathRef} style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div
           className="lea-idle-glow lea-orb-interactive"
           onClick={onClick}
-          title="Say hi"
+          title={title}
           style={{
-            width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,0.03)',
-            border: '2px solid var(--wine)', overflow: 'hidden', position: 'relative',
+            width: hit ? size * 1.185 : size, height: hit ? size * 1.185 : size,
+            borderRadius: '50%', background: 'rgba(255,255,255,0.03)',
+            border: '2px solid var(--wine)', overflow: 'hidden', position: 'relative', flexShrink: 0,
+            // explicit circular mask — overflow:hidden + border-radius alone
+            // doesn't reliably clip a blurred child to a perfect circle in
+            // every browser, which is what was showing as a square edge
+            maskImage: circleMask, WebkitMaskImage: circleMask,
+            boxShadow: hit ? '0 0 46px 14px var(--wine-dim), 0 0 66px 20px var(--gold-dim)' : undefined,
+            transition: 'width 0.3s cubic-bezier(.2,.8,.2,1), height 0.3s cubic-bezier(.2,.8,.2,1), box-shadow 0.3s ease',
           }}
         >
           <span className="lea-orb-ring-pulse" style={{ position: 'absolute', inset: -4, borderRadius: '50%', border: '2px solid var(--wine)', pointerEvents: 'none' }} />
-          <div className="lea-orb-a" style={{ position: 'absolute', width: '86%', height: '86%', top: '-7%', left: '-7%', borderRadius: '50%', background: 'var(--wine)', filter: 'blur(46px)', opacity: 0.92 }} />
-          <div className="lea-orb-b" style={{ position: 'absolute', width: '86%', height: '86%', bottom: '-7%', right: '-7%', borderRadius: '50%', background: 'var(--gold)', filter: 'blur(46px)', opacity: 0.92 }} />
+          <div className="lea-orb-a" style={{ position: 'absolute', width: '86%', height: '86%', top: '-7%', left: '-7%', borderRadius: '50%', background: 'var(--wine)', filter: `blur(${blurAmount}px)`, opacity: 0.92 }} />
+          <div className="lea-orb-b" style={{ position: 'absolute', width: '86%', height: '86%', bottom: '-7%', right: '-7%', borderRadius: '50%', background: 'var(--gold)', filter: `blur(${blurAmount}px)`, opacity: 0.92 }} />
         </div>
       </div>
     </div>
@@ -2032,6 +2028,7 @@ function ThemeToggle({ theme, onToggle }) {
 export default function LeanApp() {
   const scrollThemeVars = useScrollBg();
   const heroOrbAmplitudeRef = useRef(0);
+  const pulseOrbAmplitudeRef = useRef(0);
   const [theme, setTheme] = useState('light');
   const [apiKeySet, setApiKeySet] = useState(false);
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
@@ -2398,13 +2395,24 @@ export default function LeanApp() {
     const geminiKey = geminiKeyResult?.value;
     if (!geminiKey) return; // no key configured — nothing to say with
 
+    // A random category each click, not just "tell me a fact" every time —
+    // models tend to gravitate toward the same handful of "greatest hits"
+    // facts if asked the same generic prompt repeatedly, so picking the
+    // topic client-side makes the variety far more reliable.
+    const factTopics = [
+      'outer space', 'the ocean', 'ancient history', 'animals', 'the human body',
+      'geography', 'science', 'famous inventions', 'language and words', 'food and cooking',
+      'insects', 'weather', 'the human brain', 'plants', 'music', 'numbers and math',
+    ];
+    const topic = factTopics[Math.floor(Math.random() * factTopics.length)];
+
     let hasSpoken = false;
     const session = new GeminiLiveSession({
       apiKey: geminiKey,
-      systemInstruction: "You are Lean. Say a short, warm one-line greeting like \"Hey, I'm Lean!\" — nothing else, no questions, no follow-up.",
+      systemInstruction: `You are Lean. Say "Hi, I'm Lean!" and then share one short, genuinely surprising fun fact about ${topic}. Keep the whole thing to two sentences, warm and casual — no follow-up question, no "did you know" cliché opener.`,
       voiceName: 'Sulafat',
       onOpen: () => {
-        session.sendText('Say hello.');
+        session.sendText(`Say hi and share a fun fact about ${topic}.`);
       },
       onSpeakingChange: (speaking) => {
         setLeanSpeaking(speaking);
@@ -2419,6 +2427,47 @@ export default function LeanApp() {
       await session.connect();
     } catch (e) {
       // couldn't connect — fail quietly, this is just a fun greeting, not core functionality
+    }
+  }
+
+  // The heartbeat-section orb gets a different message than the hero's fun
+  // facts — something warmer and mission-oriented. Several phrasings so it
+  // doesn't say the exact same line every time, picked client-side for the
+  // same reliability reason as the fact topics above.
+  async function sayNiceToMeetYouWithLeanVoice() {
+    const geminiKeyResult = await storage.get('geminiApiKey');
+    const geminiKey = geminiKeyResult?.value;
+    if (!geminiKey) return;
+
+    const angles = [
+      "how glad you are to be part of connecting people with roles they'll actually thrive in",
+      'how you see hiring as a partnership, not a filter — hiring teams and candidates working together',
+      "your commitment to finding the right fit for both sides, not just filling a seat",
+      "how every conversation is a step toward a better match, for the company and the person",
+    ];
+    const angle = angles[Math.floor(Math.random() * angles.length)];
+
+    let hasSpoken = false;
+    const session = new GeminiLiveSession({
+      apiKey: geminiKey,
+      systemInstruction: `You are Lean. Say "Nice to meet you!" and then, in one more short sentence, express ${angle}. End on something like "let's work together to find the best fit." Keep the whole thing to two sentences total, warm and genuine, no follow-up question.`,
+      voiceName: 'Sulafat',
+      onOpen: () => {
+        session.sendText('Say a warm hello about working together to find the best fit.');
+      },
+      onSpeakingChange: (speaking) => {
+        setLeanSpeaking(speaking);
+        if (speaking) hasSpoken = true;
+        else if (hasSpoken) session.disconnect();
+      },
+      onAmplitude: (level) => { pulseOrbAmplitudeRef.current = level; },
+      onError: () => {},
+      onClose: () => setLeanSpeaking(false),
+    });
+    try {
+      await session.connect();
+    } catch (e) {
+      // fail quietly — decorative greeting, not core functionality
     }
   }
 
@@ -3270,7 +3319,7 @@ export default function LeanApp() {
           <Reveal><FAQSection /></Reveal>
           <Reveal><RoadmapSection /></Reveal>
 
-          <Reveal><PulseSection onSignup={goSignupType} onOrbClick={sayHeyWithLeanVoice} /></Reveal>
+          <Reveal><PulseSection onSignup={goSignupType} onOrbClick={sayNiceToMeetYouWithLeanVoice} amplitudeRef={pulseOrbAmplitudeRef} /></Reveal>
           <SiteFooter onNav={{ signup: goSignupType, login: goSignupType, practice: goPractice }} />
         </div>
       )}
