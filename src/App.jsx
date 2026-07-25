@@ -251,6 +251,27 @@ function GlobalStyles() {
         background: linear-gradient(180deg, var(--glass-sheen) 0%, transparent 58%);
         pointer-events: none;
       }
+      .lea-glass-btn {
+        position: relative;
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border: 1px solid var(--glass-border);
+        box-shadow: inset 0 1px 0 var(--glass-highlight), inset 0 -10px 18px -14px rgba(255,255,255,0.3), 0 6px 18px rgba(0,0,0,0.14);
+        text-shadow: 0 1px 3px rgba(0,0,0,0.18);
+        overflow: hidden;
+      }
+      .lea-glass-btn::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, var(--glass-sheen) 0%, transparent 65%);
+        pointer-events: none;
+      }
+      .lea-glass-btn-outline {
+        text-shadow: none;
+        background: var(--glass-bg) !important;
+        color: var(--text) !important;
+      }
       .lea-root, .lea-root * {
         transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
       }
@@ -924,7 +945,7 @@ function PulseSection({ onSignup }) {
         <div style={{ fontSize: 13, color: '#8B92AC', marginBottom: 22 }}>
           No sales call required to start.
         </div>
-        <button onClick={onSignup} style={{ background: 'var(--wine)', border: 'none', borderRadius: 8, padding: '13px 28px', fontSize: 13.5, fontWeight: 600, color: 'var(--on-accent)', cursor: 'pointer' }}>
+        <button className="lea-glass-btn" onClick={onSignup} style={{ background: 'color-mix(in srgb, var(--wine) 80%, var(--glass-bg))', border: 'none', borderRadius: 8, padding: '13px 28px', fontSize: 13.5, fontWeight: 600, color: 'var(--on-accent)', cursor: 'pointer' }}>
           Get started
         </button>
       </div>
@@ -1887,7 +1908,7 @@ export default function LeanApp() {
               Sign out
             </button>
           </div>
-          <button onClick={() => setScreen(account.type === 'employer' ? 'employerHome' : 'candidateHome')} style={{ background: 'var(--wine)', border: 'none', borderRadius: 7, color: 'var(--on-accent)', fontSize: 13, fontWeight: 600, cursor: 'pointer', padding: '9px 16px' }}>
+          <button className="lea-glass-btn" onClick={() => setScreen(account.type === 'employer' ? 'employerHome' : 'candidateHome')} style={{ background: 'color-mix(in srgb, var(--wine) 80%, var(--glass-bg))', border: 'none', borderRadius: 7, color: 'var(--on-accent)', fontSize: 13, fontWeight: 600, cursor: 'pointer', padding: '9px 16px' }}>
             {account.type === 'employer' ? 'Dashboard' : 'My Applications'}
           </button>
         </>
@@ -1896,7 +1917,7 @@ export default function LeanApp() {
           <button onClick={goSignupType} style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', fontSize: 13, cursor: 'pointer', padding: '8px 10px' }}>
             Log in
           </button>
-          <button onClick={goSignupType} style={{ background: 'var(--wine)', border: 'none', borderRadius: 7, color: 'var(--on-accent)', fontSize: 13, fontWeight: 600, cursor: 'pointer', padding: '9px 16px' }}>
+          <button className="lea-glass-btn" onClick={goSignupType} style={{ background: 'color-mix(in srgb, var(--wine) 80%, var(--glass-bg))', border: '1px solid var(--glass-border)', borderRadius: 7, color: 'var(--on-accent)', fontSize: 13, fontWeight: 600, cursor: 'pointer', padding: '9px 16px' }}>
             Sign up
           </button>
         </>
@@ -2432,7 +2453,7 @@ export default function LeanApp() {
                     placeholder={micSupported ? 'Or type your answer instead…' : "Voice isn't supported in this browser — type your answer…"}
                     style={{ flex: 1, background: 'var(--panel-alt)', border: '1px solid var(--line)', borderRadius: 8, padding: '10px 12px', color: 'var(--text)', fontSize: 13, outline: 'none' }}
                   />
-                  <button onClick={() => sendPracticeMessage()} disabled={practiceLoading} style={{ background: 'var(--wine)', border: 'none', borderRadius: 8, padding: '0 14px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                  <button className="lea-glass-btn" onClick={() => sendPracticeMessage()} disabled={practiceLoading} style={{ background: 'color-mix(in srgb, var(--wine) 80%, var(--glass-bg))', border: 'none', borderRadius: 8, padding: '0 14px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
                     {practiceLoading ? <Loader2 size={16} className="lea-live-dot" color="var(--on-accent)" /> : <Send size={16} color="var(--on-accent)" />}
                   </button>
                 </div>
@@ -2495,7 +2516,7 @@ export default function LeanApp() {
                 <div style={{ fontSize: 12.5, color: 'var(--text-muted)', fontStyle: 'italic', marginBottom: 28 }}>{practiceFeedback.tip}</div>
               )}
               <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
-                <button onClick={resetPractice} style={{ background: 'var(--wine)', border: 'none', borderRadius: 8, padding: '11px 22px', fontSize: 13, fontWeight: 600, color: 'var(--on-accent)', cursor: 'pointer' }}>
+                <button className="lea-glass-btn" onClick={resetPractice} style={{ background: 'color-mix(in srgb, var(--wine) 80%, var(--glass-bg))', border: 'none', borderRadius: 8, padding: '11px 22px', fontSize: 13, fontWeight: 600, color: 'var(--on-accent)', cursor: 'pointer' }}>
                   Practice another role
                 </button>
                 <button onClick={goHome} style={{ background: 'transparent', border: '1px solid var(--line)', borderRadius: 8, padding: '11px 22px', fontSize: 13, fontWeight: 600, color: 'var(--text)', cursor: 'pointer' }}>
@@ -2526,13 +2547,13 @@ export default function LeanApp() {
           </div>
 
           <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', justifyContent: 'center', maxWidth: 640 }}>
-            <button onClick={() => chooseSignupType('employer')} className="lea-card" style={{ width: 260, textAlign: 'left', padding: 22, borderRadius: 12, cursor: 'pointer', background: 'var(--panel)', border: '1px solid var(--line)' }}>
+            <button onClick={() => chooseSignupType('employer')} className="lea-card lea-glass" style={{ width: 260, textAlign: 'left', padding: 22, borderRadius: 18, cursor: 'pointer' }}>
               <Users size={20} color="var(--wine)" style={{ marginBottom: 12 }} />
               <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)', marginBottom: 6 }}>I'm hiring</div>
               <div style={{ fontSize: 12.5, color: 'var(--text-muted)', lineHeight: 1.5 }}>Describe roles in your own words. Lean structures them, screens candidates, and hands you a clear readout.</div>
             </button>
 
-            <button onClick={() => chooseSignupType('candidate')} className="lea-card" style={{ width: 260, textAlign: 'left', padding: 22, borderRadius: 12, cursor: 'pointer', background: 'var(--panel)', border: '1px solid var(--line)' }}>
+            <button onClick={() => chooseSignupType('candidate')} className="lea-card lea-glass" style={{ width: 260, textAlign: 'left', padding: 22, borderRadius: 18, cursor: 'pointer' }}>
               <User size={20} color="var(--gold)" style={{ marginBottom: 12 }} />
               <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)', marginBottom: 6 }}>I'm looking for a job</div>
               <div style={{ fontSize: 12.5, color: 'var(--text-muted)', lineHeight: 1.5 }}>Find roles, talk to Lean, prep and practice, and track every application in one place.</div>
@@ -2567,7 +2588,7 @@ export default function LeanApp() {
               <div style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: 24 }}>
                 In a real deployment, recognizing a company email domain like this would hand off to {ssoCompany}'s own login and sync your account automatically — no separate Lean password needed. That handoff needs a real integration with {ssoCompany}, which isn't something a demo can do.
               </div>
-              <button onClick={continueWithDemoCompany} style={{ width: '100%', background: 'var(--wine)', border: 'none', borderRadius: 8, padding: '11px 0', fontSize: 13, fontWeight: 600, color: 'var(--on-accent)', cursor: 'pointer', marginBottom: 10 }}>
+              <button className="lea-glass-btn" onClick={continueWithDemoCompany} style={{ width: '100%', background: 'color-mix(in srgb, var(--wine) 80%, var(--glass-bg))', border: 'none', borderRadius: 8, padding: '11px 0', fontSize: 13, fontWeight: 600, color: 'var(--on-accent)', cursor: 'pointer', marginBottom: 10 }}>
                 Continue with our demo company instead
               </button>
               <button onClick={continueWithOwnInfo} style={{ width: '100%', background: 'transparent', border: '1px solid var(--line)', borderRadius: 8, padding: '11px 0', fontSize: 13, fontWeight: 600, color: 'var(--text-muted)', cursor: 'pointer' }}>
@@ -2608,8 +2629,11 @@ export default function LeanApp() {
               <button
                 onClick={handleAuthContinue}
                 disabled={!authName.trim() || !authEmail.trim()}
+                className={authName.trim() && authEmail.trim() ? 'lea-glass-btn' : ''}
                 style={{
-                  width: '100%', background: authName.trim() && authEmail.trim() ? (signupType === 'employer' ? 'var(--wine)' : 'var(--gold)') : 'var(--line)', border: 'none', borderRadius: 8, padding: '11px 0',
+                  width: '100%',
+                  background: authName.trim() && authEmail.trim() ? `color-mix(in srgb, ${signupType === 'employer' ? 'var(--wine)' : 'var(--gold)'} 80%, var(--glass-bg))` : 'var(--line)',
+                  border: authName.trim() && authEmail.trim() ? '1px solid var(--glass-border)' : 'none', borderRadius: 8, padding: '11px 0',
                   fontSize: 13, fontWeight: 600, color: 'var(--on-accent)', cursor: authName.trim() && authEmail.trim() ? 'pointer' : 'not-allowed',
                 }}
               >
@@ -2670,7 +2694,7 @@ export default function LeanApp() {
               {!activeRole ? (
                 <div style={{ padding: 60, textAlign: 'center' }}>
                   <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 14 }}>You're not hiring for anything yet.</div>
-                  <button onClick={createRole} style={{ background: 'var(--wine)', border: 'none', borderRadius: 8, padding: '10px 20px', fontSize: 13, fontWeight: 600, color: 'var(--on-accent)', cursor: 'pointer' }}>
+                  <button className="lea-glass-btn" onClick={createRole} style={{ background: 'color-mix(in srgb, var(--wine) 80%, var(--glass-bg))', border: 'none', borderRadius: 8, padding: '10px 20px', fontSize: 13, fontWeight: 600, color: 'var(--on-accent)', cursor: 'pointer' }}>
                     Describe your first role
                   </button>
                 </div>
@@ -2750,7 +2774,7 @@ export default function LeanApp() {
                         <input value={hmInput} onChange={(e) => setHmInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && sendHm()}
                           placeholder={micSupported ? 'Or type instead…' : 'e.g. We need a backend engineer for our payments team…'}
                           style={{ flex: 1, background: 'var(--panel-alt)', border: '1px solid var(--line)', borderRadius: 8, padding: '10px 12px', color: 'var(--text)', fontSize: 13, outline: 'none' }} />
-                        <button onClick={() => sendHm()} disabled={hmLoading} style={{ background: 'var(--wine)', border: 'none', borderRadius: 8, padding: '0 14px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                        <button className="lea-glass-btn" onClick={() => sendHm()} disabled={hmLoading} style={{ background: 'color-mix(in srgb, var(--wine) 80%, var(--glass-bg))', border: 'none', borderRadius: 8, padding: '0 14px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
                           {hmLoading ? <Loader2 size={16} className="lea-live-dot" color="var(--on-accent)" /> : <Send size={16} color="var(--on-accent)" />}
                         </button>
                       </div>
@@ -2993,7 +3017,7 @@ export default function LeanApp() {
                               </div>
                             ) : (
                               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                                <button onClick={() => recordDecision(pipelineCandidate.id, 'advance')} style={{ fontSize: 12, fontWeight: 600, padding: '9px 14px', borderRadius: 7, border: 'none', background: 'var(--wine)', color: 'var(--on-accent)', cursor: 'pointer' }}>
+                                <button className="lea-glass-btn" onClick={() => recordDecision(pipelineCandidate.id, 'advance')} style={{ fontSize: 12, fontWeight: 600, padding: '9px 14px', borderRadius: 7, border: '1px solid var(--glass-border)', background: 'color-mix(in srgb, var(--wine) 80%, var(--glass-bg))', color: 'var(--on-accent)', cursor: 'pointer' }}>
                                   Advance
                                 </button>
                                 <button onClick={() => recordDecision(pipelineCandidate.id, 'more')} style={{ fontSize: 12, fontWeight: 600, padding: '9px 14px', borderRadius: 7, border: '1px solid var(--line)', background: 'transparent', color: 'var(--text)', cursor: 'pointer' }}>
@@ -3033,7 +3057,7 @@ export default function LeanApp() {
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <ThemeToggle theme={theme} onToggle={toggleTheme} />
-              <button onClick={goPractice} style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--wine)', border: 'none', borderRadius: 6, padding: '7px 12px', color: 'var(--on-accent)', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+              <button className="lea-glass-btn" onClick={goPractice} style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'color-mix(in srgb, var(--wine) 80%, var(--glass-bg))', border: 'none', borderRadius: 6, padding: '7px 12px', color: 'var(--on-accent)', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
                 <Sparkles size={12} /> Practice
               </button>
               <button onClick={signOut} style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'transparent', border: '1px solid var(--line)', borderRadius: 6, padding: '6px 10px', color: 'var(--text-muted)', fontSize: 11, cursor: 'pointer' }}>
@@ -3064,7 +3088,7 @@ export default function LeanApp() {
                         <input value={candInput} onChange={(e) => setCandInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && sendCand()}
                           placeholder="Ask about the role, team, or expectations…"
                           style={{ flex: 1, background: 'var(--panel-alt)', border: '1px solid var(--line)', borderRadius: 8, padding: '10px 12px', color: 'var(--text)', fontSize: 13, outline: 'none' }} />
-                        <button onClick={sendCand} disabled={activeCandidate.loading} style={{ background: 'var(--gold)', border: 'none', borderRadius: 8, padding: '0 14px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                        <button className="lea-glass-btn" onClick={sendCand} disabled={activeCandidate.loading} style={{ background: 'color-mix(in srgb, var(--gold) 80%, var(--glass-bg))', border: 'none', borderRadius: 8, padding: '0 14px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
                           {activeCandidate.loading ? <Loader2 size={16} className="lea-live-dot" color="var(--on-accent)" /> : <Send size={16} color="var(--on-accent)" />}
                         </button>
                       </div>
@@ -3187,7 +3211,7 @@ export default function LeanApp() {
                                 Continue
                               </button>
                             ) : (
-                              <button onClick={() => startApplication(r.id)} style={{ fontSize: 12, fontWeight: 600, padding: '8px 14px', borderRadius: 7, border: 'none', background: 'var(--gold)', color: 'var(--on-accent)', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                              <button className="lea-glass-btn" onClick={() => startApplication(r.id)} style={{ fontSize: 12, fontWeight: 600, padding: '8px 14px', borderRadius: 7, border: '1px solid var(--glass-border)', background: 'color-mix(in srgb, var(--gold) 80%, var(--glass-bg))', color: 'var(--on-accent)', cursor: 'pointer', whiteSpace: 'nowrap' }}>
                                 Talk to Lean
                               </button>
                             )}
