@@ -719,18 +719,18 @@ function ReadoutSection() {
     <div ref={ref} style={{ padding: '70px 40px', display: 'flex', gap: 56, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', maxWidth: 1000, margin: '0 auto' }}>
       <div style={{ flex: 1, minWidth: 280, maxWidth: 420 }}>
         <Eyebrow color="var(--gold)">From conversation to readout</Eyebrow>
-        <div className="lea-display" style={{ fontSize: 32, fontWeight: 700, color: '#F5F1EA', marginBottom: 14, lineHeight: 1.2 }}>
+        <div className="lea-display" style={{ fontSize: 32, fontWeight: 700, color: 'var(--text)', marginBottom: 14, lineHeight: 1.2 }}>
           Every conversation becomes real signal.
         </div>
-        <div style={{ fontSize: 14, color: 'rgba(245,241,234,0.6)', lineHeight: 1.65, marginBottom: 30 }}>
+        <div style={{ fontSize: 14, color: 'var(--text-muted)', lineHeight: 1.65, marginBottom: 30 }}>
           What starts as a loose conversation with a hiring manager gets structured, tracked, and turned into something the whole team can actually act on.
         </div>
         {items.map((item, i) => (
           <div key={i} style={{ display: 'flex', gap: 14, marginBottom: 20 }}>
             <span className="lea-mono" style={{ fontSize: 11, color: 'var(--gold)', flexShrink: 0, paddingTop: 2 }}>{item.n}</span>
             <div>
-              <div style={{ fontSize: 14, fontWeight: 600, color: '#F5F1EA', marginBottom: 3 }}>{item.t}</div>
-              <div style={{ fontSize: 12.5, color: 'rgba(245,241,234,0.55)', lineHeight: 1.5 }}>{item.d}</div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', marginBottom: 3 }}>{item.t}</div>
+              <div style={{ fontSize: 12.5, color: 'var(--text-muted)', lineHeight: 1.5 }}>{item.d}</div>
             </div>
           </div>
         ))}
@@ -829,15 +829,15 @@ function FAQSection() {
 function SiteFooter({ onNav }) {
   return (
     <div style={{ overflow: 'hidden' }}>
-      <div style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', padding: '32px 40px' }}>
+      <div style={{ borderBottom: '1px solid var(--line)', padding: '32px 40px' }}>
         <div style={{ maxWidth: 900, margin: '0 auto', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
-          <div style={{ filter: 'brightness(1.4)' }}><Wordmark size={16} /></div>
+          <Wordmark size={16} />
           <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
-            <button onClick={onNav.signup} style={{ background: 'none', border: 'none', color: 'rgba(245,241,234,0.6)', fontSize: 12.5, cursor: 'pointer', padding: 0 }}>Sign up</button>
-            <button onClick={onNav.login} style={{ background: 'none', border: 'none', color: 'rgba(245,241,234,0.6)', fontSize: 12.5, cursor: 'pointer', padding: 0 }}>Log in</button>
-            <button onClick={onNav.practice} style={{ background: 'none', border: 'none', color: 'rgba(245,241,234,0.6)', fontSize: 12.5, cursor: 'pointer', padding: 0 }}>Practice</button>
+            <button onClick={onNav.signup} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: 12.5, cursor: 'pointer', padding: 0 }}>Sign up</button>
+            <button onClick={onNav.login} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: 12.5, cursor: 'pointer', padding: 0 }}>Log in</button>
+            <button onClick={onNav.practice} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: 12.5, cursor: 'pointer', padding: 0 }}>Practice</button>
           </div>
-          <div style={{ fontSize: 11.5, color: 'rgba(245,241,234,0.6)' }}>© {new Date().getFullYear()} Lean</div>
+          <div style={{ fontSize: 11.5, color: 'var(--text-muted)' }}>© {new Date().getFullYear()} Lean</div>
         </div>
       </div>
       <div style={{ paddingTop: 30 }}>
@@ -849,7 +849,7 @@ function SiteFooter({ onNav }) {
         style={{
           fontSize: 'min(22vw, 260px)', fontWeight: 700, textAlign: 'center', lineHeight: 0.75,
           padding: '10px 0 0', letterSpacing: '-0.02em', userSelect: 'none',
-          background: 'linear-gradient(180deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.03) 60%, transparent 100%)',
+          background: 'linear-gradient(180deg, color-mix(in srgb, var(--text) 22%, transparent) 0%, color-mix(in srgb, var(--text) 4%, transparent) 60%, transparent 100%)',
           WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent',
         }}
       >
@@ -1754,6 +1754,7 @@ export default function LeanApp() {
     '--gold': '#7B9FFF', '--gold-deep': '#2947C4', '--gold-dim': 'rgba(123,159,255,0.18)', '--gold-glow': 'rgba(123,159,255,0.55)',
     '--danger': '#FF9152', '--on-accent': '#10131F',
     '--glass-bg': 'rgba(23,27,44,0.5)', '--glass-border': 'rgba(255,255,255,0.09)', '--glass-highlight': 'rgba(255,255,255,0.06)', '--glass-sheen': 'rgba(255,255,255,0.14)',
+    '--grid-line': 'rgba(255,255,255,0.03)',
   } : {
     '--bg': '#F4F6FA', '--panel': '#FFFFFF', '--panel-alt': '#ECEFF5', '--line': '#D8DEE9',
     '--text': '#14161F', '--text-muted': '#666E82',
@@ -1761,6 +1762,7 @@ export default function LeanApp() {
     '--gold': '#2947C4', '--gold-deep': '#152C82', '--gold-dim': 'rgba(41,71,196,0.10)', '--gold-glow': 'rgba(41,71,196,0.4)',
     '--danger': '#E0632E', '--on-accent': '#FFFFFF',
     '--glass-bg': 'rgba(255,255,255,0.5)', '--glass-border': 'rgba(255,255,255,0.6)', '--glass-highlight': 'rgba(255,255,255,0.35)', '--glass-sheen': 'rgba(255,255,255,0.55)',
+    '--grid-line': 'rgba(20,22,31,0.045)',
   };
 
   function updateRole(id, changes) {
@@ -2510,8 +2512,8 @@ export default function LeanApp() {
       {/* MARKETING HOME */}
       {screen === 'home' && (
         <div className="lea-fade" style={{
-          position: 'relative', background: '#0D0B12',
-          backgroundImage: 'linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)',
+          position: 'relative', background: 'var(--bg)',
+          backgroundImage: 'linear-gradient(var(--grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--grid-line) 1px, transparent 1px)',
           backgroundSize: '32px 32px',
         }}>
           {[
@@ -2535,7 +2537,7 @@ export default function LeanApp() {
               }} />
             </div>
           ))}
-          <div className="lea-glass" style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 24px', borderRadius: 0, borderTop: 'none', borderLeft: 'none', borderRight: 'none' }}>
+          <div className="lea-glass" style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 28px', borderRadius: 0, borderTop: 'none', borderLeft: 'none', borderRight: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
             <Wordmark />
             <TopRightAuth />
           </div>
@@ -2569,21 +2571,21 @@ export default function LeanApp() {
               {/* the orb — enlarged into the actual hero centerpiece, with blueprint-style annotations */}
               <div style={{ position: 'relative', width: 460, maxWidth: '100%', height: 320, margin: '0 auto 30px' }}>
                 <svg viewBox="0 0 460 320" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
-                  <g stroke="rgba(245,241,234,0.28)" strokeWidth="1" strokeDasharray="2 4">
+                  <g stroke="var(--text-muted)" strokeOpacity="0.4" strokeWidth="1" strokeDasharray="2 4">
                     <line x1="230" y1="60" x2="70" y2="20" />
                     <line x1="230" y1="60" x2="410" y2="30" />
                     <line x1="140" y1="160" x2="20" y2="180" />
                     <line x1="320" y1="230" x2="430" y2="260" />
                   </g>
-                  <g fill="none" stroke="rgba(245,241,234,0.4)" strokeWidth="1">
+                  <g fill="none" stroke="var(--text-muted)" strokeOpacity="0.55" strokeWidth="1">
                     <rect x="63" y="13" width="10" height="10" />
                     <rect x="403" y="23" width="10" height="10" />
                     <rect x="13" y="173" width="10" height="10" />
                     <rect x="423" y="253" width="10" height="10" />
                   </g>
-                  <text x="42" y="10" fill="rgba(245,241,234,0.4)" fontSize="9" fontFamily="monospace">CALIBRATE</text>
-                  <text x="378" y="20" fill="rgba(245,241,234,0.4)" fontSize="9" fontFamily="monospace">CONVERSE</text>
-                  <text x="395" y="250" fill="rgba(245,241,234,0.4)" fontSize="9" fontFamily="monospace">READOUT</text>
+                  <text x="42" y="10" fill="var(--text-muted)" fillOpacity="0.6" fontSize="9" fontFamily="monospace">CALIBRATE</text>
+                  <text x="378" y="20" fill="var(--text-muted)" fillOpacity="0.6" fontSize="9" fontFamily="monospace">CONVERSE</text>
+                  <text x="395" y="250" fill="var(--text-muted)" fillOpacity="0.6" fontSize="9" fontFamily="monospace">READOUT</text>
                 </svg>
                 <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 300, height: 300 }}>
                   <div
@@ -2602,17 +2604,16 @@ export default function LeanApp() {
                 </div>
               </div>
 
-              <div className="lea-display" style={{ fontSize: 42, fontWeight: 700, color: '#F5F1EA', maxWidth: 660, margin: '0 auto 14px', lineHeight: 1.15 }}>
+              <div className="lea-display" style={{ fontSize: 42, fontWeight: 700, color: 'var(--text)', maxWidth: 660, margin: '0 auto 14px', lineHeight: 1.15 }}>
                 Where hiring becomes a conversation.
               </div>
-              <div style={{ fontSize: 14.5, color: 'rgba(245,241,234,0.62)', maxWidth: 460, margin: '0 auto 28px', lineHeight: 1.65 }}>
+              <div style={{ fontSize: 14.5, color: 'var(--text-muted)', maxWidth: 460, margin: '0 auto 28px', lineHeight: 1.65 }}>
                 Lean sits between hiring teams and candidates — understanding what a role really needs, answering candidates honestly, and turning every conversation into a clear, comparable readout.
               </div>
 
               <div style={{ marginBottom: 28, display: 'flex', justifyContent: 'center' }}>
-                <div style={{
-                  background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.14)', borderRadius: 10,
-                  padding: '10px 18px', fontSize: 13, color: '#F5F1EA', backdropFilter: 'blur(12px)', minHeight: 40, display: 'flex', alignItems: 'center',
+                <div className="lea-glass" style={{
+                  borderRadius: 10, padding: '10px 18px', fontSize: 13, color: 'var(--text)', minHeight: 40, display: 'flex', alignItems: 'center',
                 }}>
                   <HeroGreeting />
                 </div>
@@ -2630,25 +2631,14 @@ export default function LeanApp() {
           {/* BOLD STATEMENT BREAK */}
           <Reveal>
           <div style={{ position: 'relative', padding: '60px 40px', textAlign: 'center' }}>
-            <div className="lea-display" style={{ fontSize: 26, fontWeight: 600, color: '#F5F1EA', maxWidth: 620, margin: '0 auto', lineHeight: 1.3 }}>
+            <div className="lea-display" style={{ fontSize: 26, fontWeight: 600, color: 'var(--text)', maxWidth: 620, margin: '0 auto', lineHeight: 1.3 }}>
               Hiring shouldn't feel like a black box.
             </div>
-            <div style={{ fontSize: 13.5, color: 'rgba(245,241,234,0.65)', marginTop: 10, maxWidth: 480, margin: '10px auto 0' }}>
+            <div style={{ fontSize: 13.5, color: 'var(--text-muted)', marginTop: 10, maxWidth: 480, margin: '10px auto 0' }}>
               Every conversation tracked. Every candidate informed. Every decision made by a person, not an algorithm alone.
             </div>
           </div>
           </Reveal>
-
-          {/* Everything from here through Roadmap shares one dark palette,
-              overriding the theme tokens locally so all the existing cards
-              (which reference var(--text), var(--glass-bg), etc.) render
-              correctly here regardless of the site-wide light/dark toggle. */}
-          <div style={{
-            '--text': '#EDEFF5', '--text-muted': '#8B92AC',
-            '--panel': '#171B2C', '--panel-alt': '#1E2338', '--line': '#2C3350',
-            '--glass-bg': 'rgba(23,27,44,0.5)', '--glass-border': 'rgba(255,255,255,0.09)',
-            '--glass-highlight': 'rgba(255,255,255,0.06)', '--glass-sheen': 'rgba(255,255,255,0.14)',
-          }}>
 
           {/* WHY LEAN — condensed, merges the old benefit cards + comparison table */}
           <Reveal>
@@ -2788,7 +2778,6 @@ export default function LeanApp() {
           <Reveal><FAQSection /></Reveal>
           <Reveal><RoadmapSection /></Reveal>
 
-          </div>
           <Reveal><PulseSection onSignup={goSignupType} /></Reveal>
           <SiteFooter onNav={{ signup: goSignupType, login: goSignupType, practice: goPractice }} />
         </div>
