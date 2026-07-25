@@ -54,6 +54,14 @@ function mixStops(stops, t) {
   return last.color;
 }
 
+// Standard perceived-brightness formula — matches how displays and
+// accessibility contrast calculations weight each channel (green reads as
+// much brighter than blue at the same numeric value, etc). Returns 0-1.
+function luminance(color) {
+  const [r, g, b] = parseColor(color);
+  return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+}
+
 // Generates a set of stops for a UI token (text, panel, border, etc.) that
 // switches between its "dark-background" and "light-background" value at
 // the same zone boundaries the background itself uses — dark near the top
@@ -76,6 +84,12 @@ function makeUiStops(onDarkBg, onLightBg) {
 // through the middle, then back down through navy to dark by the bottom.
 // Because this is an actual gradient rather than a JS-computed flat color,
 // there's no possibility of a visible jump — it's continuous by construction.
+//
+// BG_KEYFRAMES below must list the exact same colors and positions as this
+// CSS string — it's how the JS side knows what color the background
+// actually is at a given scroll position, so text contrast can be derived
+// from real brightness instead of a second, independently-guessed set of
+// breakpoints that can drift out of sync with what's actually on screen.
 const PAGE_GRADIENT = `linear-gradient(to bottom,
   #0A0812 0%,
   #1B2A56 12%,
@@ -92,6 +106,23 @@ const PAGE_GRADIENT = `linear-gradient(to bottom,
   #1B2A56 98%,
   #0A0812 100%
 )`;
+const BG_KEYFRAMES = [
+  { at: 0, color: '#0A0812' },
+  { at: 0.12, color: '#1B2A56' },
+  { at: 0.21, color: '#33447A' },
+  { at: 0.29, color: '#5568A0' },
+  { at: 0.38, color: '#8090B8' },
+  { at: 0.46, color: '#B8C0D8' },
+  { at: 0.55, color: '#F4F6FA' },
+  { at: 0.60, color: '#F4F6FA' },
+  { at: 0.69, color: '#B8C0D8' },
+  { at: 0.77, color: '#8090B8' },
+  { at: 0.86, color: '#5568A0' },
+  { at: 0.94, color: '#33447A' },
+  { at: 0.98, color: '#1B2A56' },
+  { at: 1, color: '#0A0812' },
+];
+
 const TEXT_STOPS = makeUiStops('#EDEFF5', '#14161F');
 const TEXT_MUTED_STOPS = makeUiStops('#8B92AC', '#666E82');
 const PANEL_STOPS = makeUiStops('#171B2C', '#FFFFFF');
@@ -108,6 +139,12 @@ const GLASS_SHEEN_STOPS = makeUiStops('rgba(255,255,255,0.14)', 'rgba(255,255,25
 // direction or history. A continuous animation loop eases the *displayed*
 // value toward that target every frame, so fast or erratic scrolling still
 // produces a smooth chase rather than a jump.
+//
+// Text/panel/border tokens are driven by the *actual computed brightness*
+// of the background at the current position, not by scroll-percentage
+// breakpoints — this guarantees legible contrast everywhere, including
+// mid-transition zones where the background itself is a medium tone that a
+// fixed dark/light switch point could easily miss.
 function useScrollBg() {
   const [progress, setProgress] = useState(0);
   const targetRef = useRef(0);
@@ -138,16 +175,24 @@ function useScrollBg() {
     };
   }, []);
 
+  // What color is the background actually rendering right now, and how
+  // bright is it? uiT is a soft 0-1 crossfade centered on the 0.5
+  // brightness threshold — narrow enough that text still switches
+  // decisively, wide enough that it doesn't visibly snap.
+  const bgNow = mixStops(BG_KEYFRAMES, progress);
+  const bgBrightness = luminance(bgNow);
+  const uiT = Math.min(1, Math.max(0, (bgBrightness - 0.42) / (0.58 - 0.42)));
+
   return {
-    '--text': mixStops(TEXT_STOPS, progress),
-    '--text-muted': mixStops(TEXT_MUTED_STOPS, progress),
-    '--panel': mixStops(PANEL_STOPS, progress),
-    '--panel-alt': mixStops(PANEL_ALT_STOPS, progress),
-    '--line': mixStops(LINE_STOPS, progress),
-    '--glass-bg': mixStops(GLASS_BG_STOPS, progress),
-    '--glass-border': mixStops(GLASS_BORDER_STOPS, progress),
-    '--glass-highlight': mixStops(GLASS_HIGHLIGHT_STOPS, progress),
-    '--glass-sheen': mixStops(GLASS_SHEEN_STOPS, progress),
+    '--text': mixColor(TEXT_STOPS[0].color, TEXT_STOPS[2].color, uiT),
+    '--text-muted': mixColor(TEXT_MUTED_STOPS[0].color, TEXT_MUTED_STOPS[2].color, uiT),
+    '--panel': mixColor(PANEL_STOPS[0].color, PANEL_STOPS[2].color, uiT),
+    '--panel-alt': mixColor(PANEL_ALT_STOPS[0].color, PANEL_ALT_STOPS[2].color, uiT),
+    '--line': mixColor(LINE_STOPS[0].color, LINE_STOPS[2].color, uiT),
+    '--glass-bg': mixColor(GLASS_BG_STOPS[0].color, GLASS_BG_STOPS[2].color, uiT),
+    '--glass-border': mixColor(GLASS_BORDER_STOPS[0].color, GLASS_BORDER_STOPS[2].color, uiT),
+    '--glass-highlight': mixColor(GLASS_HIGHLIGHT_STOPS[0].color, GLASS_HIGHLIGHT_STOPS[2].color, uiT),
+    '--glass-sheen': mixColor(GLASS_SHEEN_STOPS[0].color, GLASS_SHEEN_STOPS[2].color, uiT),
   };
 }
 
