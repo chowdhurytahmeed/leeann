@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { storage } from './storage';
 import { GeminiLiveSession } from './geminiLive';
+import { LeanLogo3D } from './LeanLogo3D';
 import {
   supabaseReady,
   getAccount, upsertAccount,
@@ -735,6 +736,9 @@ function SiteFooter({ onNav }) {
           <div style={{ fontSize: 11.5, color: 'rgba(245,241,234,0.6)' }}>© {new Date().getFullYear()} Lean</div>
         </div>
       </div>
+      <div style={{ paddingTop: 30 }}>
+        <LeanLogo3D height={220} />
+      </div>
       <div
         className="lea-display"
         aria-hidden="true"
@@ -1324,33 +1328,71 @@ function FlowLine({ color }) {
 // speed so it visibly reacts to real "Lean is talking" state, not just a
 // decorative loop.
 function LeanWaveform({ height = 90 }) {
-  const bars = [
-    { x: 4, w: 7, h: 0.18, color: 'var(--wine)', delay: '0s', dur: '1.5s' },
-    { x: 14, w: 9, h: 0.32, color: 'var(--gold)', delay: '0.15s', dur: '1.2s' },
-    { x: 26, w: 8, h: 0.5, color: '#E8C9A8', delay: '0.3s', dur: '1.05s' },
-    { x: 38, w: 10, h: 0.78, color: 'var(--wine)', delay: '0.05s', dur: '0.9s' },
-    { x: 50, w: 9, h: 1, color: 'var(--gold)', delay: '0.4s', dur: '0.8s' },
-    { x: 61, w: 10, h: 0.8, color: '#E8C9A8', delay: '0.2s', dur: '0.95s' },
-    { x: 73, w: 8, h: 0.55, color: 'var(--wine)', delay: '0.35s', dur: '1.1s' },
-    { x: 84, w: 9, h: 0.3, color: 'var(--gold)', delay: '0.1s', dur: '1.3s' },
-    { x: 95, w: 7, h: 0.16, color: '#E8C9A8', delay: '0.25s', dur: '1.45s' },
-  ];
-  return (
-    <div style={{ position: 'relative', width: '100%', maxWidth: 340, height, margin: '0 auto' }}>
-      {bars.map((b, i) => (
-        <div
-          key={i}
-          className="lea-wave-bar-speaking"
-          style={{
-            position: 'absolute', left: `${b.x}%`, top: '50%', width: `${b.w}%`, maxWidth: 26,
-            height: `${b.h * 100}%`, background: b.color, borderRadius: 999, filter: 'blur(3px)',
-            mixBlendMode: 'screen', opacity: 0.9, transform: 'translateY(-50%)',
-            animationDelay: b.delay, animationDuration: b.dur,
-          }}
-        />
-      ))}
-    </div>
-  );
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    let raf;
+    let w = 0, h = 0;
+
+    function resize() {
+      const rect = canvas.getBoundingClientRect();
+      w = rect.width; h = rect.height;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    // Three translucent ribbons, each the sum of two sine waves at
+    // different frequencies so the shape reads as organic rather than a
+    // perfect repeating loop — drawn with additive blending so overlaps
+    // brighten and blend like real light, the same effect the reference
+    // waveform relies on.
+    const ribbons = [
+      { color: '#F0566E', freq1: 1.3, freq2: 2.1, amp: 0.34, speed: 1.6, phase: 0 },
+      { color: '#7B9FFF', freq1: 1.7, freq2: 2.6, amp: 0.4, speed: 1.9, phase: 2 },
+      { color: '#E8C9A8', freq1: 1.1, freq2: 3.1, amp: 0.28, speed: 1.3, phase: 4 },
+    ];
+
+    function draw(t) {
+      ctx.clearRect(0, 0, w, h);
+      ctx.globalCompositeOperation = 'lighter';
+      const time = t / 1000;
+      const midY = h / 2;
+
+      ribbons.forEach((r) => {
+        ctx.beginPath();
+        for (let x = 0; x <= w; x += 4) {
+          const nx = x / w; // 0..1
+          // taper toward both ends so it pinches to a point, like the reference
+          const taper = Math.sin(nx * Math.PI);
+          const y = midY
+            + Math.sin(nx * Math.PI * r.freq1 + time * r.speed + r.phase) * r.amp * h * taper
+            + Math.sin(nx * Math.PI * r.freq2 - time * r.speed * 0.7 + r.phase) * r.amp * 0.4 * h * taper;
+          if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.strokeStyle = r.color;
+        ctx.lineWidth = 3;
+        ctx.lineCap = 'round';
+        ctx.shadowColor = r.color;
+        ctx.shadowBlur = 12;
+        ctx.globalAlpha = 0.85;
+        ctx.stroke();
+      });
+
+      raf = requestAnimationFrame(draw);
+    }
+    raf = requestAnimationFrame(draw);
+
+    return () => { cancelAnimationFrame(raf); window.removeEventListener('resize', resize); };
+  }, []);
+
+  return <canvas ref={canvasRef} style={{ width: '100%', maxWidth: 340, height, display: 'block', margin: '0 auto' }} />;
 }
 
 function LogoMark({ size = 30 }) {
