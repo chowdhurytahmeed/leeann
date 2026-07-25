@@ -155,35 +155,6 @@ const GLASS_SHEEN_STOPS = makeUiStops('rgba(255,255,255,0.14)', 'rgba(255,255,25
 // a bright counterpart that never dips toward black — just a soft blue-grey
 // accent replacing where navy would be.
 function useScrollBg(theme) {
-  const [progress, setProgress] = useState(0);
-  const targetRef = useRef(0);
-  const currentRef = useRef(0);
-
-  useEffect(() => {
-    function computeTarget() {
-      const doc = document.documentElement;
-      const scrollable = doc.scrollHeight - doc.clientHeight;
-      targetRef.current = scrollable > 0 ? Math.min(1, Math.max(0, doc.scrollTop / scrollable)) : 0;
-    }
-    window.addEventListener('scroll', computeTarget, { passive: true });
-    window.addEventListener('resize', computeTarget);
-    computeTarget();
-
-    let raf;
-    function tick() {
-      currentRef.current += (targetRef.current - currentRef.current) * 0.08;
-      setProgress(currentRef.current);
-      raf = requestAnimationFrame(tick);
-    }
-    raf = requestAnimationFrame(tick);
-
-    return () => {
-      window.removeEventListener('scroll', computeTarget);
-      window.removeEventListener('resize', computeTarget);
-      cancelAnimationFrame(raf);
-    };
-  }, []);
-
   const isLight = theme === 'light';
 
   // Neither variant ever crosses into "needs the opposite text color"
