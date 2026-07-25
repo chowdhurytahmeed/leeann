@@ -469,7 +469,7 @@ function highlightLine(line, keyColor) {
 function GlobalStyles() {
   return (
     <style>{`
-      @import url('https://fonts.googleapis.com/css2?family=Archivo+Narrow:ital,wght@0,500;0,600;0,700;1,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
       * { box-sizing: border-box; }
       .lea-glass {
         position: relative;
@@ -542,8 +542,8 @@ function GlobalStyles() {
         transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
       }
       .lea-root { font-family: 'Inter', sans-serif; }
-      .lea-display { font-family: 'Archivo Narrow', sans-serif; font-weight: 700; }
-      .lea-signature { font-family: 'Archivo Narrow', sans-serif; font-style: normal; }
+      .lea-display { font-family: 'Sora', sans-serif; font-weight: 700; }
+      .lea-signature { font-family: 'Sora', sans-serif; font-style: normal; }
       .lea-mono { font-family: 'IBM Plex Mono', monospace; }
       .lea-scroll::-webkit-scrollbar { width: 6px; }
       .lea-scroll::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
@@ -741,7 +741,37 @@ function TimeToFillChart() {
 }
 
 function Reveal({ children }) {
-  return <div>{children}</div>;
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.unobserve(el); // fires once — never goes back to hidden after this
+        }
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? 'translateY(0)' : 'translateY(28px)',
+        transition: 'opacity 0.7s ease, transform 0.7s cubic-bezier(.2,.8,.2,1)',
+      }}
+    >
+      {children}
+    </div>
+  );
 }
 
 function Eyebrow({ children, color }) {
@@ -1683,6 +1713,7 @@ function InteractiveOrb({ onClick, amplitudeRef }) {
   const glanceRef = useRef({ x: 0, y: 0, nextAt: 3 + Math.random() * 4 });
   const breathStateRef = useRef({ cycleLen: 4.5 + Math.random() * 1.5, ampVariation: 1, cycled: false });
   const blinkStateRef = useRef({ nextAt: 4 + Math.random() * 7, remaining: 0 });
+  const smoothedAmpRef = useRef(0);
 
   useEffect(() => {
     const wrap = wrapRef.current;
@@ -1742,7 +1773,10 @@ function InteractiveOrb({ onClick, amplitudeRef }) {
       // --- voice amplitude: while actually speaking, real audio level
       // (from the live playback analyser) adds an extra scale boost on
       // top of breathing, so motion actually matches what's being said. ---
-      const amp = (amplitudeRef && amplitudeRef.current) || 0;
+      const rawAmp = (amplitudeRef && amplitudeRef.current) || 0;
+      const smoothing = rawAmp > smoothedAmpRef.current ? 0.35 : 0.08; // rises quickly, falls gently
+      smoothedAmpRef.current += (rawAmp - smoothedAmpRef.current) * smoothing;
+      const amp = smoothedAmpRef.current;
       const ampScale = 1 + amp * 0.16;
 
       // --- blink: brief, irregularly-timed dimming, since perfectly
