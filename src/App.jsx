@@ -1630,6 +1630,82 @@ function InteractiveOrb({ onClick }) {
   );
 }
 
+// A vertical, persistent version of the same waveform technique — runs the
+// full height of the screen along one edge, tapering at the very top and
+// bottom instead of left and right. Fixed-position, so it stays put as the
+// page scrolls, always visibly "alive" the way Siri's waveform never really
+// stops moving while she's listening.
+function VerticalWaveform({ side = 'left' }) {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    let raf;
+    let w = 0, h = 0;
+
+    function resize() {
+      const rect = canvas.getBoundingClientRect();
+      w = rect.width; h = rect.height;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    const ribbons = [
+      { color: '#F0566E', freq1: 1.3, freq2: 2.1, amp: 0.32, speed: 1.6, phase: 0 },
+      { color: '#7B9FFF', freq1: 1.7, freq2: 2.6, amp: 0.38, speed: 1.9, phase: 2 },
+      { color: '#E8C9A8', freq1: 1.1, freq2: 3.1, amp: 0.26, speed: 1.3, phase: 4 },
+    ];
+
+    function draw(t) {
+      ctx.clearRect(0, 0, w, h);
+      ctx.globalCompositeOperation = 'lighter';
+      const time = t / 1000;
+      const midX = w / 2;
+
+      ribbons.forEach((r) => {
+        ctx.beginPath();
+        for (let y = 0; y <= h; y += 5) {
+          const ny = y / h;
+          const taper = Math.sin(ny * Math.PI); // pinches to a point at top and bottom
+          const x = midX
+            + Math.sin(ny * Math.PI * r.freq1 * 6 + time * r.speed + r.phase) * r.amp * w * taper
+            + Math.sin(ny * Math.PI * r.freq2 * 6 - time * r.speed * 0.7 + r.phase) * r.amp * 0.4 * w * taper;
+          if (y === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.strokeStyle = r.color;
+        ctx.lineWidth = 2.5;
+        ctx.lineCap = 'round';
+        ctx.shadowColor = r.color;
+        ctx.shadowBlur = 10;
+        ctx.globalAlpha = 0.75;
+        ctx.stroke();
+      });
+
+      raf = requestAnimationFrame(draw);
+    }
+    raf = requestAnimationFrame(draw);
+
+    return () => { cancelAnimationFrame(raf); window.removeEventListener('resize', resize); };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: 'fixed', top: 0, [side]: 0, width: 64, height: '100vh',
+        pointerEvents: 'none', zIndex: 5,
+      }}
+    />
+  );
+}
+
+
 function LeanWaveform({ height = 90 }) {
   const canvasRef = useRef(null);
 
@@ -2745,6 +2821,8 @@ export default function LeanApp() {
         <div className="lea-fade" style={{
           position: 'relative', ...scrollThemeVars, background: PAGE_GRADIENT,
         }}>
+          <VerticalWaveform side="left" />
+          <VerticalWaveform side="right" />
           {[
             { top: 0, left: '2%', size: 700, blur: 140, durA: '2.4s', durB: '2.9s' },
             { top: 500, left: '50%', size: 750, blur: 145, durA: '2.6s', durB: '3.1s' },
