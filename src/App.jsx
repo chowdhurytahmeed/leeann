@@ -654,7 +654,7 @@ function GlobalStyles() {
       .lea-cursor { animation: lea-blink 0.9s step-end infinite; }
       @keyframes lea-orb-a { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
       @keyframes lea-orb-b { 0%, 100% { transform: scale(1); } 50% { transform: scale(0.97); } }
-      .lea-orb-a { animation: lea-orb-a 8s ease-in-out infinite; opacity: 0; }
+      .lea-orb-a { animation: lea-orb-a 8s ease-in-out infinite; }
       .lea-orb-b { animation: lea-orb-b 9s ease-in-out infinite; }
       .lea-play-btn { transition: transform 0.12s ease, background 0.12s ease; }
       .lea-play-btn:hover { transform: scale(1.06); }
@@ -1610,7 +1610,6 @@ function InteractiveOrb({ onClick }) {
         <span className="lea-orb-ring-pulse" style={{ position: 'absolute', inset: -4, borderRadius: '50%', border: '2px solid var(--wine)', pointerEvents: 'none' }} />
         <div className="lea-orb-a" style={{ position: 'absolute', width: '86%', height: '86%', top: '-7%', left: '-7%', borderRadius: '50%', background: 'var(--wine)', filter: 'blur(46px)', opacity: 0.92 }} />
         <div className="lea-orb-b" style={{ position: 'absolute', width: '86%', height: '86%', bottom: '-7%', right: '-7%', borderRadius: '50%', background: 'var(--gold)', filter: 'blur(46px)', opacity: 0.92 }} />
-        <div className="lea-orb-wave" style={{ position: 'absolute', inset: 0, borderRadius: '50%', pointerEvents: 'none' }} />
       </div>
     </div>
   );
@@ -2826,8 +2825,6 @@ export default function LeanApp() {
         <div className="lea-fade" style={{
           position: 'relative', ...scrollThemeVars, background: PAGE_GRADIENT,
         }}>
-          <VerticalWaveform side="left" />
-          <VerticalWaveform side="right" />
           {[
             { top: 0, left: '2%', size: 700, blur: 140, durA: '2.4s', durB: '2.9s' },
             { top: 500, left: '50%', size: 750, blur: 145, durA: '2.6s', durB: '3.1s' },
