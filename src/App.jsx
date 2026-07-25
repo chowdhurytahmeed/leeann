@@ -972,32 +972,15 @@ function FAQSection() {
 
 function SiteFooter({ onNav }) {
   return (
-    <div style={{ overflow: 'hidden' }}>
-      <div style={{ borderBottom: '1px solid var(--line)', padding: '32px 40px' }}>
-        <div style={{ maxWidth: 900, margin: '0 auto', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
-          <Wordmark size={16} />
-          <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
-            <button onClick={onNav.signup} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: 12.5, cursor: 'pointer', padding: 0 }}>Sign up</button>
-            <button onClick={onNav.login} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: 12.5, cursor: 'pointer', padding: 0 }}>Log in</button>
-            <button onClick={onNav.practice} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: 12.5, cursor: 'pointer', padding: 0 }}>Practice</button>
-          </div>
-          <div style={{ fontSize: 11.5, color: 'var(--text-muted)' }}>© {new Date().getFullYear()} Lean</div>
+    <div style={{ borderTop: '1px solid var(--line)', padding: '32px 40px' }}>
+      <div style={{ maxWidth: 900, margin: '0 auto', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
+        <Wordmark size={16} />
+        <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
+          <button onClick={onNav.signup} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: 12.5, cursor: 'pointer', padding: 0 }}>Sign up</button>
+          <button onClick={onNav.login} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: 12.5, cursor: 'pointer', padding: 0 }}>Log in</button>
+          <button onClick={onNav.practice} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: 12.5, cursor: 'pointer', padding: 0 }}>Practice</button>
         </div>
-      </div>
-      <div style={{ paddingTop: 30 }}>
-        <LeanLogo3D height={220} />
-      </div>
-      <div
-        className="lea-display"
-        aria-hidden="true"
-        style={{
-          fontSize: 'min(22vw, 260px)', fontWeight: 700, textAlign: 'center', lineHeight: 0.75,
-          padding: '10px 0 0', letterSpacing: '-0.02em', userSelect: 'none',
-          background: 'linear-gradient(180deg, color-mix(in srgb, var(--text) 22%, transparent) 0%, color-mix(in srgb, var(--text) 4%, transparent) 60%, transparent 100%)',
-          WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent',
-        }}
-      >
-        Lean
+        <div style={{ fontSize: 11.5, color: 'var(--text-muted)' }}>© {new Date().getFullYear()} Lean</div>
       </div>
     </div>
   );
@@ -1235,7 +1218,7 @@ function PulseSection({ onSignup, onOrbClick }) {
   }
 
   return (
-    <div style={{ position: 'relative', background: '#15120E', padding: '72px 40px 60px', overflow: 'hidden', textAlign: 'center' }}>
+    <div style={{ position: 'relative', background: '#15120E', padding: '72px 40px 0', overflow: 'hidden', textAlign: 'center' }}>
       <div className="lea-mono" style={{
         position: 'absolute', top: 18, right: 24, display: 'flex', alignItems: 'center', gap: 6,
         fontSize: 10, color: '#8B92AC', textTransform: 'uppercase', letterSpacing: '0.06em',
@@ -1293,16 +1276,17 @@ function PulseSection({ onSignup, onOrbClick }) {
         </div>
       </div>
 
-      <div style={{ marginTop: 48, position: 'relative' }}>
-        <div className="lea-display" style={{ fontSize: 24, fontWeight: 700, color: '#F1E9DA', marginBottom: 8 }}>
-          Ready to see Lean in action?
-        </div>
-        <div style={{ fontSize: 13, color: '#8B92AC', marginBottom: 22 }}>
-          No sales call required to start.
-        </div>
-        <button className="lea-glass-btn" onClick={onSignup} style={{ background: 'color-mix(in srgb, var(--wine) 80%, var(--glass-bg))', border: 'none', borderRadius: 8, padding: '13px 28px', fontSize: 13.5, fontWeight: 600, color: 'var(--on-accent)', cursor: 'pointer' }}>
-          Get started
-        </button>
+      <div
+        className="lea-display"
+        aria-hidden="true"
+        style={{
+          fontSize: 'min(22vw, 260px)', fontWeight: 700, textAlign: 'center', lineHeight: 0.75,
+          marginTop: 48, letterSpacing: '-0.02em', userSelect: 'none',
+          background: 'linear-gradient(180deg, rgba(245,241,234,0.22) 0%, rgba(245,241,234,0.04) 60%, transparent 100%)',
+          WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent',
+        }}
+      >
+        Lean
       </div>
     </div>
   );
