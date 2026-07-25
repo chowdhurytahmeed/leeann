@@ -1601,16 +1601,27 @@ function HeroParticles() {
     function draw(t) {
       ctx.clearRect(0, 0, w, h);
       const time = t / 1000;
+      // The orb sits horizontally centered, roughly 276px from the top of
+      // the hero (below the "Your hiring liaison" label). Particles fade
+      // out as they approach it — soft-edged, not a hard cutoff — so they
+      // read as passing behind it rather than just vanishing at a line.
+      const orbCenterX = w / 2;
+      const orbCenterY = 276;
+      const orbRadius = 155;
+      const fadeStart = 210;
       particles.forEach((p) => {
         p.y -= p.speed * 0.006;
         if (p.y < -0.02) p.y = 1.02;
         const x = (p.x + Math.sin(time * 0.3 + p.twinklePhase) * p.drift * 0.05) * w;
         const y = p.y * h;
         const twinkle = 0.35 + Math.abs(Math.sin(time * p.twinkleSpeed + p.twinklePhase)) * 0.5;
+        const distFromOrb = Math.hypot(x - orbCenterX, y - orbCenterY);
+        const orbFade = Math.min(1, Math.max(0, (distFromOrb - orbRadius) / (fadeStart - orbRadius)));
+        if (orbFade <= 0) return;
         ctx.beginPath();
         ctx.arc(x, y, p.size, 0, Math.PI * 2);
         ctx.fillStyle = p.color;
-        ctx.globalAlpha = twinkle;
+        ctx.globalAlpha = twinkle * orbFade;
         ctx.shadowColor = p.color;
         ctx.shadowBlur = 6;
         ctx.fill();
@@ -1635,7 +1646,7 @@ function GrainOverlay() {
     return () => clearInterval(id);
   }, []);
   return (
-    <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', opacity: 0.05, mixBlendMode: 'overlay' }}>
+    <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', opacity: 0.16, mixBlendMode: 'overlay' }}>
       <filter id="lea-grain">
         <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed={seed} stitchTiles="stitch" />
       </filter>
@@ -1651,13 +1662,13 @@ function LightRays() {
     <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
       <div className="lea-ray-a" style={{
         position: 'absolute', top: '-40%', left: '10%', width: 260, height: '180%',
-        background: 'linear-gradient(180deg, transparent, rgba(240,86,110,0.14), transparent)',
-        filter: 'blur(40px)', transformOrigin: 'center',
+        background: 'linear-gradient(180deg, transparent, rgba(240,86,110,0.42), transparent)',
+        filter: 'blur(26px)', transformOrigin: 'center',
       }} />
       <div className="lea-ray-b" style={{
         position: 'absolute', top: '-40%', right: '15%', width: 220, height: '180%',
-        background: 'linear-gradient(180deg, transparent, rgba(123,159,255,0.13), transparent)',
-        filter: 'blur(40px)', transformOrigin: 'center',
+        background: 'linear-gradient(180deg, transparent, rgba(123,159,255,0.4), transparent)',
+        filter: 'blur(26px)', transformOrigin: 'center',
       }} />
     </div>
   );
