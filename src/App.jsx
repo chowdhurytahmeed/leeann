@@ -62,10 +62,10 @@ function mixStops(stops, t) {
 function makeUiStops(onDarkBg, onLightBg) {
   return [
     { at: 0, color: onDarkBg },
-    { at: 0.38, color: onDarkBg },
-    { at: 0.48, color: onLightBg },
-    { at: 0.62, color: onLightBg },
-    { at: 0.76, color: onDarkBg },
+    { at: 0.36, color: onDarkBg },
+    { at: 0.46, color: onLightBg },
+    { at: 0.60, color: onLightBg },
+    { at: 0.74, color: onDarkBg },
     { at: 1, color: onDarkBg },
   ];
 }
@@ -78,16 +78,16 @@ function makeUiStops(onDarkBg, onLightBg) {
 // there's no possibility of a visible jump — it's continuous by construction.
 const PAGE_GRADIENT = `linear-gradient(to bottom,
   #0A0812 0%,
-  #1B2A56 14%,
-  #33447A 26%,
-  #5568A0 36%,
-  #8090B8 46%,
-  #B8C0D8 54%,
+  #1B2A56 12%,
+  #33447A 21%,
+  #5568A0 29%,
+  #8090B8 38%,
+  #B8C0D8 46%,
+  #F4F6FA 55%,
   #F4F6FA 60%,
-  #F4F6FA 64%,
-  #B8C0D8 72%,
-  #8090B8 80%,
-  #5568A0 88%,
+  #B8C0D8 69%,
+  #8090B8 77%,
+  #5568A0 86%,
   #33447A 94%,
   #1B2A56 98%,
   #0A0812 100%
@@ -2665,11 +2665,11 @@ export default function LeanApp() {
             <div key={i} style={{ position: 'absolute', top: g.top, left: g.left, width: g.size, height: g.size, pointerEvents: 'none', zIndex: 0 }}>
               <div className="lea-cloud-a" style={{
                 position: 'absolute', width: '75%', height: '75%', top: '0%', left: '0%', borderRadius: '50%',
-                background: 'var(--wine-glow)', filter: `blur(${g.blur}px)`, animationDuration: g.durA,
+                background: 'var(--wine-glow)', filter: `blur(${g.blur}px)`, animationDuration: g.durA, opacity: 0.55,
               }} />
               <div className="lea-cloud-b" style={{
                 position: 'absolute', width: '75%', height: '75%', bottom: '0%', right: '0%', borderRadius: '50%',
-                background: 'var(--gold-glow)', filter: `blur(${g.blur}px)`, animationDuration: g.durB,
+                background: 'var(--gold-glow)', filter: `blur(${g.blur}px)`, animationDuration: g.durB, opacity: 0.55,
               }} />
             </div>
           ))}
