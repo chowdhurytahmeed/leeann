@@ -579,11 +579,14 @@ function GlobalStyles() {
         50% { box-shadow: 0 0 0 8px var(--wine-dim), 0 0 38px 10px var(--wine-dim); }
       }
       .lea-speaking { animation: lea-glow 1.1s ease-in-out infinite; }
-      @keyframes lea-idle {
-        0%,100% { box-shadow: 0 0 0 0 var(--wine-dim), 0 0 24px 4px var(--wine-dim), 0 0 40px 10px var(--gold-dim); }
-        50% { box-shadow: 0 0 0 10px var(--wine-dim), 0 0 46px 14px var(--wine-dim), 0 0 70px 22px var(--gold-dim); }
+      .lea-idle-glow { box-shadow: 0 0 30px 8px var(--wine-dim), 0 0 54px 16px var(--gold-dim); }
+      @keyframes lea-orb-wave-sweep { 0% { background-position: 0% 0%; } 100% { background-position: 200% 200%; } }
+      .lea-orb-wave {
+        background: linear-gradient(115deg, transparent 15%, rgba(255,255,255,0.4) 40%, rgba(240,86,110,0.3) 52%, rgba(255,255,255,0.1) 62%, transparent 82%);
+        background-size: 300% 300%;
+        animation: lea-orb-wave-sweep 6s linear infinite;
+        mix-blend-mode: overlay;
       }
-      .lea-idle-glow { animation: lea-idle 2.4s ease-in-out infinite; }
       @keyframes lea-lean-sway { 0%, 100% { transform: rotate(-9deg); } 50% { transform: rotate(6deg); } }
       .lea-lean { animation: lea-lean-sway 2.6s ease-in-out infinite; transform-origin: 50% 100%; }
       @keyframes lea-cta-pulse {
@@ -1625,6 +1628,7 @@ function InteractiveOrb({ onClick }) {
         <span className="lea-orb-ring-pulse" style={{ position: 'absolute', inset: -4, borderRadius: '50%', border: '2px solid var(--wine)', pointerEvents: 'none' }} />
         <div className="lea-orb-a" style={{ position: 'absolute', width: '86%', height: '86%', top: '-7%', left: '-7%', borderRadius: '50%', background: 'var(--wine)', filter: 'blur(46px)', opacity: 0.92 }} />
         <div className="lea-orb-b" style={{ position: 'absolute', width: '86%', height: '86%', bottom: '-7%', right: '-7%', borderRadius: '50%', background: 'var(--gold)', filter: 'blur(46px)', opacity: 0.92 }} />
+        <div className="lea-orb-wave" style={{ position: 'absolute', inset: 0, borderRadius: '50%', pointerEvents: 'none' }} />
       </div>
     </div>
   );
@@ -1657,9 +1661,11 @@ function VerticalWaveform({ side = 'left' }) {
     window.addEventListener('resize', resize);
 
     const ribbons = [
-      { color: '#F0566E', freq1: 1.3, freq2: 2.1, amp: 0.32, speed: 1.6, phase: 0 },
-      { color: '#7B9FFF', freq1: 1.7, freq2: 2.6, amp: 0.38, speed: 1.9, phase: 2 },
-      { color: '#E8C9A8', freq1: 1.1, freq2: 3.1, amp: 0.26, speed: 1.3, phase: 4 },
+      { color: '#4A6FE3', freq1: 1.2, freq2: 2.0, amp: 0.30, speed: 1.5, phase: 0, width: 0.10 },
+      { color: '#F0566E', freq1: 1.5, freq2: 2.4, amp: 0.34, speed: 1.8, phase: 1.4, width: 0.08 },
+      { color: '#4ECDC4', freq1: 1.7, freq2: 2.7, amp: 0.36, speed: 1.65, phase: 2.8, width: 0.08 },
+      { color: '#F0D264', freq1: 1.1, freq2: 3.0, amp: 0.24, speed: 1.35, phase: 4.2, width: 0.07 },
+      { color: '#F5F1EA', freq1: 1.9, freq2: 2.2, amp: 0.20, speed: 2.1, phase: 5.6, width: 0.06 },
     ];
 
     function draw(t) {
@@ -1668,23 +1674,38 @@ function VerticalWaveform({ side = 'left' }) {
       const time = t / 1000;
       const midX = w / 2;
 
-      ribbons.forEach((r) => {
-        ctx.beginPath();
-        for (let y = 0; y <= h; y += 5) {
-          const ny = y / h;
-          const taper = Math.sin(ny * Math.PI); // pinches to a point at top and bottom
-          const x = midX
+      function centerAt(r, y) {
+        const ny = y / h;
+        const taper = Math.sin(ny * Math.PI); // pinches to a point at top and bottom
+        return {
+          x: midX
             + Math.sin(ny * Math.PI * r.freq1 * 6 + time * r.speed + r.phase) * r.amp * w * taper
-            + Math.sin(ny * Math.PI * r.freq2 * 6 - time * r.speed * 0.7 + r.phase) * r.amp * 0.4 * w * taper;
-          if (y === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+            + Math.sin(ny * Math.PI * r.freq2 * 6 - time * r.speed * 0.7 + r.phase) * r.amp * 0.4 * w * taper,
+          taper,
+        };
+      }
+
+      ribbons.forEach((r) => {
+        // Filled ribbon: walk down the left edge, then back up the right
+        // edge, so it reads as a solid band of color rather than a thin
+        // outlined line — much closer to the reference's filled look.
+        ctx.beginPath();
+        for (let y = 0; y <= h; y += 6) {
+          const { x, taper } = centerAt(r, y);
+          const halfWidth = r.width * w * (0.4 + taper * 0.6);
+          if (y === 0) ctx.moveTo(x - halfWidth, y); else ctx.lineTo(x - halfWidth, y);
         }
-        ctx.strokeStyle = r.color;
-        ctx.lineWidth = 2.5;
-        ctx.lineCap = 'round';
+        for (let y = h; y >= 0; y -= 6) {
+          const { x, taper } = centerAt(r, y);
+          const halfWidth = r.width * w * (0.4 + taper * 0.6);
+          ctx.lineTo(x + halfWidth, y);
+        }
+        ctx.closePath();
+        ctx.fillStyle = r.color;
         ctx.shadowColor = r.color;
-        ctx.shadowBlur = 10;
-        ctx.globalAlpha = 0.75;
-        ctx.stroke();
+        ctx.shadowBlur = 8;
+        ctx.globalAlpha = 0.8;
+        ctx.fill();
       });
 
       raf = requestAnimationFrame(draw);
@@ -1698,7 +1719,7 @@ function VerticalWaveform({ side = 'left' }) {
     <canvas
       ref={canvasRef}
       style={{
-        position: 'fixed', top: 0, [side]: 0, width: 64, height: '100vh',
+        position: 'fixed', top: 0, [side]: 0, width: 96, height: '100vh',
         pointerEvents: 'none', zIndex: 5,
       }}
     />
