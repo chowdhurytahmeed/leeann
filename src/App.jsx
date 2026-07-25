@@ -333,6 +333,10 @@ function GlobalStyles() {
         background: linear-gradient(180deg, var(--glass-sheen) 0%, transparent 65%);
         pointer-events: none;
       }
+      @keyframes lea-wave-pulse-idle { 0%, 100% { transform: translateY(-50%) scaleY(0.65); } 50% { transform: translateY(-50%) scaleY(1); } }
+      @keyframes lea-wave-pulse-speaking { 0%, 100% { transform: translateY(-50%) scaleY(0.35); } 50% { transform: translateY(-50%) scaleY(1.2); } }
+      .lea-wave-bar-idle { animation-name: lea-wave-pulse-idle; animation-timing-function: ease-in-out; animation-iteration-count: infinite; }
+      .lea-wave-bar-speaking { animation-name: lea-wave-pulse-speaking; animation-timing-function: ease-in-out; animation-iteration-count: infinite; }
       .lea-glass-btn-outline {
         text-shadow: none;
         background: var(--glass-bg) !important;
@@ -1314,6 +1318,41 @@ function FlowLine({ color }) {
       <span className="lea-flow-dot" style={{ left: 0, background: color, color, animationDelay: '0s' }} />
       <span className="lea-flow-dot" style={{ left: 0, background: color, color, animationDelay: '1.2s' }} />
       <span className="lea-flow-dot" style={{ left: 0, background: color, color, animationDelay: '0.6s', animationDirection: 'reverse' }} />
+    </div>
+  );
+}
+
+// A flowing, blended-color waveform ribbon — same visual family as Apple's
+// Siri indicator, built from layered blurred bars in Lean's wine/gold/cream
+// palette instead of Siri's blue/pink/green. `speaking` drives amplitude and
+// speed so it visibly reacts to real "Lean is talking" state, not just a
+// decorative loop.
+function LeanWaveform({ speaking = false, height = 90 }) {
+  const bars = [
+    { x: 4, w: 7, h: 0.18, color: 'var(--wine)', delay: '0s', dur: '2.6s' },
+    { x: 14, w: 9, h: 0.32, color: 'var(--gold)', delay: '0.15s', dur: '2.1s' },
+    { x: 26, w: 8, h: 0.5, color: '#E8C9A8', delay: '0.3s', dur: '1.8s' },
+    { x: 38, w: 10, h: 0.78, color: 'var(--wine)', delay: '0.05s', dur: '1.5s' },
+    { x: 50, w: 9, h: 1, color: 'var(--gold)', delay: '0.4s', dur: '1.3s' },
+    { x: 61, w: 10, h: 0.8, color: '#E8C9A8', delay: '0.2s', dur: '1.6s' },
+    { x: 73, w: 8, h: 0.55, color: 'var(--wine)', delay: '0.35s', dur: '1.9s' },
+    { x: 84, w: 9, h: 0.3, color: 'var(--gold)', delay: '0.1s', dur: '2.2s' },
+    { x: 95, w: 7, h: 0.16, color: '#E8C9A8', delay: '0.25s', dur: '2.5s' },
+  ];
+  return (
+    <div style={{ position: 'relative', width: '100%', maxWidth: 340, height, margin: '0 auto' }}>
+      {bars.map((b, i) => (
+        <div
+          key={i}
+          className={speaking ? 'lea-wave-bar-speaking' : 'lea-wave-bar-idle'}
+          style={{
+            position: 'absolute', left: `${b.x}%`, top: '50%', width: `${b.w}%`, maxWidth: 26,
+            height: `${b.h * 100}%`, background: b.color, borderRadius: 999, filter: 'blur(3px)',
+            mixBlendMode: 'screen', opacity: 0.9, transform: 'translateY(-50%)',
+            animationDelay: b.delay, animationDuration: speaking ? `calc(${b.dur} * 0.55)` : b.dur,
+          }}
+        />
+      ))}
     </div>
   );
 }
@@ -3120,8 +3159,12 @@ export default function LeanApp() {
                         <div className="lea-orb-b" style={{ position: 'absolute', width: '86%', height: '86%', bottom: '-7%', right: '-7%', borderRadius: '50%', background: 'var(--gold)', filter: 'blur(20px)', opacity: 0.85 }} />
                       </div>
 
-                      <div className="lea-mono" style={{ fontSize: 10, color: leanSpeaking ? 'var(--wine)' : isListening ? 'var(--gold)' : 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 14, minHeight: 14 }}>
+                      <div className="lea-mono" style={{ fontSize: 10, color: leanSpeaking ? 'var(--wine)' : isListening ? 'var(--gold)' : 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 10, minHeight: 14 }}>
                         {liveVoiceConnecting ? 'Connecting…' : leanSpeaking ? 'Lean is speaking…' : isListening ? 'Listening — go ahead…' : 'Live'}
+                      </div>
+
+                      <div style={{ background: '#0D0B12', borderRadius: 14, padding: '4px 16px', marginBottom: 16, width: '100%', maxWidth: 400 }}>
+                        <LeanWaveform speaking={leanSpeaking} height={70} />
                       </div>
 
                       {showCaptions && liveVoiceTranscript.length > 0 && (
