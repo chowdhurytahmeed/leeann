@@ -50,13 +50,10 @@ function useScrollTheme() {
       const doc = document.documentElement;
       const scrollable = doc.scrollHeight - doc.clientHeight;
       const progress = scrollable > 0 ? doc.scrollTop / scrollable : 0;
-      let b;
-      if (progress < 0.1) b = 0;
-      else if (progress < 0.28) b = (progress - 0.1) / 0.18;
-      else if (progress < 0.78) b = 1;
-      else if (progress < 0.94) b = 1 - (progress - 0.78) / 0.16;
-      else b = 0;
-      setBlend(Math.min(1, Math.max(0, b)));
+      // smoothstep easing for a graceful, non-linear feel — starts and
+      // ends the transition slowly, moves faster through the middle
+      const eased = progress * progress * (3 - 2 * progress);
+      setBlend(Math.min(1, Math.max(0, 1 - eased))); // 1 = light (top), 0 = dark (bottom)
       ticking = false;
     }
     function onScroll() {
@@ -2596,9 +2593,7 @@ export default function LeanApp() {
       {/* MARKETING HOME */}
       {screen === 'home' && (
         <div className="lea-fade" style={{
-          position: 'relative', ...scrollThemeVars, background: 'var(--bg)',
-          backgroundImage: 'linear-gradient(var(--grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--grid-line) 1px, transparent 1px)',
-          backgroundSize: '32px 32px', transition: 'background-color 0.15s linear',
+          position: 'relative', ...scrollThemeVars, background: 'var(--bg)', transition: 'background-color 0.15s linear',
         }}>
           {[
             { top: 0, left: '2%', size: 700, blur: 140, durA: '2.4s', durB: '2.9s' },
