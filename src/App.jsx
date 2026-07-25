@@ -562,38 +562,8 @@ function TimeToFillChart() {
   );
 }
 
-function Reveal({ children, delay = 0 }) {
-  const ref = useRef(null);
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true);
-          observer.unobserve(el);
-        }
-      },
-      { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
-  return (
-    <div
-      ref={ref}
-      style={{
-        opacity: visible ? 1 : 0,
-        transform: visible ? 'translateY(0)' : 'translateY(28px)',
-        transition: `opacity 0.7s ease ${delay}s, transform 0.7s cubic-bezier(.2,.8,.2,1) ${delay}s`,
-      }}
-    >
-      {children}
-    </div>
-  );
+function Reveal({ children }) {
+  return <div>{children}</div>;
 }
 
 function Eyebrow({ children, color }) {
@@ -1052,7 +1022,7 @@ function buildEkgSegment(xStart, xEnd, baseline = 72, gridStart = 0) {
   return d;
 }
 
-function PulseSection({ onSignup }) {
+function PulseSection({ onSignup, onOrbClick }) {
   const dimLeft = buildEkgSegment(0, 460);
   const dimRight = buildEkgSegment(565, 1000, 72, 565);
   const [phase, setPhase] = useState('left'); // left | hit | right | pause
@@ -1086,7 +1056,7 @@ function PulseSection({ onSignup }) {
   const hit = phase === 'hit';
 
   function handleClick() {
-    speak("Hi, I'm Lean. I'm always here when you need me.");
+    if (onOrbClick) onOrbClick();
     setPulseKey((k) => k + 1);
   }
 
@@ -1898,6 +1868,37 @@ export default function LeanApp() {
     setIsListening(false);
   }
 
+  // A quick "hey" in Lean's actual voice (same Gemini session/voice as the
+  // live conversation) — connects just long enough to say one line, then
+  // disconnects. Not a full conversation, no mic, no browser TTS.
+  async function sayHeyWithLeanVoice() {
+    const geminiKeyResult = await storage.get('geminiApiKey');
+    const geminiKey = geminiKeyResult?.value;
+    if (!geminiKey) return; // no key configured — nothing to say with
+
+    let hasSpoken = false;
+    const session = new GeminiLiveSession({
+      apiKey: geminiKey,
+      systemInstruction: "You are Lean. Say a short, warm one-line greeting like \"Hey, I'm Lean!\" — nothing else, no questions, no follow-up.",
+      voiceName: 'Sulafat',
+      onOpen: () => {
+        session.sendText('Say hello.');
+      },
+      onSpeakingChange: (speaking) => {
+        setLeanSpeaking(speaking);
+        if (speaking) hasSpoken = true;
+        else if (hasSpoken) session.disconnect();
+      },
+      onError: () => {},
+      onClose: () => setLeanSpeaking(false),
+    });
+    try {
+      await session.connect();
+    } catch (e) {
+      // couldn't connect — fail quietly, this is just a fun greeting, not core functionality
+    }
+  }
+
   async function syncProfile() {
     if (syncing || !activeRole) return;
     // The live Gemini conversation is captured separately in liveVoiceTranscript,
@@ -2590,7 +2591,7 @@ export default function LeanApp() {
                 <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 300, height: 300 }}>
                   <div
                     className="lea-idle-glow lea-orb-interactive"
-                    onClick={() => speak("Hi, I'm Lean.")}
+                    onClick={sayHeyWithLeanVoice}
                     title="Say hi"
                     style={{
                       width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,0.03)',
@@ -2776,7 +2777,7 @@ export default function LeanApp() {
           <Reveal><FAQSection /></Reveal>
           <Reveal><RoadmapSection /></Reveal>
 
-          <Reveal><PulseSection onSignup={goSignupType} /></Reveal>
+          <Reveal><PulseSection onSignup={goSignupType} onOrbClick={sayHeyWithLeanVoice} /></Reveal>
           <SiteFooter onNav={{ signup: goSignupType, login: goSignupType, practice: goPractice }} />
         </div>
       )}
