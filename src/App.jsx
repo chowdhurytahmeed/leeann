@@ -88,10 +88,10 @@ function makeUiStops(onDarkBg, onLightBg) {
 // list, so they can never drift out of sync with each other.
 const GRADIENT_WAYPOINTS = [
   { at: 0.00, color: '#0A0812' },
-  { at: 0.18, color: '#1B2A56' },
-  { at: 0.50, color: '#F4F6FA' },
-  { at: 0.82, color: '#1B2A56' },
-  { at: 1.00, color: '#0A0812' },
+  { at: 0.15, color: '#1B2A56' },
+  { at: 0.45, color: '#141F3D' },
+  { at: 0.72, color: '#0D1428' },
+  { at: 1.00, color: '#15120E' },
 ];
 
 function buildEasedKeyframes(waypoints, steps) {
@@ -168,24 +168,20 @@ function useScrollBg() {
     };
   }, []);
 
-  // What color is the background actually rendering right now, and how
-  // bright is it? uiT is a soft 0-1 crossfade centered on the 0.5
-  // brightness threshold — narrow enough that text still switches
-  // decisively, wide enough that it doesn't visibly snap.
-  const bgNow = mixStops(BG_KEYFRAMES, progress);
-  const bgBrightness = luminance(bgNow);
-  const uiT = Math.min(1, Math.max(0, (bgBrightness - 0.42) / (0.58 - 0.42)));
-
+  // The background now only ever darkens — it never crosses back into
+  // light territory — so text/panel/border tokens don't need to switch at
+  // all anymore; they just stay at their dark-mode values the whole way
+  // down the page.
   return {
-    '--text': mixColor(TEXT_STOPS[0].color, TEXT_STOPS[2].color, uiT),
-    '--text-muted': mixColor(TEXT_MUTED_STOPS[0].color, TEXT_MUTED_STOPS[2].color, uiT),
-    '--panel': mixColor(PANEL_STOPS[0].color, PANEL_STOPS[2].color, uiT),
-    '--panel-alt': mixColor(PANEL_ALT_STOPS[0].color, PANEL_ALT_STOPS[2].color, uiT),
-    '--line': mixColor(LINE_STOPS[0].color, LINE_STOPS[2].color, uiT),
-    '--glass-bg': mixColor(GLASS_BG_STOPS[0].color, GLASS_BG_STOPS[2].color, uiT),
-    '--glass-border': mixColor(GLASS_BORDER_STOPS[0].color, GLASS_BORDER_STOPS[2].color, uiT),
-    '--glass-highlight': mixColor(GLASS_HIGHLIGHT_STOPS[0].color, GLASS_HIGHLIGHT_STOPS[2].color, uiT),
-    '--glass-sheen': mixColor(GLASS_SHEEN_STOPS[0].color, GLASS_SHEEN_STOPS[2].color, uiT),
+    '--text': '#EDEFF5',
+    '--text-muted': '#8B92AC',
+    '--panel': '#171B2C',
+    '--panel-alt': '#1E2338',
+    '--line': '#2C3350',
+    '--glass-bg': 'rgba(23,27,44,0.5)',
+    '--glass-border': 'rgba(255,255,255,0.09)',
+    '--glass-highlight': 'rgba(255,255,255,0.06)',
+    '--glass-sheen': 'rgba(255,255,255,0.14)',
   };
 }
 
