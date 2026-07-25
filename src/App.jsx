@@ -543,10 +543,10 @@ function GlobalStyles() {
       .lea-root, .lea-root * {
         transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
       }
-      @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
       .lea-root { font-family: 'Inter', sans-serif; }
       .lea-display { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; }
-      .lea-signature { font-family: 'Space Grotesk', sans-serif; font-style: normal; }
+      .lea-signature { font-family: 'Bricolage Grotesque', sans-serif; font-style: normal; }
       .lea-mono { font-family: 'IBM Plex Mono', monospace; }
       .lea-scroll::-webkit-scrollbar { width: 6px; }
       .lea-scroll::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
@@ -1269,30 +1269,16 @@ function PulseSection({ onSignup, onOrbClick }) {
       </div>
 
       <div
+        className="lea-display"
         aria-hidden="true"
         style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          marginTop: 48, userSelect: 'none', gap: 0,
+          fontSize: 'min(22vw, 260px)', fontWeight: 700, textAlign: 'center', lineHeight: 0.75,
+          marginTop: 48, letterSpacing: '-0.02em', userSelect: 'none',
+          background: 'linear-gradient(180deg, rgba(245,241,234,0.22) 0%, rgba(245,241,234,0.04) 60%, transparent 100%)',
+          WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent',
         }}
       >
-        <div style={{
-          width: 'min(17vw, 200px)', height: 'min(17vw, 200px)', flexShrink: 0,
-          maskImage: 'linear-gradient(180deg, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0.04) 60%, transparent 100%)',
-          WebkitMaskImage: 'linear-gradient(180deg, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0.04) 60%, transparent 100%)',
-        }}>
-          <LogoMark size="100%" animate={false} />
-        </div>
-        <span
-          className="lea-display"
-          style={{
-            fontSize: 'min(22vw, 260px)', fontWeight: 700, lineHeight: 0.75,
-            letterSpacing: '-0.02em', marginLeft: 'min(-1.2vw, -14px)',
-            background: 'linear-gradient(180deg, rgba(245,241,234,0.22) 0%, rgba(245,241,234,0.04) 60%, transparent 100%)',
-            WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent',
-          }}
-        >
-          ean
-        </span>
+        Lean
       </div>
     </div>
   );
