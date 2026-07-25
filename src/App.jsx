@@ -1683,7 +1683,6 @@ function InteractiveOrb({ onClick, amplitudeRef, size = 300, hit = false, title 
   const currentRef = useRef({ x: 0, y: 0 });
   const glanceRef = useRef({ x: 0, y: 0, nextAt: 3 + Math.random() * 4 });
   const breathStateRef = useRef({ cycleLen: 4.5 + Math.random() * 1.5, ampVariation: 1, cycled: false });
-  const blinkStateRef = useRef({ nextAt: 4 + Math.random() * 7, remaining: 0 });
   const smoothedAmpRef = useRef(0);
 
   useEffect(() => {
@@ -1765,22 +1764,7 @@ function InteractiveOrb({ onClick, amplitudeRef, size = 300, hit = false, title 
       const amp = smoothedAmpRef.current;
       const ampScale = 1 + amp * 0.16;
 
-      // --- blink: brief, irregularly-timed dimming, since perfectly
-      // steady brightness reads as mechanical. ---
-      const blink = blinkStateRef.current;
-      if (t > blink.nextAt) {
-        blink.remaining = 0.16;
-        blink.nextAt = t + 5 + Math.random() * 8;
-      }
-      let blinkOpacity = 1;
-      if (blink.remaining > 0) {
-        blink.remaining -= delta; // same clamped delta, not a fixed-framerate assumption
-        const progress = 1 - Math.max(0, blink.remaining) / 0.16;
-        blinkOpacity = 0.72 + Math.abs(Math.sin(progress * Math.PI)) * 0.28;
-      }
-
       breath.style.transform = `scale(${breathScale * ampScale})`;
-      breath.style.opacity = String(blinkOpacity);
 
       raf = requestAnimationFrame(tick);
     }
