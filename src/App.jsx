@@ -36,63 +36,74 @@ function mixColor(c1, c2, t) {
   return `rgba(${r},${g},${b},${a.toFixed(3)})`;
 }
 
-// Tracks overall page scroll as a "night sky -> daylight -> night sky" blend:
-// 0 = full dark (top and bottom of the page), 1 = full light (the middle
-// stretch of content). Every color token below is interpolated by this one
-// continuous value, so the whole page's palette — not just the background —
-// shifts together as you scroll, the way SharpLink's page does.
-function useScrollTheme() {
-  const [blend, setBlend] = useState(0);
-
-  useEffect(() => {
-    let ticking = false;
-    function computeBlend() {
-      const doc = document.documentElement;
-      const scrollable = doc.scrollHeight - doc.clientHeight;
-      const progress = scrollable > 0 ? doc.scrollTop / scrollable : 0;
-      // smoothstep easing for a graceful, non-linear feel — starts and
-      // ends the transition slowly, moves faster through the middle
-      const eased = progress * progress * (3 - 2 * progress);
-      setBlend(Math.min(1, Math.max(0, 1 - eased))); // 1 = light (top), 0 = dark (bottom)
-      ticking = false;
-    }
-    function onScroll() {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(computeBlend);
-    }
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
-    computeBlend();
-    return () => { window.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onScroll); };
-  }, []);
-
-  const DARK = {
-    bg: '#0D0B12', text: '#EDEFF5', textMuted: '#8B92AC', panel: '#171B2C', panelAlt: '#1E2338', line: '#2C3350',
-    glassBg: 'rgba(23,27,44,0.5)', glassBorder: 'rgba(255,255,255,0.09)', glassHighlight: 'rgba(255,255,255,0.06)',
-    glassSheen: 'rgba(255,255,255,0.14)', gridLine: 'rgba(255,255,255,0.03)',
-  };
-  const LIGHT = {
-    bg: '#F4F6FA', text: '#14161F', textMuted: '#666E82', panel: '#FFFFFF', panelAlt: '#ECEFF5', line: '#D8DEE9',
-    glassBg: 'rgba(255,255,255,0.5)', glassBorder: 'rgba(255,255,255,0.6)', glassHighlight: 'rgba(255,255,255,0.35)',
-    glassSheen: 'rgba(255,255,255,0.55)', gridLine: 'rgba(20,22,31,0.045)',
-  };
-
-  return {
-    '--bg': mixColor(DARK.bg, LIGHT.bg, blend),
-    '--text': mixColor(DARK.text, LIGHT.text, blend),
-    '--text-muted': mixColor(DARK.textMuted, LIGHT.textMuted, blend),
-    '--panel': mixColor(DARK.panel, LIGHT.panel, blend),
-    '--panel-alt': mixColor(DARK.panelAlt, LIGHT.panelAlt, blend),
-    '--line': mixColor(DARK.line, LIGHT.line, blend),
-    '--glass-bg': mixColor(DARK.glassBg, LIGHT.glassBg, blend),
-    '--glass-border': mixColor(DARK.glassBorder, LIGHT.glassBorder, blend),
-    '--glass-highlight': mixColor(DARK.glassHighlight, LIGHT.glassHighlight, blend),
-    '--glass-sheen': mixColor(DARK.glassSheen, LIGHT.glassSheen, blend),
-    '--grid-line': mixColor(DARK.gridLine, LIGHT.gridLine, blend),
-  };
+// Blends across three colors instead of two: stops[0] at t=0, stops[1] at
+// t=0.5, stops[2] at t=1, with a straight linear blend between whichever
+// pair t currently falls between.
+function mix3(stops, t) {
+  if (t <= 0.5) return mixColor(stops[0], stops[1], t * 2);
+  return mixColor(stops[1], stops[2], (t - 0.5) * 2);
 }
 
+// The page background moves through three stops as you scroll — white at
+// the top, navy blue through the middle, night-sky black by the bottom —
+// while text/panels/borders shift from dark-on-light to light-on-dark
+// (completing that switch a bit earlier than the background finishes its
+// own transition, so text stays legible against the navy handoff).
+//
+// This doesn't set color as a direct function of scroll position each
+// frame — that would jump instantly on a fast scroll. A continuous
+// animation loop eases the displayed value toward wherever the target
+// currently is, every frame, so scrolling fast or erratically still
+// produces a smooth chase rather than a snap.
+function useScrollBg() {
+  const [progress, setProgress] = useState(0);
+  const targetRef = useRef(0);
+  const currentRef = useRef(0);
+
+  useEffect(() => {
+    function computeTarget() {
+      const doc = document.documentElement;
+      const scrollable = doc.scrollHeight - doc.clientHeight;
+      const p = scrollable > 0 ? doc.scrollTop / scrollable : 0;
+      const eased = p * p * (3 - 2 * p); // smoothstep
+      targetRef.current = Math.min(1, Math.max(0, eased));
+    }
+    window.addEventListener('scroll', computeTarget, { passive: true });
+    window.addEventListener('resize', computeTarget);
+    computeTarget();
+
+    let raf;
+    function tick() {
+      currentRef.current += (targetRef.current - currentRef.current) * 0.08;
+      setProgress(currentRef.current);
+      raf = requestAnimationFrame(tick);
+    }
+    raf = requestAnimationFrame(tick);
+
+    return () => {
+      window.removeEventListener('scroll', computeTarget);
+      window.removeEventListener('resize', computeTarget);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
+  // text/panel tokens only need one dark->light switch, completed by the
+  // time the background reaches its navy stop, then held through black
+  const uiProgress = Math.min(1, progress * 1.8);
+
+  return {
+    '--bg': mix3(['#F4F6FA', '#1B2A56', '#0A0812'], progress),
+    '--text': mixColor('#14161F', '#EDEFF5', uiProgress),
+    '--text-muted': mixColor('#666E82', '#8B92AC', uiProgress),
+    '--panel': mixColor('#FFFFFF', '#171B2C', uiProgress),
+    '--panel-alt': mixColor('#ECEFF5', '#1E2338', uiProgress),
+    '--line': mixColor('#D8DEE9', '#2C3350', uiProgress),
+    '--glass-bg': mixColor('rgba(255,255,255,0.5)', 'rgba(23,27,44,0.5)', uiProgress),
+    '--glass-border': mixColor('rgba(255,255,255,0.6)', 'rgba(255,255,255,0.09)', uiProgress),
+    '--glass-highlight': mixColor('rgba(255,255,255,0.35)', 'rgba(255,255,255,0.06)', uiProgress),
+    '--glass-sheen': mixColor('rgba(255,255,255,0.55)', 'rgba(255,255,255,0.14)', uiProgress),
+  };
+}
 
 // The app's role objects use camelCase (mustHaves, hmMessages); the database
 // columns are snake_case (must_haves, hm_messages). These two helpers convert
@@ -1589,7 +1600,7 @@ function ThemeToggle({ theme, onToggle }) {
 }
 
 export default function LeanApp() {
-  const scrollThemeVars = useScrollTheme();
+  const scrollThemeVars = useScrollBg();
   const [theme, setTheme] = useState('light');
   const [apiKeySet, setApiKeySet] = useState(false);
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
@@ -2593,7 +2604,7 @@ export default function LeanApp() {
       {/* MARKETING HOME */}
       {screen === 'home' && (
         <div className="lea-fade" style={{
-          position: 'relative', ...scrollThemeVars, background: 'var(--bg)', transition: 'background-color 0.15s linear',
+          position: 'relative', ...scrollThemeVars, background: 'var(--bg)',
         }}>
           {[
             { top: 0, left: '2%', size: 700, blur: 140, durA: '2.4s', durB: '2.9s' },
