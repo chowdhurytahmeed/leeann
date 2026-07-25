@@ -17,7 +17,7 @@
 // That requires a backend, which this static site doesn't have (same
 // tradeoff we already made for the Anthropic key).
 
-const MODEL = 'models/gemini-2.5-flash-native-audio-latest';
+const MODEL = 'models/gemini-3.1-flash-live-preview'; // Google's current recommended model for lowest-latency live conversation
 const INPUT_SAMPLE_RATE = 16000;
 const OUTPUT_SAMPLE_RATE = 24000;
 
@@ -90,6 +90,7 @@ export class GeminiLiveSession {
               generationConfig: {
                 responseModalities: ['AUDIO'],
                 speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: this.voiceName } } },
+                thinkingConfig: { thinkingLevel: 'minimal' }, // fastest response generation — trades off deeper reasoning for speed
               },
               systemInstruction: { parts: [{ text: this.systemInstruction }] },
               outputAudioTranscription: {},

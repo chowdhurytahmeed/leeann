@@ -1339,6 +1339,7 @@ export default function LeanApp() {
   const [hmInput, setHmInput] = useState('');
   const [hmLoading, setHmLoading] = useState(false);
   const [syncing, setSyncing] = useState(false);
+  const [syncError, setSyncError] = useState(null);
   const hmScrollRef = useRef(null);
 
   const [candInput, setCandInput] = useState('');
@@ -1613,7 +1614,7 @@ export default function LeanApp() {
     setLiveVoiceConnecting(true);
     setLiveVoiceTranscript([]);
 
-    const system = `You are Lean, an AI hiring liaison having a real-time spoken conversation with ${account?.name || 'a hiring manager'} at ${account?.company || 'their company'} to understand a role they're hiring for. Ask one focused follow-up question at a time — job title, what the team does, day-to-day responsibilities, must-have skills, team culture, and interview stages. Sound warm and human, like a real recruiter on a call, not a script. Keep responses short and conversational. Open by greeting them and asking what role they're hiring for.`;
+    const system = `You are Lean, an AI hiring liaison having a real-time spoken conversation with ${account?.name || 'a hiring manager'} at ${account?.company || 'their company'} to understand a role they're hiring for. Ask one focused follow-up question at a time — job title, what the team does, day-to-day responsibilities, must-have skills, team culture, and interview stages. Sound warm and human, like a real recruiter on a call, not a script. Keep responses short and conversational. Open by greeting them and asking what role they're hiring for. If there's ever a pause before you respond, or the person says something like "sorry, one sec" or "hold on," react naturally the way a real recruiter on a call would — a quick "no worries, take your time" or "sure, I'm just jotting that down" — rather than going silent or restarting the question.`;
 
     const session = new GeminiLiveSession({
       apiKey: geminiKey,
@@ -1688,6 +1689,9 @@ export default function LeanApp() {
       // so a second sync later doesn't reprocess the same lines twice.
       updateRole(id, { ...parsed, hmMessages: combined });
       if (liveMessages.length > 0) setLiveVoiceTranscript([]);
+      setSyncError(null);
+    } else {
+      setSyncError(result?.slice(0, 200) || 'Sync failed — check your Anthropic API key in Settings.');
     }
     setSyncing(false);
   }
@@ -3086,6 +3090,11 @@ export default function LeanApp() {
                       {syncing ? 'Getting up to speed…' : 'Sync Profile'}
                     </button>
                   </div>
+                  {syncError && (
+                    <div style={{ fontSize: 11.5, color: 'var(--danger)', background: 'var(--wine-dim)', border: '1px solid var(--danger)', borderRadius: 8, padding: '8px 10px', marginBottom: 14, lineHeight: 1.5 }}>
+                      {syncError}
+                    </div>
+                  )}
                   <ProfileField label="Title" value={activeRole.title} color="var(--wine)" />
                   <ProfileField label="Team" value={activeRole.team} color="var(--wine)" />
                   <ProfileField label="Key tasks" value={activeRole.tasks} color="var(--wine)" />
