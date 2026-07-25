@@ -1275,8 +1275,12 @@ function PulseSection({ onSignup, onOrbClick }) {
           marginTop: 48, userSelect: 'none', gap: 0,
         }}
       >
-        <div style={{ width: 'min(17vw, 200px)', height: 'min(17vw, 200px)', flexShrink: 0, opacity: 0.85 }}>
-          <LogoMark size="100%" />
+        <div style={{
+          width: 'min(17vw, 200px)', height: 'min(17vw, 200px)', flexShrink: 0,
+          maskImage: 'linear-gradient(180deg, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0.04) 60%, transparent 100%)',
+          WebkitMaskImage: 'linear-gradient(180deg, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0.04) 60%, transparent 100%)',
+        }}>
+          <LogoMark size="100%" animate={false} />
         </div>
         <span
           className="lea-display"
@@ -1629,9 +1633,9 @@ function LeanWaveform({ height = 90 }) {
   return <canvas ref={canvasRef} style={{ width: '100%', maxWidth: 340, height, display: 'block', margin: '0 auto' }} />;
 }
 
-function LogoMark({ size = 30 }) {
+function LogoMark({ size = 30, animate = true }) {
   return (
-    <svg width={size} height={size} viewBox="5 3 22 26" className="lea-lean" style={{ flexShrink: 0 }}>
+    <svg width={size} height={size} viewBox="5 3 22 26" className={animate ? 'lea-lean' : ''} style={{ flexShrink: 0 }}>
       <rect x="7" y="5" width="7" height="22" rx="3.5" fill="var(--wine)" />
       <rect x="7" y="20.5" width="18" height="6.5" rx="3.25" fill="var(--gold)" />
     </svg>
