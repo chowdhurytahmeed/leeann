@@ -1602,6 +1602,7 @@ export default function LeanApp() {
 
   async function startLiveVoice() {
     if (!activeRole || liveVoiceConnecting || liveVoiceActive) return;
+    updateRole(activeRole.id, { started: true });
     const geminiKeyResult = await storage.get('geminiApiKey');
     const geminiKey = geminiKeyResult?.value;
     if (!geminiKey) {
@@ -2997,74 +2998,40 @@ export default function LeanApp() {
 
                   {!activeRole.started ? (
                     <div style={{ marginTop: 24, maxWidth: 380, textAlign: 'center' }}>
-                      {micSupported && (
-                        <div style={{ textAlign: 'left', background: 'var(--wine-dim)', border: '1px solid var(--wine)', borderRadius: 10, padding: '14px 16px', marginBottom: 16 }}>
-                          <div style={{ fontSize: 12.5, color: 'var(--text)', lineHeight: 1.55, marginBottom: 10 }}>
-                            <strong>Before you start:</strong> your microphone will stay on for this conversation. Lean listens continuously and takes notes to build the role profile.
-                          </div>
-                          <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 12, color: 'var(--text-muted)', cursor: 'pointer' }}>
-                            <input type="checkbox" checked={micConsent} onChange={(e) => setMicConsent(e.target.checked)} style={{ marginTop: 2 }} />
-                            I understand and consent to my microphone being used.
-                          </label>
+                      <div style={{ textAlign: 'left', background: 'var(--wine-dim)', border: '1px solid var(--wine)', borderRadius: 10, padding: '14px 16px', marginBottom: 16 }}>
+                        <div style={{ fontSize: 12.5, color: 'var(--text)', lineHeight: 1.55, marginBottom: 10 }}>
+                          <strong>Before you start:</strong> your microphone will stay on for this conversation. Lean listens continuously and takes notes to build the role profile.
                         </div>
-                      )}
+                        <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 12, color: 'var(--text-muted)', cursor: 'pointer' }}>
+                          <input type="checkbox" checked={micConsent} onChange={(e) => setMicConsent(e.target.checked)} style={{ marginTop: 2 }} />
+                          I understand and consent to my microphone being used.
+                        </label>
+                      </div>
                       <button
-                        onClick={startCalibration}
-                        disabled={micSupported && !micConsent}
+                        onClick={startLiveVoice}
+                        disabled={!micConsent || liveVoiceConnecting}
                         style={{
-                          background: micSupported && !micConsent ? 'var(--line)' : 'var(--wine)', border: 'none', borderRadius: 8, padding: '11px 24px',
-                          fontSize: 13, fontWeight: 600, color: 'var(--on-accent)', cursor: micSupported && !micConsent ? 'not-allowed' : 'pointer',
+                          background: !micConsent || liveVoiceConnecting ? 'var(--line)' : 'var(--wine)', border: 'none', borderRadius: 8, padding: '11px 24px',
+                          fontSize: 13, fontWeight: 600, color: 'var(--on-accent)', cursor: !micConsent || liveVoiceConnecting ? 'not-allowed' : 'pointer',
                         }}
                       >
-                        Start talking with Lean
+                        {liveVoiceConnecting ? 'Connecting…' : 'Start talking with Lean'}
                       </button>
-                      {!micSupported && (
-                        <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 10 }}>Voice isn't supported in this browser — you'll type instead.</div>
+                      {liveVoiceError && (
+                        <div style={{ fontSize: 11, color: 'var(--danger)', marginTop: 10 }}>{liveVoiceError}</div>
                       )}
-                      <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid var(--line)' }}>
-                        <button
-                          onClick={startLiveVoice}
-                          disabled={liveVoiceConnecting}
-                          style={{ background: 'transparent', border: '1px solid var(--gold)', borderRadius: 8, padding: '9px 18px', fontSize: 12.5, fontWeight: 600, color: 'var(--gold)', cursor: liveVoiceConnecting ? 'default' : 'pointer' }}
-                        >
-                          {liveVoiceConnecting ? 'Connecting…' : '🔴 Try Live Voice (Gemini, beta)'}
-                        </button>
-                        {liveVoiceError && (
-                          <div style={{ fontSize: 11, color: 'var(--danger)', marginTop: 8 }}>{liveVoiceError}</div>
-                        )}
-                      </div>
-                    </div>
-                  ) : liveVoiceActive ? (
-                    <div style={{ marginTop: 24, width: '100%', maxWidth: 420, textAlign: 'center' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 16 }}>
-                        <span className="lea-live-dot" style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--gold)', display: 'inline-block' }} />
-                        <span className="lea-mono" style={{ fontSize: 11, color: 'var(--gold)', textTransform: 'uppercase' }}>
-                          {leanSpeaking ? 'Lean is speaking…' : isListening ? 'Listening…' : 'Live — go ahead'}
-                        </span>
-                      </div>
-                      <div style={{ textAlign: 'left', background: 'var(--panel-alt)', border: '1px solid var(--line)', borderRadius: 10, padding: 14, maxHeight: 260, overflowY: 'auto', marginBottom: 14 }}>
-                        {liveVoiceTranscript.length === 0 ? (
-                          <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Say hello — Lean will greet you and start asking about the role.</div>
-                        ) : liveVoiceTranscript.map((t, i) => (
-                          <div key={i} style={{ marginBottom: 8, fontSize: 12.5, color: t.role === 'user' ? 'var(--text)' : 'var(--gold-deep)' }}>
-                            <strong>{t.role === 'user' ? 'You' : 'Lean'}:</strong> {t.text}
-                          </div>
-                        ))}
-                      </div>
-                      <button onClick={stopLiveVoice} style={{ background: 'transparent', border: '1px solid var(--line)', borderRadius: 8, padding: '9px 18px', fontSize: 12.5, fontWeight: 600, color: 'var(--text-muted)', cursor: 'pointer' }}>
-                        End live voice session
-                      </button>
+                      {!geminiKeySet && (
+                        <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 10 }}>Needs a Gemini key — add one via the key icon (top right).</div>
+                      )}
                     </div>
                   ) : (
                     <>
                       <div
                         className={leanSpeaking ? 'lea-speaking' : 'lea-idle-glow'}
-                        onClick={() => { const m = [...activeRole.hmMessages].reverse().find((x) => x.role === 'assistant'); if (m) speak(m.text); }}
-                        title="Hear that again"
                         style={{
                           width: leanSpeaking ? 150 : 126, height: leanSpeaking ? 150 : 126, borderRadius: '50%',
                           background: 'var(--panel-alt)', border: '2px solid var(--wine)', overflow: 'hidden', position: 'relative',
-                          margin: '20px 0 16px', cursor: 'pointer', transition: 'width 0.35s ease, height 0.35s ease',
+                          margin: '20px 0 16px', transition: 'width 0.35s ease, height 0.35s ease',
                         }}
                       >
                         <div className="lea-orb-a" style={{ position: 'absolute', width: '86%', height: '86%', top: '-7%', left: '-7%', borderRadius: '50%', background: 'var(--wine)', filter: 'blur(20px)', opacity: 0.85 }} />
@@ -3072,39 +3039,29 @@ export default function LeanApp() {
                       </div>
 
                       <div className="lea-mono" style={{ fontSize: 10, color: leanSpeaking ? 'var(--wine)' : isListening ? 'var(--gold)' : 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 14, minHeight: 14 }}>
-                        {hmLoading ? 'Lean is thinking…' : leanSpeaking ? 'Lean is speaking…' : isListening ? 'Listening — go ahead…' : 'Tap the circle to hear that again'}
+                        {liveVoiceConnecting ? 'Connecting…' : leanSpeaking ? 'Lean is speaking…' : isListening ? 'Listening — go ahead…' : 'Live'}
                       </div>
 
-                      {showCaptions && (
-                        <div style={{ width: '100%', maxWidth: 400, background: 'var(--panel)', border: '1px solid var(--line)', borderRadius: 10, padding: '12px 14px', marginBottom: 16, fontSize: 13, color: 'var(--text)', lineHeight: 1.5 }}>
-                          {[...activeRole.hmMessages].reverse().find((m) => m.role === 'assistant')?.text || '…'}
+                      {showCaptions && liveVoiceTranscript.length > 0 && (
+                        <div style={{ width: '100%', maxWidth: 400, background: 'var(--panel)', border: '1px solid var(--line)', borderRadius: 10, padding: '12px 14px', marginBottom: 16, fontSize: 13, color: 'var(--text)', lineHeight: 1.5, maxHeight: 160, overflowY: 'auto' }}>
+                          {liveVoiceTranscript.map((t, i) => (
+                            <div key={i} style={{ marginBottom: 6 }}>
+                              <strong>{t.role === 'user' ? 'You' : 'Lean'}:</strong> {t.text}
+                            </div>
+                          ))}
                         </div>
                       )}
 
-                      {micSupported && (
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 10 }}>
-                          <div style={{
-                            width: 34, height: 34, borderRadius: '50%', border: `2px solid ${isListening ? 'var(--gold)' : 'var(--line)'}`,
-                            background: isListening ? 'var(--gold-dim)' : 'var(--panel-alt)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            opacity: leanSpeaking || hmLoading ? 0.4 : 1, transition: 'all 0.2s ease',
-                          }} className={isListening ? 'lea-speaking' : ''}>
-                            <Mic size={15} color={isListening ? 'var(--gold)' : 'var(--text-muted)'} />
-                          </div>
-                          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 6, minHeight: 16 }}>{interimTranscript}</div>
-                          {micError && <div style={{ fontSize: 11, color: 'var(--danger)', marginTop: 4, maxWidth: 360, textAlign: 'center' }}>{micError}</div>}
-                        </div>
+                      {liveVoiceError && (
+                        <div style={{ fontSize: 11, color: 'var(--danger)', marginBottom: 12, maxWidth: 360, textAlign: 'center' }}>{liveVoiceError}</div>
                       )}
 
-                      <div style={{ display: 'flex', gap: 8, width: '100%', maxWidth: 400, marginTop: 4 }}>
-                        <input value={hmInput} onChange={(e) => setHmInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && sendHm()}
-                          placeholder={micSupported ? 'Or type instead…' : 'e.g. We need a backend engineer for our payments team…'}
-                          style={{ flex: 1, background: 'var(--panel-alt)', border: '1px solid var(--line)', borderRadius: 8, padding: '10px 12px', color: 'var(--text)', fontSize: 13, outline: 'none' }} />
-                        <button className="lea-glass-btn" onClick={() => sendHm()} disabled={hmLoading} style={{ background: 'color-mix(in srgb, var(--wine) 80%, var(--glass-bg))', border: 'none', borderRadius: 8, padding: '0 14px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
-                          {hmLoading ? <Loader2 size={16} className="lea-live-dot" color="var(--on-accent)" /> : <Send size={16} color="var(--on-accent)" />}
-                        </button>
-                      </div>
-                      <button onClick={() => setShowCaptions((v) => !v)} style={{ fontSize: 11, background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', textDecoration: 'underline', marginTop: 12 }}>
-                        {showCaptions ? 'Hide captions' : 'Show captions (accessibility)'}
+                      <button onClick={() => setShowCaptions((s) => !s)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: 11, textDecoration: 'underline', cursor: 'pointer', marginBottom: 12 }}>
+                        {showCaptions ? 'Hide' : 'Show'} captions (accessibility)
+                      </button>
+
+                      <button onClick={stopLiveVoice} style={{ background: 'transparent', border: '1px solid var(--line)', borderRadius: 8, padding: '9px 18px', fontSize: 12.5, fontWeight: 600, color: 'var(--text-muted)', cursor: 'pointer' }}>
+                        End conversation
                       </button>
                     </>
                   )}
