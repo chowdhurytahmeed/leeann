@@ -62,10 +62,10 @@ function mixStops(stops, t) {
 function makeUiStops(onDarkBg, onLightBg) {
   return [
     { at: 0, color: onDarkBg },
-    { at: 0.30, color: onDarkBg },
-    { at: 0.44, color: onLightBg },
+    { at: 0.38, color: onDarkBg },
+    { at: 0.48, color: onLightBg },
     { at: 0.62, color: onLightBg },
-    { at: 0.78, color: onDarkBg },
+    { at: 0.76, color: onDarkBg },
     { at: 1, color: onDarkBg },
   ];
 }
@@ -78,12 +78,18 @@ function makeUiStops(onDarkBg, onLightBg) {
 // there's no possibility of a visible jump — it's continuous by construction.
 const PAGE_GRADIENT = `linear-gradient(to bottom,
   #0A0812 0%,
-  #1B2A56 20%,
-  #7A85A8 36%,
-  #F4F6FA 52%,
-  #F4F6FA 58%,
-  #7A85A8 74%,
-  #1B2A56 88%,
+  #1B2A56 14%,
+  #33447A 26%,
+  #5568A0 36%,
+  #8090B8 46%,
+  #B8C0D8 54%,
+  #F4F6FA 60%,
+  #F4F6FA 64%,
+  #B8C0D8 72%,
+  #8090B8 80%,
+  #5568A0 88%,
+  #33447A 94%,
+  #1B2A56 98%,
   #0A0812 100%
 )`;
 const TEXT_STOPS = makeUiStops('#EDEFF5', '#14161F');
