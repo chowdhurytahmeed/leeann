@@ -86,13 +86,21 @@ function makeUiStops(onDarkBg, onLightBg) {
 // rather than a hand-tuned guess at spacing. The CSS gradient string and the
 // JS keyframe array used for text-contrast are both built from this same
 // list, so they can never drift out of sync with each other.
-const GRADIENT_WAYPOINTS = [
+const DARK_WAYPOINTS = [
   { at: 0.00, color: '#0A0812' },
   { at: 0.15, color: '#2F4A94' },
   { at: 0.40, color: '#1E2F5E' },
   { at: 0.65, color: '#121D3C' },
   { at: 0.85, color: '#0B1224' },
   { at: 1.00, color: '#15120E' },
+];
+const LIGHT_WAYPOINTS = [
+  { at: 0.00, color: '#F4F6FA' },
+  { at: 0.15, color: '#C3D0EE' },
+  { at: 0.40, color: '#E0E6F4' },
+  { at: 0.65, color: '#ECF0F8' },
+  { at: 0.85, color: '#F4F6FA' },
+  { at: 1.00, color: '#F7F8FC' },
 ];
 
 function buildEasedKeyframes(waypoints, steps) {
@@ -114,8 +122,14 @@ function buildEasedKeyframes(waypoints, steps) {
   return out;
 }
 
-const BG_KEYFRAMES = buildEasedKeyframes(GRADIENT_WAYPOINTS, 60);
-const PAGE_GRADIENT = `linear-gradient(to bottom, ${BG_KEYFRAMES.map((s) => `${s.color} ${(s.at * 100).toFixed(2)}%`).join(', ')})`;
+function keyframesToGradient(keyframes) {
+  return `linear-gradient(to bottom, ${keyframes.map((s) => `${s.color} ${(s.at * 100).toFixed(2)}%`).join(', ')})`;
+}
+
+const DARK_KEYFRAMES = buildEasedKeyframes(DARK_WAYPOINTS, 60);
+const LIGHT_KEYFRAMES = buildEasedKeyframes(LIGHT_WAYPOINTS, 60);
+const DARK_GRADIENT = keyframesToGradient(DARK_KEYFRAMES);
+const LIGHT_GRADIENT = keyframesToGradient(LIGHT_KEYFRAMES);
 
 const TEXT_STOPS = makeUiStops('#EDEFF5', '#14161F');
 const TEXT_MUTED_STOPS = makeUiStops('#8B92AC', '#666E82');
@@ -134,12 +148,13 @@ const GLASS_SHEEN_STOPS = makeUiStops('rgba(255,255,255,0.14)', 'rgba(255,255,25
 // value toward that target every frame, so fast or erratic scrolling still
 // produces a smooth chase rather than a jump.
 //
-// Text/panel/border tokens are driven by the *actual computed brightness*
-// of the background at the current position, not by scroll-percentage
-// breakpoints — this guarantees legible contrast everywhere, including
-// mid-transition zones where the background itself is a medium tone that a
-// fixed dark/light switch point could easily miss.
-function useScrollBg() {
+// Which gradient plays is now driven by the site's actual light/dark
+// toggle — previously the homepage ignored that toggle entirely and always
+// showed the dark night-sky journey, so switching to light mode did
+// nothing visible here. Now dark mode keeps that journey, light mode uses
+// a bright counterpart that never dips toward black — just a soft blue-grey
+// accent replacing where navy would be.
+function useScrollBg(theme) {
   const [progress, setProgress] = useState(0);
   const targetRef = useRef(0);
   const currentRef = useRef(0);
@@ -169,20 +184,23 @@ function useScrollBg() {
     };
   }, []);
 
-  // The background now only ever darkens — it never crosses back into
-  // light territory — so text/panel/border tokens don't need to switch at
-  // all anymore; they just stay at their dark-mode values the whole way
-  // down the page.
+  const isLight = theme === 'light';
+
+  // Neither variant ever crosses into "needs the opposite text color"
+  // territory — dark mode stays dark enough throughout for light text,
+  // light mode stays light enough throughout for dark text — so these stay
+  // fixed rather than switching mid-scroll.
   return {
-    '--text': '#EDEFF5',
-    '--text-muted': '#8B92AC',
-    '--panel': '#171B2C',
-    '--panel-alt': '#1E2338',
-    '--line': '#2C3350',
-    '--glass-bg': 'rgba(23,27,44,0.5)',
-    '--glass-border': 'rgba(255,255,255,0.09)',
-    '--glass-highlight': 'rgba(255,255,255,0.06)',
-    '--glass-sheen': 'rgba(255,255,255,0.14)',
+    '--bg-gradient': isLight ? LIGHT_GRADIENT : DARK_GRADIENT,
+    '--text': isLight ? '#14161F' : '#EDEFF5',
+    '--text-muted': isLight ? '#666E82' : '#8B92AC',
+    '--panel': isLight ? '#FFFFFF' : '#171B2C',
+    '--panel-alt': isLight ? '#ECEFF5' : '#1E2338',
+    '--line': isLight ? '#D8DEE9' : '#2C3350',
+    '--glass-bg': isLight ? 'rgba(255,255,255,0.5)' : 'rgba(23,27,44,0.5)',
+    '--glass-border': isLight ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.09)',
+    '--glass-highlight': isLight ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.06)',
+    '--glass-sheen': isLight ? 'rgba(255,255,255,0.55)' : 'rgba(255,255,255,0.14)',
   };
 }
 
@@ -1254,7 +1272,7 @@ function PulseSection({ onSignup, onOrbClick, amplitudeRef }) {
       </div>
 
       <div style={{ position: 'relative' }}>
-        <svg viewBox="0 0 1000 120" preserveAspectRatio="none" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', transform: 'translateY(64px)' }}>
+        <svg viewBox="0 0 1000 120" preserveAspectRatio="none" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', transform: 'translateY(48px)' }}>
           <path d={dimLeft} stroke="#3A3226" strokeWidth="2" fill="none" opacity="0.6" />
           <path d={dimRight} stroke="#3A3226" strokeWidth="2" fill="none" opacity="0.6" />
           {phase === 'left' && (
@@ -1806,7 +1824,7 @@ function InteractiveOrb({ onClick, amplitudeRef, size = 300, hit = false, title 
             // every browser, which is what was showing as a square edge
             maskImage: circleMask, WebkitMaskImage: circleMask,
             boxShadow: hit ? '0 0 46px 14px var(--wine-dim), 0 0 66px 20px var(--gold-dim)' : undefined,
-            transition: 'width 0.3s cubic-bezier(.2,.8,.2,1), height 0.3s cubic-bezier(.2,.8,.2,1), box-shadow 0.3s ease',
+            transition: 'width 0.3s cubic-bezier(.2,.8,.2,1), height 0.3s cubic-bezier(.2,.8,.2,1), box-shadow 0.3s ease, transform 0.35s ease',
           }}
         >
           <span className="lea-orb-ring-pulse" style={{ position: 'absolute', inset: -4, borderRadius: '50%', border: '2px solid var(--wine)', pointerEvents: 'none' }} />
@@ -2023,10 +2041,10 @@ function ThemeToggle({ theme, onToggle }) {
 }
 
 export default function LeanApp() {
-  const scrollThemeVars = useScrollBg();
+  const [theme, setTheme] = useState('light');
+  const scrollThemeVars = useScrollBg(theme);
   const heroOrbAmplitudeRef = useRef(0);
   const pulseOrbAmplitudeRef = useRef(0);
-  const [theme, setTheme] = useState('light');
   const [apiKeySet, setApiKeySet] = useState(false);
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
   const [apiKeyInput, setApiKeyInput] = useState('');
@@ -3096,7 +3114,7 @@ export default function LeanApp() {
       {/* MARKETING HOME */}
       {screen === 'home' && (
         <div className="lea-fade" style={{
-          position: 'relative', ...scrollThemeVars, background: PAGE_GRADIENT,
+          position: 'relative', ...scrollThemeVars, background: 'var(--bg-gradient)',
         }}>
           {[
             { top: 0, left: '2%', size: 700, blur: 140, durA: '2.4s', durB: '2.9s' },
