@@ -272,6 +272,29 @@ function GlobalStyles() {
         background: var(--glass-bg) !important;
         color: var(--text) !important;
       }
+      .lea-glass-btn {
+        transition: transform 0.2s cubic-bezier(.2,.8,.2,1), box-shadow 0.2s ease, filter 0.2s ease;
+      }
+      .lea-glass-btn:hover {
+        transform: translateY(-2px) scale(1.025);
+        filter: brightness(1.08);
+        box-shadow: inset 0 1px 0 var(--glass-highlight), inset 0 -10px 18px -14px rgba(255,255,255,0.4), 0 10px 26px rgba(0,0,0,0.2);
+      }
+      .lea-glass-btn:active {
+        transform: translateY(0) scale(0.97);
+        filter: brightness(0.96);
+      }
+      @keyframes lea-glass-shimmer { 0% { left: -60%; } 20% { left: 130%; } 100% { left: 130%; } }
+      .lea-glass-btn::after {
+        content: '';
+        position: absolute;
+        top: 0; left: -60%;
+        width: 45%; height: 100%;
+        background: linear-gradient(115deg, transparent 0%, rgba(255,255,255,0.65) 50%, transparent 100%);
+        transform: skewX(-20deg);
+        animation: lea-glass-shimmer 4s ease-in-out infinite;
+        pointer-events: none;
+      }
       .lea-root, .lea-root * {
         transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
       }
