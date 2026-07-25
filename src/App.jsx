@@ -719,15 +719,29 @@ function FAQSection() {
 
 function SiteFooter({ onNav }) {
   return (
-    <div style={{ borderTop: '1px solid var(--line)', padding: '32px 40px', background: 'var(--panel)' }}>
-      <div style={{ maxWidth: 900, margin: '0 auto', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
-        <Wordmark size={16} />
-        <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
-          <button onClick={onNav.signup} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: 12.5, cursor: 'pointer', padding: 0 }}>Sign up</button>
-          <button onClick={onNav.login} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: 12.5, cursor: 'pointer', padding: 0 }}>Log in</button>
-          <button onClick={onNav.practice} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: 12.5, cursor: 'pointer', padding: 0 }}>Practice</button>
+    <div style={{ background: '#0D0B12', overflow: 'hidden' }}>
+      <div style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', padding: '32px 40px' }}>
+        <div style={{ maxWidth: 900, margin: '0 auto', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
+          <div style={{ filter: 'brightness(1.4)' }}><Wordmark size={16} /></div>
+          <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
+            <button onClick={onNav.signup} style={{ background: 'none', border: 'none', color: 'rgba(245,241,234,0.6)', fontSize: 12.5, cursor: 'pointer', padding: 0 }}>Sign up</button>
+            <button onClick={onNav.login} style={{ background: 'none', border: 'none', color: 'rgba(245,241,234,0.6)', fontSize: 12.5, cursor: 'pointer', padding: 0 }}>Log in</button>
+            <button onClick={onNav.practice} style={{ background: 'none', border: 'none', color: 'rgba(245,241,234,0.6)', fontSize: 12.5, cursor: 'pointer', padding: 0 }}>Practice</button>
+          </div>
+          <div style={{ fontSize: 11.5, color: 'rgba(245,241,234,0.6)' }}>© {new Date().getFullYear()} Lean</div>
         </div>
-        <div style={{ fontSize: 11.5, color: 'var(--text-muted)' }}>© {new Date().getFullYear()} Lean</div>
+      </div>
+      <div
+        className="lea-display"
+        aria-hidden="true"
+        style={{
+          fontSize: 'min(22vw, 260px)', fontWeight: 700, textAlign: 'center', lineHeight: 0.75,
+          padding: '10px 0 0', letterSpacing: '-0.02em', userSelect: 'none',
+          background: 'linear-gradient(180deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.03) 60%, transparent 100%)',
+          WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent',
+        }}
+      >
+        Lean
       </div>
     </div>
   );
@@ -2372,20 +2386,39 @@ export default function LeanApp() {
                 Your hiring liaison
               </div>
 
-              {/* the orb — enlarged into the actual hero centerpiece */}
-              <div style={{ position: 'relative', width: 300, height: 300, margin: '0 auto 30px' }}>
-                <div
-                  className="lea-idle-glow lea-orb-interactive"
-                  onClick={() => speak("Hi, I'm Lean.")}
-                  title="Say hi"
-                  style={{
-                    width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,0.03)',
-                    border: '2px solid var(--wine)', overflow: 'hidden', position: 'relative',
-                  }}
-                >
-                  <span className="lea-orb-ring-pulse" style={{ position: 'absolute', inset: -4, borderRadius: '50%', border: '2px solid var(--wine)', pointerEvents: 'none' }} />
-                  <div className="lea-orb-a" style={{ position: 'absolute', width: '86%', height: '86%', top: '-7%', left: '-7%', borderRadius: '50%', background: 'var(--wine)', filter: 'blur(46px)', opacity: 0.92 }} />
-                  <div className="lea-orb-b" style={{ position: 'absolute', width: '86%', height: '86%', bottom: '-7%', right: '-7%', borderRadius: '50%', background: 'var(--gold)', filter: 'blur(46px)', opacity: 0.92 }} />
+              {/* the orb — enlarged into the actual hero centerpiece, with blueprint-style annotations */}
+              <div style={{ position: 'relative', width: 460, maxWidth: '100%', height: 320, margin: '0 auto 30px' }}>
+                <svg viewBox="0 0 460 320" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
+                  <g stroke="rgba(245,241,234,0.28)" strokeWidth="1" strokeDasharray="2 4">
+                    <line x1="230" y1="60" x2="70" y2="20" />
+                    <line x1="230" y1="60" x2="410" y2="30" />
+                    <line x1="140" y1="160" x2="20" y2="180" />
+                    <line x1="320" y1="230" x2="430" y2="260" />
+                  </g>
+                  <g fill="none" stroke="rgba(245,241,234,0.4)" strokeWidth="1">
+                    <rect x="63" y="13" width="10" height="10" />
+                    <rect x="403" y="23" width="10" height="10" />
+                    <rect x="13" y="173" width="10" height="10" />
+                    <rect x="423" y="253" width="10" height="10" />
+                  </g>
+                  <text x="42" y="10" fill="rgba(245,241,234,0.4)" fontSize="9" fontFamily="monospace">CALIBRATE</text>
+                  <text x="378" y="20" fill="rgba(245,241,234,0.4)" fontSize="9" fontFamily="monospace">CONVERSE</text>
+                  <text x="395" y="250" fill="rgba(245,241,234,0.4)" fontSize="9" fontFamily="monospace">READOUT</text>
+                </svg>
+                <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 300, height: 300 }}>
+                  <div
+                    className="lea-idle-glow lea-orb-interactive"
+                    onClick={() => speak("Hi, I'm Lean.")}
+                    title="Say hi"
+                    style={{
+                      width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,0.03)',
+                      border: '2px solid var(--wine)', overflow: 'hidden', position: 'relative',
+                    }}
+                  >
+                    <span className="lea-orb-ring-pulse" style={{ position: 'absolute', inset: -4, borderRadius: '50%', border: '2px solid var(--wine)', pointerEvents: 'none' }} />
+                    <div className="lea-orb-a" style={{ position: 'absolute', width: '86%', height: '86%', top: '-7%', left: '-7%', borderRadius: '50%', background: 'var(--wine)', filter: 'blur(46px)', opacity: 0.92 }} />
+                    <div className="lea-orb-b" style={{ position: 'absolute', width: '86%', height: '86%', bottom: '-7%', right: '-7%', borderRadius: '50%', background: 'var(--gold)', filter: 'blur(46px)', opacity: 0.92 }} />
+                  </div>
                 </div>
               </div>
 
