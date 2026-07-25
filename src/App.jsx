@@ -15,6 +15,88 @@ import {
 
 const MODEL = 'claude-sonnet-4-6';
 
+// Parses '#rrggbb' or 'rgba(r,g,b,a)' into [r,g,b,a].
+function parseColor(c) {
+  if (c[0] === '#') {
+    const n = parseInt(c.slice(1), 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255, 1];
+  }
+  const parts = c.match(/[\d.]+/g).map(Number);
+  return [parts[0], parts[1], parts[2], parts.length > 3 ? parts[3] : 1];
+}
+
+// Linearly blends two colors (hex or rgba string) by t (0 = c1, 1 = c2).
+function mixColor(c1, c2, t) {
+  const [r1, g1, b1, a1] = parseColor(c1);
+  const [r2, g2, b2, a2] = parseColor(c2);
+  const r = Math.round(r1 + (r2 - r1) * t);
+  const g = Math.round(g1 + (g2 - g1) * t);
+  const b = Math.round(b1 + (b2 - b1) * t);
+  const a = a1 + (a2 - a1) * t;
+  return `rgba(${r},${g},${b},${a.toFixed(3)})`;
+}
+
+// Tracks overall page scroll as a "night sky -> daylight -> night sky" blend:
+// 0 = full dark (top and bottom of the page), 1 = full light (the middle
+// stretch of content). Every color token below is interpolated by this one
+// continuous value, so the whole page's palette — not just the background —
+// shifts together as you scroll, the way SharpLink's page does.
+function useScrollTheme() {
+  const [blend, setBlend] = useState(0);
+
+  useEffect(() => {
+    let ticking = false;
+    function computeBlend() {
+      const doc = document.documentElement;
+      const scrollable = doc.scrollHeight - doc.clientHeight;
+      const progress = scrollable > 0 ? doc.scrollTop / scrollable : 0;
+      let b;
+      if (progress < 0.1) b = 0;
+      else if (progress < 0.28) b = (progress - 0.1) / 0.18;
+      else if (progress < 0.78) b = 1;
+      else if (progress < 0.94) b = 1 - (progress - 0.78) / 0.16;
+      else b = 0;
+      setBlend(Math.min(1, Math.max(0, b)));
+      ticking = false;
+    }
+    function onScroll() {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(computeBlend);
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    computeBlend();
+    return () => { window.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onScroll); };
+  }, []);
+
+  const DARK = {
+    bg: '#0D0B12', text: '#EDEFF5', textMuted: '#8B92AC', panel: '#171B2C', panelAlt: '#1E2338', line: '#2C3350',
+    glassBg: 'rgba(23,27,44,0.5)', glassBorder: 'rgba(255,255,255,0.09)', glassHighlight: 'rgba(255,255,255,0.06)',
+    glassSheen: 'rgba(255,255,255,0.14)', gridLine: 'rgba(255,255,255,0.03)',
+  };
+  const LIGHT = {
+    bg: '#F4F6FA', text: '#14161F', textMuted: '#666E82', panel: '#FFFFFF', panelAlt: '#ECEFF5', line: '#D8DEE9',
+    glassBg: 'rgba(255,255,255,0.5)', glassBorder: 'rgba(255,255,255,0.6)', glassHighlight: 'rgba(255,255,255,0.35)',
+    glassSheen: 'rgba(255,255,255,0.55)', gridLine: 'rgba(20,22,31,0.045)',
+  };
+
+  return {
+    '--bg': mixColor(DARK.bg, LIGHT.bg, blend),
+    '--text': mixColor(DARK.text, LIGHT.text, blend),
+    '--text-muted': mixColor(DARK.textMuted, LIGHT.textMuted, blend),
+    '--panel': mixColor(DARK.panel, LIGHT.panel, blend),
+    '--panel-alt': mixColor(DARK.panelAlt, LIGHT.panelAlt, blend),
+    '--line': mixColor(DARK.line, LIGHT.line, blend),
+    '--glass-bg': mixColor(DARK.glassBg, LIGHT.glassBg, blend),
+    '--glass-border': mixColor(DARK.glassBorder, LIGHT.glassBorder, blend),
+    '--glass-highlight': mixColor(DARK.glassHighlight, LIGHT.glassHighlight, blend),
+    '--glass-sheen': mixColor(DARK.glassSheen, LIGHT.glassSheen, blend),
+    '--grid-line': mixColor(DARK.gridLine, LIGHT.gridLine, blend),
+  };
+}
+
+
 // The app's role objects use camelCase (mustHaves, hmMessages); the database
 // columns are snake_case (must_haves, hm_messages). These two helpers convert
 // between them so the rest of the app never has to think about the difference.
@@ -1061,7 +1143,7 @@ function PulseSection({ onSignup, onOrbClick }) {
   }
 
   return (
-    <div style={{ position: 'relative', padding: '72px 40px 60px', overflow: 'hidden', textAlign: 'center' }}>
+    <div style={{ position: 'relative', background: '#15120E', padding: '72px 40px 60px', overflow: 'hidden', textAlign: 'center' }}>
       <div className="lea-mono" style={{
         position: 'absolute', top: 18, right: 24, display: 'flex', alignItems: 'center', gap: 6,
         fontSize: 10, color: '#8B92AC', textTransform: 'uppercase', letterSpacing: '0.06em',
@@ -1510,6 +1592,7 @@ function ThemeToggle({ theme, onToggle }) {
 }
 
 export default function LeanApp() {
+  const scrollThemeVars = useScrollTheme();
   const [theme, setTheme] = useState('light');
   const [apiKeySet, setApiKeySet] = useState(false);
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
@@ -2513,9 +2596,9 @@ export default function LeanApp() {
       {/* MARKETING HOME */}
       {screen === 'home' && (
         <div className="lea-fade" style={{
-          position: 'relative', background: 'var(--bg)',
+          position: 'relative', ...scrollThemeVars, background: 'var(--bg)',
           backgroundImage: 'linear-gradient(var(--grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--grid-line) 1px, transparent 1px)',
-          backgroundSize: '32px 32px',
+          backgroundSize: '32px 32px', transition: 'background-color 0.15s linear',
         }}>
           {[
             { top: 0, left: '2%', size: 700, blur: 140, durA: '2.4s', durB: '2.9s' },
