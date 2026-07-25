@@ -368,9 +368,9 @@ function GlobalStyles() {
       .lea-root, .lea-root * {
         transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
       }
-      @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Archivo:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
       .lea-root { font-family: 'Inter', sans-serif; }
-      .lea-display { font-family: 'Sora', sans-serif; font-weight: 700; }
+      .lea-display { font-family: 'Archivo', sans-serif; font-weight: 700; }
       .lea-signature { font-family: 'Space Grotesk', sans-serif; font-style: normal; }
       .lea-mono { font-family: 'IBM Plex Mono', monospace; }
       .lea-scroll::-webkit-scrollbar { width: 6px; }
@@ -723,7 +723,7 @@ function FAQSection() {
 
 function SiteFooter({ onNav }) {
   return (
-    <div style={{ background: '#0D0B12', overflow: 'hidden' }}>
+    <div style={{ overflow: 'hidden' }}>
       <div style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', padding: '32px 40px' }}>
         <div style={{ maxWidth: 900, margin: '0 auto', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
           <div style={{ filter: 'brightness(1.4)' }}><Wordmark size={16} /></div>
@@ -983,11 +983,7 @@ function PulseSection({ onSignup }) {
   }
 
   return (
-    <div style={{
-      position: 'relative', background: '#15120E', padding: '72px 40px 60px', overflow: 'hidden', textAlign: 'center',
-      backgroundImage: 'linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)',
-      backgroundSize: '32px 32px',
-    }}>
+    <div style={{ position: 'relative', padding: '72px 40px 60px', overflow: 'hidden', textAlign: 'center' }}>
       <div className="lea-mono" style={{
         position: 'absolute', top: 18, right: 24, display: 'flex', alignItems: 'center', gap: 6,
         fontSize: 10, color: '#8B92AC', textTransform: 'uppercase', letterSpacing: '0.06em',
@@ -2367,7 +2363,11 @@ export default function LeanApp() {
 
       {/* MARKETING HOME */}
       {screen === 'home' && (
-        <div className="lea-fade" style={{ position: 'relative' }}>
+        <div className="lea-fade" style={{
+          position: 'relative', background: '#0D0B12',
+          backgroundImage: 'linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)',
+          backgroundSize: '32px 32px',
+        }}>
           {[
             { top: 0, left: '2%', size: 700, blur: 140, durA: '2.4s', durB: '2.9s' },
             { top: 500, left: '50%', size: 750, blur: 145, durA: '2.6s', durB: '3.1s' },
@@ -2397,12 +2397,7 @@ export default function LeanApp() {
           <div
             onMouseMove={handleHeroMove}
             onMouseLeave={() => setHeroMouse({ x: 0, y: 0 })}
-            style={{
-              position: 'relative', padding: '76px 40px 84px', textAlign: 'center', overflow: 'hidden',
-              background: '#0D0B12',
-              backgroundImage: 'linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)',
-              backgroundSize: '32px 32px',
-            }}
+            style={{ position: 'relative', padding: '76px 40px 84px', textAlign: 'center', overflow: 'hidden' }}
           >
             <div
               className="lea-blob"
@@ -2488,15 +2483,26 @@ export default function LeanApp() {
 
           {/* BOLD STATEMENT BREAK */}
           <Reveal>
-          <div style={{ background: 'radial-gradient(circle at 70% 30%, var(--wine) 0%, var(--wine-deep) 75%)', padding: '54px 40px', textAlign: 'center' }}>
-            <div className="lea-display" style={{ fontSize: 26, fontWeight: 600, color: 'var(--on-accent)', maxWidth: 620, margin: '0 auto', lineHeight: 1.3 }}>
+          <div style={{ position: 'relative', padding: '60px 40px', textAlign: 'center' }}>
+            <div className="lea-display" style={{ fontSize: 26, fontWeight: 600, color: '#F5F1EA', maxWidth: 620, margin: '0 auto', lineHeight: 1.3 }}>
               Hiring shouldn't feel like a black box.
             </div>
-            <div style={{ fontSize: 13.5, color: 'var(--on-accent)', opacity: 0.85, marginTop: 10, maxWidth: 480, margin: '10px auto 0' }}>
+            <div style={{ fontSize: 13.5, color: 'rgba(245,241,234,0.65)', marginTop: 10, maxWidth: 480, margin: '10px auto 0' }}>
               Every conversation tracked. Every candidate informed. Every decision made by a person, not an algorithm alone.
             </div>
           </div>
           </Reveal>
+
+          {/* Everything from here through Roadmap shares one dark palette,
+              overriding the theme tokens locally so all the existing cards
+              (which reference var(--text), var(--glass-bg), etc.) render
+              correctly here regardless of the site-wide light/dark toggle. */}
+          <div style={{
+            '--text': '#EDEFF5', '--text-muted': '#8B92AC',
+            '--panel': '#171B2C', '--panel-alt': '#1E2338', '--line': '#2C3350',
+            '--glass-bg': 'rgba(23,27,44,0.5)', '--glass-border': 'rgba(255,255,255,0.09)',
+            '--glass-highlight': 'rgba(255,255,255,0.06)', '--glass-sheen': 'rgba(255,255,255,0.14)',
+          }}>
 
           {/* WHY LEAN — condensed, merges the old benefit cards + comparison table */}
           <Reveal>
@@ -2633,6 +2639,8 @@ export default function LeanApp() {
           <Reveal><PrinciplesSection /></Reveal>
           <Reveal><FAQSection /></Reveal>
           <Reveal><RoadmapSection /></Reveal>
+
+          </div>
           <Reveal><PulseSection onSignup={goSignupType} /></Reveal>
           <SiteFooter onNav={{ signup: goSignupType, login: goSignupType, practice: goPractice }} />
         </div>
