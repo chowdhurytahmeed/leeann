@@ -62,23 +62,30 @@ function mixStops(stops, t) {
 function makeUiStops(onDarkBg, onLightBg) {
   return [
     { at: 0, color: onDarkBg },
-    { at: 0.22, color: onDarkBg },
-    { at: 0.34, color: onLightBg },
-    { at: 0.68, color: onLightBg },
-    { at: 0.82, color: onDarkBg },
+    { at: 0.30, color: onDarkBg },
+    { at: 0.44, color: onLightBg },
+    { at: 0.62, color: onLightBg },
+    { at: 0.78, color: onDarkBg },
     { at: 1, color: onDarkBg },
   ];
 }
 
-const BG_STOPS = [
-  { at: 0, color: '#0A0812' },    // hero top — near black
-  { at: 0.15, color: '#1B2A56' }, // hero bottom — navy, matches the reference
-  { at: 0.34, color: '#F4F6FA' }, // brightening toward white
-  { at: 0.62, color: '#F4F6FA' }, // stays white through the middle
-  { at: 0.78, color: '#3A5088' }, // a bit blue
-  { at: 0.9, color: '#1B2A56' },  // navy blue
-  { at: 1, color: '#0A0812' },    // dark again by the bottom
-];
+// The page's whole color sequence, painted once as a real CSS gradient
+// across the full page height — dark at the very top (the hero shows this
+// immediately, no scrolling required), through navy, brightening to white
+// through the middle, then back down through navy to dark by the bottom.
+// Because this is an actual gradient rather than a JS-computed flat color,
+// there's no possibility of a visible jump — it's continuous by construction.
+const PAGE_GRADIENT = `linear-gradient(to bottom,
+  #0A0812 0%,
+  #1B2A56 20%,
+  #7A85A8 36%,
+  #F4F6FA 52%,
+  #F4F6FA 58%,
+  #7A85A8 74%,
+  #1B2A56 88%,
+  #0A0812 100%
+)`;
 const TEXT_STOPS = makeUiStops('#EDEFF5', '#14161F');
 const TEXT_MUTED_STOPS = makeUiStops('#8B92AC', '#666E82');
 const PANEL_STOPS = makeUiStops('#171B2C', '#FFFFFF');
@@ -126,7 +133,6 @@ function useScrollBg() {
   }, []);
 
   return {
-    '--bg': mixStops(BG_STOPS, progress),
     '--text': mixStops(TEXT_STOPS, progress),
     '--text-muted': mixStops(TEXT_MUTED_STOPS, progress),
     '--panel': mixStops(PANEL_STOPS, progress),
@@ -2638,7 +2644,7 @@ export default function LeanApp() {
       {/* MARKETING HOME */}
       {screen === 'home' && (
         <div className="lea-fade" style={{
-          position: 'relative', ...scrollThemeVars, background: 'var(--bg)',
+          position: 'relative', ...scrollThemeVars, background: PAGE_GRADIENT,
         }}>
           {[
             { top: 0, left: '2%', size: 700, blur: 140, durA: '2.4s', durB: '2.9s' },
