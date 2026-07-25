@@ -582,9 +582,9 @@ function GlobalStyles() {
       .lea-idle-glow { box-shadow: 0 0 30px 8px var(--wine-dim), 0 0 54px 16px var(--gold-dim); }
       @keyframes lea-orb-wave-sweep { 0% { background-position: 0% 0%; } 100% { background-position: 200% 200%; } }
       .lea-orb-wave {
-        background: linear-gradient(115deg, transparent 15%, rgba(255,255,255,0.4) 40%, rgba(240,86,110,0.3) 52%, rgba(255,255,255,0.1) 62%, transparent 82%);
-        background-size: 300% 300%;
-        animation: lea-orb-wave-sweep 6s linear infinite;
+        background: linear-gradient(115deg, transparent 25%, rgba(240,86,110,0.32) 48%, rgba(240,86,110,0.32) 56%, transparent 78%);
+        background-size: 320% 320%;
+        animation: lea-orb-wave-sweep 16s linear infinite;
         mix-blend-mode: overlay;
       }
       @keyframes lea-lean-sway { 0%, 100% { transform: rotate(-9deg); } 50% { transform: rotate(6deg); } }
@@ -639,8 +639,8 @@ function GlobalStyles() {
       .lea-type-search { transition: opacity 0.3s ease, transform 0.32s cubic-bezier(.4,0,.2,1); }
       .lea-orb-interactive { position: relative; cursor: pointer; transition: transform 0.35s ease, box-shadow 0.35s ease; }
       .lea-orb-interactive:hover { transform: scale(1.14); animation-duration: 1s; }
-      .lea-orb-interactive:hover .lea-orb-a { animation-duration: 0.6s; }
-      .lea-orb-interactive:hover .lea-orb-b { animation-duration: 0.75s; }
+      .lea-orb-interactive:hover .lea-orb-a { animation-duration: 4s; }
+      .lea-orb-interactive:hover .lea-orb-b { animation-duration: 4.5s; }
       .lea-orb-interactive::before, .lea-orb-interactive::after {
         content: ''; position: absolute; inset: -18px; border-radius: 50%; pointer-events: none;
         border: 2px solid var(--wine); opacity: 0;
@@ -652,28 +652,10 @@ function GlobalStyles() {
       .lea-rec-dot { animation: lea-rec 1.4s ease-in-out infinite; }
       @keyframes lea-blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
       .lea-cursor { animation: lea-blink 0.9s step-end infinite; }
-      @keyframes lea-orb-a {
-        0% { transform: translate(0,0) scale(1); }
-        14% { transform: translate(24px,-16px) scale(1.28); }
-        29% { transform: translate(-20px,12px) scale(0.82); }
-        43% { transform: translate(16px,22px) scale(1.32); }
-        58% { transform: translate(-26px,-10px) scale(0.86); }
-        72% { transform: translate(12px,-20px) scale(1.18); }
-        86% { transform: translate(-14px,16px) scale(0.94); }
-        100% { transform: translate(0,0) scale(1); }
-      }
-      @keyframes lea-orb-b {
-        0% { transform: translate(0,0) scale(1); }
-        11% { transform: translate(-22px,18px) scale(1.22); }
-        26% { transform: translate(20px,-14px) scale(0.85); }
-        41% { transform: translate(-16px,-24px) scale(1.3); }
-        55% { transform: translate(24px,10px) scale(0.88); }
-        69% { transform: translate(-12px,20px) scale(1.15); }
-        84% { transform: translate(18px,-12px) scale(0.92); }
-        100% { transform: translate(0,0) scale(1); }
-      }
-      .lea-orb-a { animation: lea-orb-a 1.3s ease-in-out infinite; }
-      .lea-orb-b { animation: lea-orb-b 1.6s ease-in-out infinite; }
+      @keyframes lea-orb-a { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
+      @keyframes lea-orb-b { 0%, 100% { transform: scale(1); } 50% { transform: scale(0.97); } }
+      .lea-orb-a { animation: lea-orb-a 8s ease-in-out infinite; opacity: 0; }
+      .lea-orb-b { animation: lea-orb-b 9s ease-in-out infinite; }
       .lea-play-btn { transition: transform 0.12s ease, background 0.12s ease; }
       .lea-play-btn:hover { transform: scale(1.06); }
     `}</style>
@@ -1660,53 +1642,55 @@ function VerticalWaveform({ side = 'left' }) {
     resize();
     window.addEventListener('resize', resize);
 
-    const ribbons = [
-      { color: '#4A6FE3', freq1: 1.2, freq2: 2.0, amp: 0.30, speed: 1.5, phase: 0, width: 0.10 },
-      { color: '#F0566E', freq1: 1.5, freq2: 2.4, amp: 0.34, speed: 1.8, phase: 1.4, width: 0.08 },
-      { color: '#4ECDC4', freq1: 1.7, freq2: 2.7, amp: 0.36, speed: 1.65, phase: 2.8, width: 0.08 },
-      { color: '#F0D264', freq1: 1.1, freq2: 3.0, amp: 0.24, speed: 1.35, phase: 4.2, width: 0.07 },
-      { color: '#F5F1EA', freq1: 1.9, freq2: 2.2, amp: 0.20, speed: 2.1, phase: 5.6, width: 0.06 },
-    ];
-
     function draw(t) {
       ctx.clearRect(0, 0, w, h);
-      ctx.globalCompositeOperation = 'lighter';
       const time = t / 1000;
       const midX = w / 2;
 
-      function centerAt(r, y) {
+      // One unified wave: a single centerline that drifts gently left and
+      // right, with the band's WIDTH pulsing up and down like a real
+      // amplitude envelope (several summed sine waves so it doesn't feel
+      // like a mechanical single frequency). Only one shape, one fill — no
+      // separate strands to cross each other and read as "wires."
+      function centerAt(y) {
         const ny = y / h;
         const taper = Math.sin(ny * Math.PI); // pinches to a point at top and bottom
-        return {
-          x: midX
-            + Math.sin(ny * Math.PI * r.freq1 * 6 + time * r.speed + r.phase) * r.amp * w * taper
-            + Math.sin(ny * Math.PI * r.freq2 * 6 - time * r.speed * 0.7 + r.phase) * r.amp * 0.4 * w * taper,
-          taper,
-        };
+        return midX + Math.sin(ny * Math.PI * 2.2 + time * 0.55) * w * 0.22 * taper;
+      }
+      function widthAt(y) {
+        const ny = y / h;
+        const taper = Math.sin(ny * Math.PI);
+        const envelope =
+          Math.sin(ny * Math.PI * 5 + time * 1.1) * 0.5 +
+          Math.sin(ny * Math.PI * 9 - time * 0.8) * 0.3 +
+          Math.sin(ny * Math.PI * 2.3 + time * 1.4) * 0.4;
+        return w * 0.14 * taper * (0.55 + Math.abs(envelope) * 0.6);
       }
 
-      ribbons.forEach((r) => {
-        // Filled ribbon: walk down the left edge, then back up the right
-        // edge, so it reads as a solid band of color rather than a thin
-        // outlined line — much closer to the reference's filled look.
-        ctx.beginPath();
-        for (let y = 0; y <= h; y += 6) {
-          const { x, taper } = centerAt(r, y);
-          const halfWidth = r.width * w * (0.4 + taper * 0.6);
-          if (y === 0) ctx.moveTo(x - halfWidth, y); else ctx.lineTo(x - halfWidth, y);
-        }
-        for (let y = h; y >= 0; y -= 6) {
-          const { x, taper } = centerAt(r, y);
-          const halfWidth = r.width * w * (0.4 + taper * 0.6);
-          ctx.lineTo(x + halfWidth, y);
-        }
-        ctx.closePath();
-        ctx.fillStyle = r.color;
-        ctx.shadowColor = r.color;
-        ctx.shadowBlur = 8;
-        ctx.globalAlpha = 0.8;
-        ctx.fill();
-      });
+      ctx.beginPath();
+      for (let y = 0; y <= h; y += 5) {
+        const x = centerAt(y) - widthAt(y);
+        if (y === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      for (let y = h; y >= 0; y -= 5) {
+        const x = centerAt(y) + widthAt(y);
+        ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+
+      const gradient = ctx.createLinearGradient(0, 0, 0, h);
+      gradient.addColorStop(0.0, 'rgba(74,111,227,0)');
+      gradient.addColorStop(0.15, '#4A6FE3');
+      gradient.addColorStop(0.35, '#F0566E');
+      gradient.addColorStop(0.5, '#4ECDC4');
+      gradient.addColorStop(0.65, '#F0D264');
+      gradient.addColorStop(0.85, '#F5F1EA');
+      gradient.addColorStop(1.0, 'rgba(245,241,234,0)');
+      ctx.fillStyle = gradient;
+      ctx.shadowColor = 'rgba(240,86,110,0.5)';
+      ctx.shadowBlur = 14;
+      ctx.globalAlpha = 0.88;
+      ctx.fill();
 
       raf = requestAnimationFrame(draw);
     }
