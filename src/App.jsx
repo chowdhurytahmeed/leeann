@@ -1254,7 +1254,7 @@ function PulseSection({ onSignup, onOrbClick, amplitudeRef }) {
       </div>
 
       <div style={{ position: 'relative' }}>
-        <svg viewBox="0 0 1000 120" preserveAspectRatio="none" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', transform: 'translateY(50px)' }}>
+        <svg viewBox="0 0 1000 120" preserveAspectRatio="none" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', transform: 'translateY(64px)' }}>
           <path d={dimLeft} stroke="#3A3226" strokeWidth="2" fill="none" opacity="0.6" />
           <path d={dimRight} stroke="#3A3226" strokeWidth="2" fill="none" opacity="0.6" />
           {phase === 'left' && (
@@ -1280,9 +1280,6 @@ function PulseSection({ onSignup, onOrbClick, amplitudeRef }) {
               }}
             />
             <InteractiveOrb onClick={handleClick} amplitudeRef={amplitudeRef} size={108} hit={hit} title="Hear Lean" />
-          </div>
-          <div className="lea-mono" style={{ fontSize: 10.5, color: '#8B92AC', marginTop: 14, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-            Tap to hear her
           </div>
         </div>
       </div>
@@ -2406,13 +2403,27 @@ export default function LeanApp() {
     ];
     const topic = factTopics[Math.floor(Math.random() * factTopics.length)];
 
+    // Same reasoning applies to HOW she opens, not just what topic she
+    // picks — a fixed "Hi, I'm Lean!" then straight into the fact reads as
+    // a script. These are style examples for the model to riff on, not
+    // lines to recite verbatim, so the transition into the fact varies too.
+    const openerStyles = [
+      `Hi, I'm Lean! While I'm here, did you know...`,
+      `Heyo, I'm Lean — let me hit you with a fun fact...`,
+      `Hey, I'm Lean! Random fact for you...`,
+      `Oh, hi! I'm Lean. Quick fun fact before you go...`,
+      `Hi, I'm Lean! So, fun fact...`,
+      `Hey there, I'm Lean. Here's something fun...`,
+    ];
+    const openerStyle = openerStyles[Math.floor(Math.random() * openerStyles.length)];
+
     let hasSpoken = false;
     const session = new GeminiLiveSession({
       apiKey: geminiKey,
-      systemInstruction: `You are Lean. Say "Hi, I'm Lean!" and then share one short, genuinely surprising fun fact about ${topic}. Keep the whole thing to two sentences, warm and casual — no follow-up question, no "did you know" cliché opener.`,
+      systemInstruction: `You are Lean. Greet the person and introduce yourself, then naturally transition into sharing a fun fact — match the casual, spontaneous energy of an opener like "${openerStyle}" (don't recite it word for word, just that vibe), then share one short, genuinely surprising fun fact about ${topic}. It should feel like a real person who just thought of something fun to mention, not a script — two to three sentences total, no follow-up question.`,
       voiceName: 'Sulafat',
       onOpen: () => {
-        session.sendText(`Say hi and share a fun fact about ${topic}.`);
+        session.sendText(`Greet me casually and share a fun fact about ${topic}.`);
       },
       onSpeakingChange: (speaking) => {
         setLeanSpeaking(speaking);
