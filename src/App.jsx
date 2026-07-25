@@ -2012,7 +2012,7 @@ function ThemeToggle({ theme, onToggle }) {
 }
 
 export default function LeanApp() {
-  const [theme, setTheme] = useState('light');
+  const [theme, setTheme] = useState('dark');
   const scrollThemeVars = useScrollBg(theme);
   const heroOrbAmplitudeRef = useRef(0);
   const pulseOrbAmplitudeRef = useRef(0);
