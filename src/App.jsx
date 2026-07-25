@@ -1708,9 +1708,22 @@ function InteractiveOrb({ onClick, amplitudeRef, size = 300, hit = false, title 
     }
 
     let raf;
-    const startTime = performance.now();
+    let lastTime = performance.now();
+    let elapsed = 0; // accumulates only in small, clamped steps — never jumps
     function tick(now) {
-      const t = (now - startTime) / 1000;
+      // Cap the per-frame time step. Without this, if the tab is
+      // backgrounded (switching tabs, a notification stealing focus, the
+      // OS deprioritizing a hidden tab) and comes back, the real gap since
+      // the last frame could be seconds or minutes — treating that as a
+      // single instant step would make every cycle (breathing, glance,
+      // blink) suddenly jump to wherever that much elapsed time says it
+      // should be. Capping it means the animation just continues smoothly
+      // from where it was, no matter how long the tab was away.
+      const rawDelta = (now - lastTime) / 1000;
+      const delta = Math.min(rawDelta, 0.1);
+      lastTime = now;
+      elapsed += delta;
+      const t = elapsed;
 
       // --- position: mouse-follow, plus an occasional "glance" toward a
       // random point at irregular intervals, like attention shifting even
@@ -1745,7 +1758,8 @@ function InteractiveOrb({ onClick, amplitudeRef, size = 300, hit = false, title 
       // --- voice amplitude: while actually speaking, real audio level
       // (from the live playback analyser) adds an extra scale boost on
       // top of breathing, so motion actually matches what's being said. ---
-      const rawAmp = (amplitudeRef && amplitudeRef.current) || 0;
+      const rawAmpValue = (amplitudeRef && amplitudeRef.current) || 0;
+      const rawAmp = Number.isFinite(rawAmpValue) ? rawAmpValue : 0; // guards against any bad/NaN reading causing a visible snap
       const smoothing = rawAmp > smoothedAmpRef.current ? 0.35 : 0.08; // rises quickly, falls gently
       smoothedAmpRef.current += (rawAmp - smoothedAmpRef.current) * smoothing;
       const amp = smoothedAmpRef.current;
@@ -1760,7 +1774,7 @@ function InteractiveOrb({ onClick, amplitudeRef, size = 300, hit = false, title 
       }
       let blinkOpacity = 1;
       if (blink.remaining > 0) {
-        blink.remaining -= 1 / 60;
+        blink.remaining -= delta; // same clamped delta, not a fixed-framerate assumption
         const progress = 1 - Math.max(0, blink.remaining) / 0.16;
         blinkOpacity = 0.72 + Math.abs(Math.sin(progress * Math.PI)) * 0.28;
       }
