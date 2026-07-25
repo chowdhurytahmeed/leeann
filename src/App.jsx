@@ -2344,68 +2344,73 @@ export default function LeanApp() {
           <div
             onMouseMove={handleHeroMove}
             onMouseLeave={() => setHeroMouse({ x: 0, y: 0 })}
-            style={{ position: 'relative', padding: '56px 40px 48px', textAlign: 'center', overflow: 'hidden' }}
+            style={{
+              position: 'relative', padding: '76px 40px 84px', textAlign: 'center', overflow: 'hidden',
+              background: '#0D0B12',
+              backgroundImage: 'linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)',
+              backgroundSize: '32px 32px',
+            }}
           >
             <div
               className="lea-blob"
               style={{
-                position: 'absolute', top: -60, left: '18%', width: 220, height: 220, borderRadius: '50%',
-                background: 'var(--wine-dim)', filter: 'blur(50px)', pointerEvents: 'none',
-                transform: `translate(${heroMouse.x * 14}px, ${heroMouse.y * 10}px)`,
+                position: 'absolute', top: -110, left: '18%', width: 360, height: 360, borderRadius: '50%',
+                background: 'var(--wine-glow)', filter: 'blur(100px)', opacity: 0.35, pointerEvents: 'none',
+                transform: `translate(${heroMouse.x * 16}px, ${heroMouse.y * 10}px)`,
               }}
             />
             <div
               className="lea-blob"
               style={{
-                position: 'absolute', bottom: -70, right: '16%', width: 260, height: 260, borderRadius: '50%',
-                background: 'var(--gold-dim)', filter: 'blur(60px)', pointerEvents: 'none',
-                transform: `translate(${heroMouse.x * -12}px, ${heroMouse.y * -8}px)`,
+                position: 'absolute', bottom: -130, right: '15%', width: 400, height: 400, borderRadius: '50%',
+                background: 'var(--gold-glow)', filter: 'blur(110px)', opacity: 0.3, pointerEvents: 'none',
+                transform: `translate(${heroMouse.x * -14}px, ${heroMouse.y * -8}px)`,
               }}
             />
             <div style={{ position: 'relative' }}>
-              <div className="lea-mono" style={{ fontSize: 11, letterSpacing: '0.14em', color: 'var(--wine)', marginBottom: 16, textTransform: 'uppercase' }}>
+              <div className="lea-mono" style={{ fontSize: 11, letterSpacing: '0.14em', color: 'var(--gold)', marginBottom: 20, textTransform: 'uppercase' }}>
                 Your hiring liaison
               </div>
-              <div className="lea-display" style={{ fontSize: 40, fontWeight: 600, color: 'var(--text)', maxWidth: 620, margin: '0 auto 14px', lineHeight: 1.15 }}>
-                Where hiring becomes a conversation.
-              </div>
-              <div style={{ fontSize: 14.5, color: 'var(--text-muted)', maxWidth: 460, margin: '0 auto 30px', lineHeight: 1.65 }}>
-                Lean sits between hiring teams and candidates — understanding what a role really needs, answering candidates honestly, and turning every conversation into a clear, comparable readout.
-              </div>
-              <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginBottom: 44 }}>
-                <button onClick={goSignupType} className="lea-cta-pulse lea-glass" style={{
-                  background: 'color-mix(in srgb, var(--wine) 78%, var(--glass-bg))', border: '1px solid var(--glass-border)',
-                  borderRadius: 999, padding: '13px 30px', fontSize: 13.5, fontWeight: 600, color: 'var(--on-accent)', cursor: 'pointer',
-                }}>
-                  Get started
-                </button>
+
+              {/* the orb — enlarged into the actual hero centerpiece */}
+              <div style={{ position: 'relative', width: 300, height: 300, margin: '0 auto 30px' }}>
+                <div
+                  className="lea-idle-glow lea-orb-interactive"
+                  onClick={() => speak("Hi, I'm Lean.")}
+                  title="Say hi"
+                  style={{
+                    width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,0.03)',
+                    border: '2px solid var(--wine)', overflow: 'hidden', position: 'relative',
+                  }}
+                >
+                  <span className="lea-orb-ring-pulse" style={{ position: 'absolute', inset: -4, borderRadius: '50%', border: '2px solid var(--wine)', pointerEvents: 'none' }} />
+                  <div className="lea-orb-a" style={{ position: 'absolute', width: '86%', height: '86%', top: '-7%', left: '-7%', borderRadius: '50%', background: 'var(--wine)', filter: 'blur(46px)', opacity: 0.92 }} />
+                  <div className="lea-orb-b" style={{ position: 'absolute', width: '86%', height: '86%', bottom: '-7%', right: '-7%', borderRadius: '50%', background: 'var(--gold)', filter: 'blur(46px)', opacity: 0.92 }} />
+                </div>
               </div>
 
-              {/* one big orb, actually talking to you */}
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <div style={{ position: 'relative', width: 168, height: 168 }}>
-                  <div
-                    className="lea-idle-glow lea-orb-interactive"
-                    onClick={() => speak("Hi, I'm Lean.")}
-                    title="Say hi"
-                    style={{
-                      width: 168, height: 168, borderRadius: '50%', background: 'var(--panel-alt)',
-                      border: '2px solid var(--wine)', overflow: 'hidden', flexShrink: 0, position: 'relative',
-                    }}
-                  >
-                    <span className="lea-orb-ring-pulse" style={{ position: 'absolute', inset: -3, borderRadius: '50%', border: '2px solid var(--wine)', pointerEvents: 'none' }} />
-                    <div className="lea-orb-a" style={{ position: 'absolute', width: '86%', height: '86%', top: '-7%', left: '-7%', borderRadius: '50%', background: 'var(--wine)', filter: 'blur(24px)', opacity: 0.88 }} />
-                    <div className="lea-orb-b" style={{ position: 'absolute', width: '86%', height: '86%', bottom: '-7%', right: '-7%', borderRadius: '50%', background: 'var(--gold)', filter: 'blur(24px)', opacity: 0.88 }} />
-                  </div>
-                </div>
+              <div className="lea-display" style={{ fontSize: 42, fontWeight: 700, color: '#F5F1EA', maxWidth: 660, margin: '0 auto 14px', lineHeight: 1.15 }}>
+                Where hiring becomes a conversation.
+              </div>
+              <div style={{ fontSize: 14.5, color: 'rgba(245,241,234,0.62)', maxWidth: 460, margin: '0 auto 28px', lineHeight: 1.65 }}>
+                Lean sits between hiring teams and candidates — understanding what a role really needs, answering candidates honestly, and turning every conversation into a clear, comparable readout.
+              </div>
+
+              <div style={{ marginBottom: 28, display: 'flex', justifyContent: 'center' }}>
                 <div style={{
-                  marginTop: 22, background: 'var(--panel)', border: '1px solid var(--line)', borderRadius: 10,
-                  padding: '10px 18px', fontSize: 13, color: 'var(--text)', minHeight: 40, display: 'flex', alignItems: 'center',
-                  boxShadow: '0 6px 18px rgba(0,0,0,0.06)',
+                  background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.14)', borderRadius: 10,
+                  padding: '10px 18px', fontSize: 13, color: '#F5F1EA', backdropFilter: 'blur(12px)', minHeight: 40, display: 'flex', alignItems: 'center',
                 }}>
                   <HeroGreeting />
                 </div>
               </div>
+
+              <button onClick={goSignupType} className="lea-cta-pulse lea-glass" style={{
+                background: 'color-mix(in srgb, var(--wine) 78%, var(--glass-bg))', border: '1px solid var(--glass-border)',
+                borderRadius: 999, padding: '13px 30px', fontSize: 13.5, fontWeight: 600, color: 'var(--on-accent)', cursor: 'pointer',
+              }}>
+                Get started
+              </button>
             </div>
           </div>
 
