@@ -972,16 +972,8 @@ function FAQSection() {
 
 function SiteFooter({ onNav }) {
   return (
-    <div style={{ borderTop: '1px solid var(--line)', padding: '32px 40px' }}>
-      <div style={{ maxWidth: 900, margin: '0 auto', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
-        <Wordmark size={16} />
-        <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
-          <button onClick={onNav.signup} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: 12.5, cursor: 'pointer', padding: 0 }}>Sign up</button>
-          <button onClick={onNav.login} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: 12.5, cursor: 'pointer', padding: 0 }}>Log in</button>
-          <button onClick={onNav.practice} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: 12.5, cursor: 'pointer', padding: 0 }}>Practice</button>
-        </div>
-        <div style={{ fontSize: 11.5, color: 'var(--text-muted)' }}>© {new Date().getFullYear()} Lean</div>
-      </div>
+    <div style={{ borderTop: '1px solid var(--line)', padding: '32px 40px', textAlign: 'center' }}>
+      <div style={{ fontSize: 11.5, color: 'var(--text-muted)' }}>© {new Date().getFullYear()} Lean</div>
     </div>
   );
 }
@@ -1277,16 +1269,26 @@ function PulseSection({ onSignup, onOrbClick }) {
       </div>
 
       <div
-        className="lea-display"
         aria-hidden="true"
         style={{
-          fontSize: 'min(22vw, 260px)', fontWeight: 700, textAlign: 'center', lineHeight: 0.75,
-          marginTop: 48, letterSpacing: '-0.02em', userSelect: 'none',
-          background: 'linear-gradient(180deg, rgba(245,241,234,0.22) 0%, rgba(245,241,234,0.04) 60%, transparent 100%)',
-          WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          marginTop: 48, userSelect: 'none', gap: 0,
         }}
       >
-        Lean
+        <div style={{ width: 'min(17vw, 200px)', height: 'min(17vw, 200px)', flexShrink: 0, opacity: 0.85 }}>
+          <LogoMark size="100%" />
+        </div>
+        <span
+          className="lea-display"
+          style={{
+            fontSize: 'min(22vw, 260px)', fontWeight: 700, lineHeight: 0.75,
+            letterSpacing: '-0.02em', marginLeft: 'min(-1.2vw, -14px)',
+            background: 'linear-gradient(180deg, rgba(245,241,234,0.22) 0%, rgba(245,241,234,0.04) 60%, transparent 100%)',
+            WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent',
+          }}
+        >
+          ean
+        </span>
       </div>
     </div>
   );
