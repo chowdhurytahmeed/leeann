@@ -36,25 +36,65 @@ function mixColor(c1, c2, t) {
   return `rgba(${r},${g},${b},${a.toFixed(3)})`;
 }
 
-// Blends across three colors instead of two: stops[0] at t=0, stops[1] at
-// t=0.5, stops[2] at t=1, with a straight linear blend between whichever
-// pair t currently falls between.
-function mix3(stops, t) {
-  if (t <= 0.5) return mixColor(stops[0], stops[1], t * 2);
-  return mixColor(stops[1], stops[2], (t - 0.5) * 2);
+// Blends across an arbitrary ordered list of {at, color} stops. Purely a
+// function of t (0-1) — same input always produces the same output, so the
+// color at any given scroll position is identical whether you arrived there
+// scrolling up or down.
+function mixStops(stops, t) {
+  if (t <= stops[0].at) return stops[0].color;
+  const last = stops[stops.length - 1];
+  if (t >= last.at) return last.color;
+  for (let i = 0; i < stops.length - 1; i++) {
+    const a = stops[i], b = stops[i + 1];
+    if (t >= a.at && t <= b.at) {
+      const localT = (t - a.at) / (b.at - a.at);
+      return mixColor(a.color, b.color, localT);
+    }
+  }
+  return last.color;
 }
 
-// The page background moves through three stops as you scroll — white at
-// the top, navy blue through the middle, night-sky black by the bottom —
-// while text/panels/borders shift from dark-on-light to light-on-dark
-// (completing that switch a bit earlier than the background finishes its
-// own transition, so text stays legible against the navy handoff).
-//
-// This doesn't set color as a direct function of scroll position each
-// frame — that would jump instantly on a fast scroll. A continuous
-// animation loop eases the displayed value toward wherever the target
-// currently is, every frame, so scrolling fast or erratically still
-// produces a smooth chase rather than a snap.
+// Generates a set of stops for a UI token (text, panel, border, etc.) that
+// switches between its "dark-background" and "light-background" value at
+// the same zone boundaries the background itself uses — dark near the top
+// (through the hero's navy), light through the white middle, dark again
+// near the bottom (through blue/navy back to night).
+function makeUiStops(onDarkBg, onLightBg) {
+  return [
+    { at: 0, color: onDarkBg },
+    { at: 0.22, color: onDarkBg },
+    { at: 0.34, color: onLightBg },
+    { at: 0.68, color: onLightBg },
+    { at: 0.82, color: onDarkBg },
+    { at: 1, color: onDarkBg },
+  ];
+}
+
+const BG_STOPS = [
+  { at: 0, color: '#0A0812' },    // hero top — near black
+  { at: 0.15, color: '#1B2A56' }, // hero bottom — navy, matches the reference
+  { at: 0.34, color: '#F4F6FA' }, // brightening toward white
+  { at: 0.62, color: '#F4F6FA' }, // stays white through the middle
+  { at: 0.78, color: '#3A5088' }, // a bit blue
+  { at: 0.9, color: '#1B2A56' },  // navy blue
+  { at: 1, color: '#0A0812' },    // dark again by the bottom
+];
+const TEXT_STOPS = makeUiStops('#EDEFF5', '#14161F');
+const TEXT_MUTED_STOPS = makeUiStops('#8B92AC', '#666E82');
+const PANEL_STOPS = makeUiStops('#171B2C', '#FFFFFF');
+const PANEL_ALT_STOPS = makeUiStops('#1E2338', '#ECEFF5');
+const LINE_STOPS = makeUiStops('#2C3350', '#D8DEE9');
+const GLASS_BG_STOPS = makeUiStops('rgba(23,27,44,0.5)', 'rgba(255,255,255,0.5)');
+const GLASS_BORDER_STOPS = makeUiStops('rgba(255,255,255,0.09)', 'rgba(255,255,255,0.6)');
+const GLASS_HIGHLIGHT_STOPS = makeUiStops('rgba(255,255,255,0.06)', 'rgba(255,255,255,0.35)');
+const GLASS_SHEEN_STOPS = makeUiStops('rgba(255,255,255,0.14)', 'rgba(255,255,255,0.55)');
+
+// Every color token is a pure function of scroll position — so scrolling up
+// through a spot gives the exact same color as scrolling down through it,
+// each part of the page keeps one assigned color, nothing depends on
+// direction or history. A continuous animation loop eases the *displayed*
+// value toward that target every frame, so fast or erratic scrolling still
+// produces a smooth chase rather than a jump.
 function useScrollBg() {
   const [progress, setProgress] = useState(0);
   const targetRef = useRef(0);
@@ -64,9 +104,7 @@ function useScrollBg() {
     function computeTarget() {
       const doc = document.documentElement;
       const scrollable = doc.scrollHeight - doc.clientHeight;
-      const p = scrollable > 0 ? doc.scrollTop / scrollable : 0;
-      const eased = p * p * (3 - 2 * p); // smoothstep
-      targetRef.current = Math.min(1, Math.max(0, eased));
+      targetRef.current = scrollable > 0 ? Math.min(1, Math.max(0, doc.scrollTop / scrollable)) : 0;
     }
     window.addEventListener('scroll', computeTarget, { passive: true });
     window.addEventListener('resize', computeTarget);
@@ -87,21 +125,17 @@ function useScrollBg() {
     };
   }, []);
 
-  // text/panel tokens only need one dark->light switch, completed by the
-  // time the background reaches its navy stop, then held through black
-  const uiProgress = Math.min(1, progress * 1.8);
-
   return {
-    '--bg': mix3(['#F4F6FA', '#1B2A56', '#0A0812'], progress),
-    '--text': mixColor('#14161F', '#EDEFF5', uiProgress),
-    '--text-muted': mixColor('#666E82', '#8B92AC', uiProgress),
-    '--panel': mixColor('#FFFFFF', '#171B2C', uiProgress),
-    '--panel-alt': mixColor('#ECEFF5', '#1E2338', uiProgress),
-    '--line': mixColor('#D8DEE9', '#2C3350', uiProgress),
-    '--glass-bg': mixColor('rgba(255,255,255,0.5)', 'rgba(23,27,44,0.5)', uiProgress),
-    '--glass-border': mixColor('rgba(255,255,255,0.6)', 'rgba(255,255,255,0.09)', uiProgress),
-    '--glass-highlight': mixColor('rgba(255,255,255,0.35)', 'rgba(255,255,255,0.06)', uiProgress),
-    '--glass-sheen': mixColor('rgba(255,255,255,0.55)', 'rgba(255,255,255,0.14)', uiProgress),
+    '--bg': mixStops(BG_STOPS, progress),
+    '--text': mixStops(TEXT_STOPS, progress),
+    '--text-muted': mixStops(TEXT_MUTED_STOPS, progress),
+    '--panel': mixStops(PANEL_STOPS, progress),
+    '--panel-alt': mixStops(PANEL_ALT_STOPS, progress),
+    '--line': mixStops(LINE_STOPS, progress),
+    '--glass-bg': mixStops(GLASS_BG_STOPS, progress),
+    '--glass-border': mixStops(GLASS_BORDER_STOPS, progress),
+    '--glass-highlight': mixStops(GLASS_HIGHLIGHT_STOPS, progress),
+    '--glass-sheen': mixStops(GLASS_SHEEN_STOPS, progress),
   };
 }
 
