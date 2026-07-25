@@ -636,8 +636,8 @@ function GlobalStyles() {
       .lea-type-search { transition: opacity 0.3s ease, transform 0.32s cubic-bezier(.4,0,.2,1); }
       .lea-orb-interactive { position: relative; cursor: pointer; transition: transform 0.35s ease, box-shadow 0.35s ease; }
       .lea-orb-interactive:hover { transform: scale(1.14); animation-duration: 1s; }
-      .lea-orb-interactive:hover .lea-orb-a { animation-duration: 1.1s; }
-      .lea-orb-interactive:hover .lea-orb-b { animation-duration: 1.3s; }
+      .lea-orb-interactive:hover .lea-orb-a { animation-duration: 0.6s; }
+      .lea-orb-interactive:hover .lea-orb-b { animation-duration: 0.75s; }
       .lea-orb-interactive::before, .lea-orb-interactive::after {
         content: ''; position: absolute; inset: -18px; border-radius: 50%; pointer-events: none;
         border: 2px solid var(--wine); opacity: 0;
@@ -649,10 +649,28 @@ function GlobalStyles() {
       .lea-rec-dot { animation: lea-rec 1.4s ease-in-out infinite; }
       @keyframes lea-blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
       .lea-cursor { animation: lea-blink 0.9s step-end infinite; }
-      @keyframes lea-orb-a { 0%,100% { transform: translate(0,0) scale(1); } 33% { transform: translate(16px,10px) scale(1.15); } 66% { transform: translate(-6px,14px) scale(0.92); } }
-      @keyframes lea-orb-b { 0%,100% { transform: translate(0,0) scale(1); } 33% { transform: translate(-14px,-16px) scale(1.18); } 66% { transform: translate(10px,-6px) scale(0.9); } }
-      .lea-orb-a { animation: lea-orb-a 3.6s ease-in-out infinite; }
-      .lea-orb-b { animation: lea-orb-b 4.4s ease-in-out infinite; }
+      @keyframes lea-orb-a {
+        0% { transform: translate(0,0) scale(1); }
+        14% { transform: translate(24px,-16px) scale(1.28); }
+        29% { transform: translate(-20px,12px) scale(0.82); }
+        43% { transform: translate(16px,22px) scale(1.32); }
+        58% { transform: translate(-26px,-10px) scale(0.86); }
+        72% { transform: translate(12px,-20px) scale(1.18); }
+        86% { transform: translate(-14px,16px) scale(0.94); }
+        100% { transform: translate(0,0) scale(1); }
+      }
+      @keyframes lea-orb-b {
+        0% { transform: translate(0,0) scale(1); }
+        11% { transform: translate(-22px,18px) scale(1.22); }
+        26% { transform: translate(20px,-14px) scale(0.85); }
+        41% { transform: translate(-16px,-24px) scale(1.3); }
+        55% { transform: translate(24px,10px) scale(0.88); }
+        69% { transform: translate(-12px,20px) scale(1.15); }
+        84% { transform: translate(18px,-12px) scale(0.92); }
+        100% { transform: translate(0,0) scale(1); }
+      }
+      .lea-orb-a { animation: lea-orb-a 1.3s ease-in-out infinite; }
+      .lea-orb-b { animation: lea-orb-b 1.6s ease-in-out infinite; }
       .lea-play-btn { transition: transform 0.12s ease, background 0.12s ease; }
       .lea-play-btn:hover { transform: scale(1.06); }
     `}</style>
