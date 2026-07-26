@@ -4021,8 +4021,10 @@ export default function LeanApp() {
 
       {/* APP */}
       {screen === 'employerHome' && (
-        <div className="lea-fade">
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 24px', borderBottom: '1px solid var(--line)' }}>
+        <div className="lea-fade" style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden' }}>
+          <div className="lea-blob" style={{ position: 'absolute', top: '-10%', right: '-8%', width: 480, height: 480, borderRadius: '50%', background: 'var(--wine-glow)', filter: 'blur(130px)', opacity: 0.22, pointerEvents: 'none' }} />
+          <div className="lea-blob" style={{ position: 'absolute', bottom: '5%', left: '-10%', width: 460, height: 460, borderRadius: '50%', background: 'var(--gold-glow)', filter: 'blur(130px)', opacity: 0.22, pointerEvents: 'none' }} />
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 24px', borderBottom: '1px solid var(--line)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
               <Wordmark />
               <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{account?.name}{account?.company ? ` · ${account.company}` : ''}</div>
@@ -4035,7 +4037,7 @@ export default function LeanApp() {
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: 8, padding: '14px 24px', borderBottom: '1px solid var(--line)', background: 'var(--panel)', flexWrap: 'wrap' }}>
+          <div style={{ position: 'relative', display: 'flex', gap: 8, padding: '14px 24px', borderBottom: '1px solid var(--line)', background: 'var(--panel)', flexWrap: 'wrap' }}>
             <TabButton active={tab === 'workspace'} onClick={() => setTab('workspace')} icon={LayoutGrid} label="Workspace" num="01" color="var(--wine)" />
             <TabButton active={tab === 'hm'} onClick={() => setTab('hm')} icon={Users} label="Calibrate Role" num="02" color="var(--wine)" />
             <TabButton active={tab === 'dashboard'} onClick={() => setTab('dashboard')} icon={Activity} label="Dashboard" num="03" color="var(--text)" />
@@ -4044,6 +4046,7 @@ export default function LeanApp() {
             <TabButton active={tab === 'team'} onClick={() => setTab('team')} icon={UserPlus} label="Team" num="06" color="var(--gold)" />
           </div>
 
+          <div style={{ position: 'relative', zIndex: 1 }}>
           {tab === 'workspace' && (
             <WorkspaceHomeTab
               roles={roles} activeRoleId={activeRoleId} setActiveRoleId={setActiveRoleId}
@@ -4434,6 +4437,7 @@ export default function LeanApp() {
               </div>
             </div>
           )}
+          </div>
         </div>
       )}
 
