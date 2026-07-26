@@ -2282,18 +2282,6 @@ export default function LeanApp() {
   const [heroMouse, setHeroMouse] = useState({ x: 0, y: 0 });
 
   const [tab, setTab] = useState('workspace');
-  const [companyProfile, setCompanyProfile] = useState({ description: '', employees: '' });
-
-  useEffect(() => {
-    if (account?.type !== 'employer' || !account.company) return;
-    const known = KNOWN_COMPANY_PROFILES[account.company];
-    if (known && !companyProfile.description) {
-      setCompanyProfile({ description: known.description, employees: known.employees });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account]);
-  const [teamMembers, setTeamMembers] = useState(null); // lazily seeded with the account holder once account loads
-  const [inviteEmail, setInviteEmail] = useState('');
   const [dashboardView, setDashboardView] = useState('list'); // 'list' | 'compare'
 
   const [roles, setRoles] = useState([]); // every open role this employer is hiring for
@@ -2342,11 +2330,24 @@ export default function LeanApp() {
   const [account, setAccount] = useState(null); // null | { type: 'employer'|'candidate', name, email, company?, resume? }
   const [accountChecked, setAccountChecked] = useState(false);
 
+  const [companyProfile, setCompanyProfile] = useState({ description: '', employees: '' });
+  useEffect(() => {
+    if (!account || account.type !== 'employer' || !account.company) return;
+    const known = KNOWN_COMPANY_PROFILES[account.company];
+    if (known && !companyProfile.description) {
+      setCompanyProfile({ description: known.description, employees: known.employees });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [account]);
+
+  const [teamMembers, setTeamMembers] = useState(null); // lazily seeded with the account holder once account loads
+  const [inviteEmail, setInviteEmail] = useState('');
   useEffect(() => {
     if (account?.type === 'employer' && !teamMembers) {
       setTeamMembers([{ name: account.name, email: account.email, role: 'Owner' }]);
     }
   }, [account, teamMembers]);
+
   const [signupType, setSignupType] = useState(null); // 'employer' | 'candidate' — chosen before the auth form
   const [authName, setAuthName] = useState('');
   const [authEmail, setAuthEmail] = useState('');
