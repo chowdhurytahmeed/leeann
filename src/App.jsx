@@ -3656,7 +3656,9 @@ export default function LeanApp() {
       {/* LOGIN */}
       {/* SIGNUP TYPE */}
       {screen === 'signupType' && (
-        <div className="lea-fade" style={{ minHeight: 640, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 40, position: 'relative' }}>
+        <div className="lea-fade" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 40, position: 'relative', overflow: 'hidden' }}>
+          <div className="lea-blob" style={{ position: 'absolute', top: '-15%', left: '-10%', width: 500, height: 500, borderRadius: '50%', background: 'var(--wine-glow)', filter: 'blur(130px)', opacity: 0.3, pointerEvents: 'none' }} />
+          <div className="lea-blob" style={{ position: 'absolute', bottom: '-20%', right: '-10%', width: 520, height: 520, borderRadius: '50%', background: 'var(--gold-glow)', filter: 'blur(130px)', opacity: 0.3, pointerEvents: 'none' }} />
           <button onClick={goHome} style={{ position: 'absolute', top: 24, left: 24, display: 'flex', alignItems: 'center', gap: 6, background: 'transparent', border: 'none', color: 'var(--text-muted)', fontSize: 12, cursor: 'pointer' }}>
             <ArrowLeft size={14} /> Back
           </button>
@@ -3689,7 +3691,9 @@ export default function LeanApp() {
 
       {/* AUTH FORM */}
       {screen === 'authForm' && (
-        <div className="lea-fade" style={{ minHeight: 640, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 40, position: 'relative' }}>
+        <div className="lea-fade" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 40, position: 'relative', overflow: 'hidden' }}>
+          <div className="lea-blob" style={{ position: 'absolute', top: '-15%', right: '-10%', width: 500, height: 500, borderRadius: '50%', background: 'var(--wine-glow)', filter: 'blur(130px)', opacity: 0.3, pointerEvents: 'none' }} />
+          <div className="lea-blob" style={{ position: 'absolute', bottom: '-20%', left: '-10%', width: 520, height: 520, borderRadius: '50%', background: 'var(--gold-glow)', filter: 'blur(130px)', opacity: 0.3, pointerEvents: 'none' }} />
           <button onClick={goSignupType} style={{ position: 'absolute', top: 24, left: 24, display: 'flex', alignItems: 'center', gap: 6, background: 'transparent', border: 'none', color: 'var(--text-muted)', fontSize: 12, cursor: 'pointer' }}>
             <ArrowLeft size={14} /> Back
           </button>
