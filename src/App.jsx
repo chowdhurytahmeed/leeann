@@ -10,7 +10,7 @@ import {
 import {
   Users, User, Activity, Send, Loader2, CheckCircle2, Circle, XCircle,
   Sparkles, Calendar, ArrowRight, ArrowLeft, ClipboardList, MessageSquare,
-  Building2, Sun, Moon, Volume2, Search, Mic, Key
+  Building2, Sun, Moon, Volume2, Search, Mic, Key, LayoutGrid, UserPlus, Plus
 } from 'lucide-react';
 
 const MODEL = 'claude-sonnet-4-6';
@@ -1316,6 +1316,175 @@ function PulseSection({ onSignup, onOrbClick, amplitudeRef }) {
   );
 }
 
+function WorkspaceHomeTab({ roles, activeRoleId, setActiveRoleId, setTab, createRole, account, teamMembers }) {
+  const liveCount = roles.filter((r) => r.started).length;
+  return (
+    <div style={{ padding: '28px 24px', maxWidth: 980, margin: '0 auto' }}>
+      <div className="lea-display" style={{ fontSize: 22, fontWeight: 700, color: 'var(--text)', marginBottom: 4 }}>
+        {account?.company ? `${account.company}'s workspace` : 'Your workspace'}
+      </div>
+      <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 24 }}>
+        Everything you're hiring for, in one place.
+      </div>
+
+      <div style={{ display: 'flex', gap: 12, marginBottom: 28, flexWrap: 'wrap' }}>
+        <div className="lea-glass" style={{ flex: 1, minWidth: 140, borderRadius: 12, padding: '16px 18px' }}>
+          <div className="lea-mono" style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 6 }}>Open roles</div>
+          <div className="lea-display" style={{ fontSize: 26, fontWeight: 700, color: 'var(--text)' }}>{roles.length}</div>
+        </div>
+        <div className="lea-glass" style={{ flex: 1, minWidth: 140, borderRadius: 12, padding: '16px 18px' }}>
+          <div className="lea-mono" style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 6 }}>Live</div>
+          <div className="lea-display" style={{ fontSize: 26, fontWeight: 700, color: 'var(--wine)' }}>{liveCount}</div>
+        </div>
+        <div className="lea-glass" style={{ flex: 1, minWidth: 140, borderRadius: 12, padding: '16px 18px' }}>
+          <div className="lea-mono" style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 6 }}>Team</div>
+          <div className="lea-display" style={{ fontSize: 26, fontWeight: 700, color: 'var(--text)' }}>{teamMembers?.length || 1}</div>
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>Roles</div>
+        <button className="lea-glass-btn" onClick={createRole} style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'color-mix(in srgb, var(--wine) 80%, var(--glass-bg))', border: 'none', borderRadius: 7, padding: '8px 14px', color: 'var(--on-accent)', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+          <Plus size={14} /> New role
+        </button>
+      </div>
+
+      {roles.length === 0 ? (
+        <div className="lea-glass" style={{ borderRadius: 12, padding: 32, textAlign: 'center', color: 'var(--text-muted)', fontSize: 13 }}>
+          No roles yet — create your first one to get started.
+        </div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 12 }}>
+          {roles.map((r) => (
+            <button
+              key={r.id}
+              onClick={() => { setActiveRoleId(r.id); setTab('hm'); }}
+              className="lea-card lea-glass"
+              style={{ textAlign: 'left', padding: 16, borderRadius: 12, cursor: 'pointer', border: r.id === activeRoleId ? '1px solid var(--wine)' : undefined }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                <span style={{
+                  fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 999, textTransform: 'uppercase', letterSpacing: '0.04em',
+                  background: r.started ? 'color-mix(in srgb, var(--wine) 18%, transparent)' : 'var(--panel-alt)',
+                  color: r.started ? 'var(--wine)' : 'var(--text-muted)',
+                }}>
+                  {r.started ? 'Live' : 'Draft'}
+                </span>
+                <span className="lea-mono" style={{ fontSize: 10, color: 'var(--text-muted)' }}>{r.createdAt}</span>
+              </div>
+              <div style={{ fontSize: 14.5, fontWeight: 600, color: 'var(--text)', marginBottom: 3 }}>
+                {r.title || 'Untitled role'}
+              </div>
+              <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                {r.team || 'No team set yet'}
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CompanyProfileTab({ account, companyProfile, setCompanyProfile }) {
+  const initials = (account?.company || account?.name || 'L').trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
+  return (
+    <div style={{ padding: '28px 24px', maxWidth: 640, margin: '0 auto' }}>
+      <div className="lea-display" style={{ fontSize: 22, fontWeight: 700, color: 'var(--text)', marginBottom: 4 }}>Company profile</div>
+      <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 28 }}>
+        How Lean represents your company to candidates.
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 28 }}>
+        <div style={{
+          width: 64, height: 64, borderRadius: 16, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          background: 'linear-gradient(135deg, var(--wine), var(--gold))', color: '#fff', fontSize: 22, fontWeight: 700,
+        }}>
+          {initials}
+        </div>
+        <div>
+          <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text)' }}>{account?.company || 'Your company'}</div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Logo shown is a placeholder — upload isn't wired up in this demo.</div>
+        </div>
+      </div>
+
+      <div style={{ marginBottom: 18 }}>
+        <div style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--text)', marginBottom: 6 }}>About the company</div>
+        <textarea
+          value={companyProfile.description}
+          onChange={(e) => setCompanyProfile((p) => ({ ...p, description: e.target.value }))}
+          placeholder="A couple sentences about what the company does — candidates will see this."
+          rows={3}
+          style={{ width: '100%', background: 'var(--panel-alt)', border: '1px solid var(--line)', borderRadius: 8, padding: '10px 12px', color: 'var(--text)', fontSize: 13, outline: 'none', resize: 'vertical', fontFamily: 'inherit' }}
+        />
+      </div>
+
+      <div>
+        <div style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--text)', marginBottom: 6 }}>Culture & working style</div>
+        <textarea
+          value={companyProfile.culture}
+          onChange={(e) => setCompanyProfile((p) => ({ ...p, culture: e.target.value }))}
+          placeholder="What it's actually like to work here — pace, structure, how decisions get made."
+          rows={4}
+          style={{ width: '100%', background: 'var(--panel-alt)', border: '1px solid var(--line)', borderRadius: 8, padding: '10px 12px', color: 'var(--text)', fontSize: 13, outline: 'none', resize: 'vertical', fontFamily: 'inherit' }}
+        />
+      </div>
+    </div>
+  );
+}
+
+function TeamMembersTab({ teamMembers, setTeamMembers, inviteEmail, setInviteEmail, account }) {
+  function handleInvite() {
+    const email = inviteEmail.trim();
+    if (!email) return;
+    setTeamMembers((prev) => [...(prev || []), { name: email.split('@')[0], email, role: 'Pending invite' }]);
+    setInviteEmail('');
+  }
+  return (
+    <div style={{ padding: '28px 24px', maxWidth: 640, margin: '0 auto' }}>
+      <div className="lea-display" style={{ fontSize: 22, fontWeight: 700, color: 'var(--text)', marginBottom: 4 }}>Team</div>
+      <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 24 }}>
+        Who at {account?.company || 'your company'} has access to this workspace.
+      </div>
+
+      <div style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
+        <input
+          value={inviteEmail}
+          onChange={(e) => setInviteEmail(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter') handleInvite(); }}
+          placeholder="teammate@yourcompany.com"
+          type="email"
+          style={{ flex: 1, background: 'var(--panel-alt)', border: '1px solid var(--line)', borderRadius: 8, padding: '10px 12px', color: 'var(--text)', fontSize: 13, outline: 'none' }}
+        />
+        <button className="lea-glass-btn" onClick={handleInvite} disabled={!inviteEmail.trim()} style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'color-mix(in srgb, var(--wine) 80%, var(--glass-bg))', border: 'none', borderRadius: 8, padding: '0 16px', color: 'var(--on-accent)', fontSize: 12.5, fontWeight: 600, cursor: inviteEmail.trim() ? 'pointer' : 'not-allowed' }}>
+          <UserPlus size={14} /> Invite
+        </button>
+      </div>
+      <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: -14, marginBottom: 20 }}>
+        Demo only — this doesn't send a real email invite.
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {(teamMembers || []).map((m, i) => (
+          <div key={i} className="lea-glass" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderRadius: 10, padding: '12px 16px' }}>
+            <div>
+              <div style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--text)' }}>{m.name}</div>
+              <div style={{ fontSize: 11.5, color: 'var(--text-muted)' }}>{m.email}</div>
+            </div>
+            <span style={{
+              fontSize: 10.5, fontWeight: 600, padding: '3px 10px', borderRadius: 999, textTransform: 'uppercase', letterSpacing: '0.04em',
+              background: m.role === 'Owner' ? 'color-mix(in srgb, var(--wine) 18%, transparent)' : 'var(--panel-alt)',
+              color: m.role === 'Owner' ? 'var(--wine)' : 'var(--text-muted)',
+            }}>
+              {m.role}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function TabButton({ active, onClick, icon: Icon, label, num, color }) {
   return (
     <button
@@ -2055,7 +2224,10 @@ export default function LeanApp() {
   const [homeSide, setHomeSide] = useState('employer');
   const [heroMouse, setHeroMouse] = useState({ x: 0, y: 0 });
 
-  const [tab, setTab] = useState('hm');
+  const [tab, setTab] = useState('workspace');
+  const [companyProfile, setCompanyProfile] = useState({ description: '', culture: '' });
+  const [teamMembers, setTeamMembers] = useState(null); // lazily seeded with the account holder once account loads
+  const [inviteEmail, setInviteEmail] = useState('');
   const [dashboardView, setDashboardView] = useState('list'); // 'list' | 'compare'
 
   const [roles, setRoles] = useState([]); // every open role this employer is hiring for
@@ -2103,6 +2275,12 @@ export default function LeanApp() {
   // Unified account — one login, typed at signup
   const [account, setAccount] = useState(null); // null | { type: 'employer'|'candidate', name, email, company?, resume? }
   const [accountChecked, setAccountChecked] = useState(false);
+
+  useEffect(() => {
+    if (account?.type === 'employer' && !teamMembers) {
+      setTeamMembers([{ name: account.name, email: account.email, role: 'Owner' }]);
+    }
+  }, [account, teamMembers]);
   const [signupType, setSignupType] = useState(null); // 'employer' | 'candidate' — chosen before the auth form
   const [authName, setAuthName] = useState('');
   const [authEmail, setAuthEmail] = useState('');
@@ -3792,10 +3970,26 @@ export default function LeanApp() {
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: 8, padding: '14px 24px', borderBottom: '1px solid var(--line)', background: 'var(--panel)' }}>
-            <TabButton active={tab === 'hm'} onClick={() => setTab('hm')} icon={Users} label="Calibrate Role" num="01" color="var(--wine)" />
-            <TabButton active={tab === 'dashboard'} onClick={() => setTab('dashboard')} icon={Activity} label="Dashboard" num="02" color="var(--text)" />
+          <div style={{ display: 'flex', gap: 8, padding: '14px 24px', borderBottom: '1px solid var(--line)', background: 'var(--panel)', flexWrap: 'wrap' }}>
+            <TabButton active={tab === 'workspace'} onClick={() => setTab('workspace')} icon={LayoutGrid} label="Workspace" num="01" color="var(--wine)" />
+            <TabButton active={tab === 'hm'} onClick={() => setTab('hm')} icon={Users} label="Calibrate Role" num="02" color="var(--wine)" />
+            <TabButton active={tab === 'dashboard'} onClick={() => setTab('dashboard')} icon={Activity} label="Dashboard" num="03" color="var(--text)" />
+            <TabButton active={tab === 'company'} onClick={() => setTab('company')} icon={Building2} label="Company" num="04" color="var(--gold)" />
+            <TabButton active={tab === 'team'} onClick={() => setTab('team')} icon={UserPlus} label="Team" num="05" color="var(--gold)" />
           </div>
+
+          {tab === 'workspace' && (
+            <WorkspaceHomeTab
+              roles={roles} activeRoleId={activeRoleId} setActiveRoleId={setActiveRoleId}
+              setTab={setTab} createRole={createRole} account={account} teamMembers={teamMembers}
+            />
+          )}
+          {tab === 'company' && (
+            <CompanyProfileTab account={account} companyProfile={companyProfile} setCompanyProfile={setCompanyProfile} />
+          )}
+          {tab === 'team' && (
+            <TeamMembersTab teamMembers={teamMembers} setTeamMembers={setTeamMembers} inviteEmail={inviteEmail} setInviteEmail={setInviteEmail} account={account} />
+          )}
 
           {tab === 'hm' && (
             <div>
