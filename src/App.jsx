@@ -1392,6 +1392,7 @@ function WorkspaceHomeTab({ roles, activeRoleId, setActiveRoleId, setTab, create
 
 function CompanyProfileTab({ account, companyProfile, setCompanyProfile }) {
   const initials = (account?.company || account?.name || 'L').trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
+  const wasAutoFilled = Boolean(companyProfile.description) && Boolean(companyProfile.employees);
   return (
     <div style={{ padding: '28px 24px', maxWidth: 640, margin: '0 auto' }}>
       <div className="lea-display" style={{ fontSize: 22, fontWeight: 700, color: 'var(--text)', marginBottom: 4 }}>Company profile</div>
@@ -1412,6 +1413,12 @@ function CompanyProfileTab({ account, companyProfile, setCompanyProfile }) {
         </div>
       </div>
 
+      {wasAutoFilled && (
+        <div style={{ fontSize: 11.5, color: 'var(--wine)', marginBottom: 18, lineHeight: 1.4 }}>
+          Pre-filled based on {account?.company} — edit anything below.
+        </div>
+      )}
+
       <div style={{ marginBottom: 18 }}>
         <div style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--text)', marginBottom: 6 }}>About the company</div>
         <textarea
@@ -1424,13 +1431,12 @@ function CompanyProfileTab({ account, companyProfile, setCompanyProfile }) {
       </div>
 
       <div>
-        <div style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--text)', marginBottom: 6 }}>Culture & working style</div>
-        <textarea
-          value={companyProfile.culture}
-          onChange={(e) => setCompanyProfile((p) => ({ ...p, culture: e.target.value }))}
-          placeholder="What it's actually like to work here — pace, structure, how decisions get made."
-          rows={4}
-          style={{ width: '100%', background: 'var(--panel-alt)', border: '1px solid var(--line)', borderRadius: 8, padding: '10px 12px', color: 'var(--text)', fontSize: 13, outline: 'none', resize: 'vertical', fontFamily: 'inherit' }}
+        <div style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--text)', marginBottom: 6 }}>Number of employees</div>
+        <input
+          value={companyProfile.employees}
+          onChange={(e) => setCompanyProfile((p) => ({ ...p, employees: e.target.value }))}
+          placeholder="e.g. 500"
+          style={{ width: '100%', background: 'var(--panel-alt)', border: '1px solid var(--line)', borderRadius: 8, padding: '10px 12px', color: 'var(--text)', fontSize: 13, outline: 'none' }}
         />
       </div>
     </div>
@@ -2276,7 +2282,16 @@ export default function LeanApp() {
   const [heroMouse, setHeroMouse] = useState({ x: 0, y: 0 });
 
   const [tab, setTab] = useState('workspace');
-  const [companyProfile, setCompanyProfile] = useState({ description: '', culture: '' });
+  const [companyProfile, setCompanyProfile] = useState({ description: '', employees: '' });
+
+  useEffect(() => {
+    if (account?.type !== 'employer' || !account.company) return;
+    const known = KNOWN_COMPANY_PROFILES[account.company];
+    if (known && !companyProfile.description) {
+      setCompanyProfile({ description: known.description, employees: known.employees });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [account]);
   const [teamMembers, setTeamMembers] = useState(null); // lazily seeded with the account holder once account loads
   const [inviteEmail, setInviteEmail] = useState('');
   const [dashboardView, setDashboardView] = useState('list'); // 'list' | 'compare'
@@ -2976,7 +2991,24 @@ export default function LeanApp() {
   const KNOWN_COMPANY_DOMAINS = {
     'apple.com': 'Apple', 'google.com': 'Google', 'microsoft.com': 'Microsoft', 'amazon.com': 'Amazon',
     'meta.com': 'Meta', 'netflix.com': 'Netflix', 'tesla.com': 'Tesla', 'stripe.com': 'Stripe',
-    'airbnb.com': 'Airbnb', 'spacex.com': 'SpaceX',
+    'airbnb.com': 'Airbnb', 'spacex.com': 'SpaceX', 'mountsinai.org': 'Mount Sinai',
+  };
+
+  // Demo data for auto-filling the company profile when a recognized
+  // company signs up — not a live company-data API, just enough for a
+  // realistic-feeling pitch.
+  const KNOWN_COMPANY_PROFILES = {
+    'Apple': { description: 'Apple designs and builds consumer electronics, software, and services — including the iPhone, Mac, iPad, and Apple Watch.', employees: '164,000+' },
+    'Google': { description: 'Google builds Search, Android, Cloud, and a wide range of consumer and enterprise products under Alphabet.', employees: '180,000+' },
+    'Microsoft': { description: 'Microsoft builds Windows, Office, Azure, and enterprise software used by organizations worldwide.', employees: '220,000+' },
+    'Amazon': { description: 'Amazon operates e-commerce, cloud infrastructure (AWS), logistics, and consumer devices at global scale.', employees: '1,500,000+' },
+    'Meta': { description: 'Meta builds Facebook, Instagram, WhatsApp, and social/AR technology connecting billions of people.', employees: '67,000+' },
+    'Netflix': { description: 'Netflix is a global streaming entertainment service producing and distributing film and TV.', employees: '13,000+' },
+    'Tesla': { description: 'Tesla designs and manufactures electric vehicles, energy storage, and solar products.', employees: '140,000+' },
+    'Stripe': { description: 'Stripe builds payment infrastructure for the internet, used by millions of businesses.', employees: '8,000+' },
+    'Airbnb': { description: 'Airbnb operates a global marketplace for short-term lodging and experiences.', employees: '6,000+' },
+    'SpaceX': { description: 'SpaceX designs, manufactures, and launches rockets and spacecraft, including Falcon and Starship.', employees: '13,000+' },
+    'Mount Sinai': { description: 'Mount Sinai Health System is one of the largest academic medical systems in the New York metropolitan area, spanning multiple hospitals and a school of medicine.', employees: '43,000+' },
   };
 
   function getKnownCompany(email) {
@@ -4042,8 +4074,8 @@ export default function LeanApp() {
             <TabButton active={tab === 'hm'} onClick={() => setTab('hm')} icon={Users} label="Calibrate Role" num="02" color="var(--wine)" />
             <TabButton active={tab === 'dashboard'} onClick={() => setTab('dashboard')} icon={Activity} label="Dashboard" num="03" color="var(--text)" />
             <TabButton active={tab === 'openings'} onClick={() => setTab('openings')} icon={Search} label="All Openings" num="04" color="var(--gold)" />
-            <TabButton active={tab === 'company'} onClick={() => setTab('company')} icon={Building2} label="Company" num="05" color="var(--gold)" />
-            <TabButton active={tab === 'team'} onClick={() => setTab('team')} icon={UserPlus} label="Team" num="06" color="var(--gold)" />
+            <TabButton active={tab === 'team'} onClick={() => setTab('team')} icon={UserPlus} label="Team" num="05" color="var(--gold)" />
+            <TabButton active={tab === 'company'} onClick={() => setTab('company')} icon={Building2} label="Company" num="06" color="var(--gold)" />
           </div>
 
           <div style={{ position: 'relative', zIndex: 1 }}>
