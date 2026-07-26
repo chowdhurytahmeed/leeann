@@ -456,6 +456,26 @@ function highlightLine(line, keyColor) {
 }
 
 function GlobalStyles() {
+  useEffect(() => {
+    // One listener for the whole page, rather than one per button — finds
+    // whichever glass button the cursor is currently over and records the
+    // relative position as CSS variables, which the specular-highlight
+    // gradient below reads. This is the actual defining trait of Liquid
+    // Glass versus generic frosted glass: the shine moves with real
+    // cursor position instead of playing a fixed, canned sweep.
+    function handleMove(e) {
+      const btn = e.target.closest ? e.target.closest('.lea-glass-btn, .lea-glass') : null;
+      if (!btn) return;
+      const rect = btn.getBoundingClientRect();
+      const mx = ((e.clientX - rect.left) / rect.width) * 100;
+      const my = ((e.clientY - rect.top) / rect.height) * 100;
+      btn.style.setProperty('--mx', `${mx}%`);
+      btn.style.setProperty('--my', `${my}%`);
+    }
+    document.addEventListener('mousemove', handleMove, { passive: true });
+    return () => document.removeEventListener('mousemove', handleMove);
+  }, []);
+
   return (
     <style>{`
       @import url('https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
@@ -484,6 +504,7 @@ function GlobalStyles() {
         backdrop-filter: blur(20px) saturate(180%);
         -webkit-backdrop-filter: blur(20px) saturate(180%);
         border: 1px solid var(--glass-border);
+        border-radius: 999px;
         box-shadow: inset 0 1px 0 var(--glass-highlight), inset 0 -10px 18px -14px rgba(255,255,255,0.3), 0 6px 18px rgba(0,0,0,0.14);
         text-shadow: 0 1px 3px rgba(0,0,0,0.18);
         overflow: hidden;
@@ -494,6 +515,23 @@ function GlobalStyles() {
         inset: 0;
         background: linear-gradient(180deg, var(--glass-sheen) 0%, transparent 65%);
         pointer-events: none;
+      }
+      /* The actual Liquid Glass signature — a soft highlight that follows
+         real cursor position (--mx/--my, set by GlobalStyles' mousemove
+         listener) rather than a fixed animated sweep. Fades in on hover so
+         it reads as glass catching light from where you're pointing, not
+         a decoration that's always on. */
+      .lea-glass-btn::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,0.55), transparent 55%);
+        opacity: 0;
+        transition: opacity 0.25s ease;
+        pointer-events: none;
+      }
+      .lea-glass-btn:hover::after {
+        opacity: 1;
       }
       @keyframes lea-wave-pulse-idle { 0%, 100% { transform: translateY(-50%) scaleY(0.65); } 50% { transform: translateY(-50%) scaleY(1); } }
       @keyframes lea-wave-pulse-speaking { 0%, 100% { transform: translateY(-50%) scaleY(0.35); } 50% { transform: translateY(-50%) scaleY(1.2); } }
@@ -515,17 +553,6 @@ function GlobalStyles() {
       .lea-glass-btn:active {
         transform: translateY(0) scale(0.97);
         filter: brightness(0.96);
-      }
-      @keyframes lea-glass-shimmer { 0% { left: -60%; } 20% { left: 130%; } 100% { left: 130%; } }
-      .lea-glass-btn::after {
-        content: '';
-        position: absolute;
-        top: 0; left: -60%;
-        width: 45%; height: 100%;
-        background: linear-gradient(115deg, transparent 0%, rgba(255,255,255,0.65) 50%, transparent 100%);
-        transform: skewX(-20deg);
-        animation: lea-glass-shimmer 4s ease-in-out infinite;
-        pointer-events: none;
       }
       .lea-root, .lea-root * {
         transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
@@ -3160,7 +3187,7 @@ export default function LeanApp() {
                 </div>
               </div>
 
-              <button onClick={goSignupType} className="lea-cta-pulse lea-glass" style={{
+              <button onClick={goSignupType} className="lea-cta-pulse lea-glass-btn" style={{
                 background: 'color-mix(in srgb, var(--wine) 78%, var(--glass-bg))', border: '1px solid var(--glass-border)',
                 borderRadius: 999, padding: '13px 30px', fontSize: 13.5, fontWeight: 600, color: 'var(--on-accent)', cursor: 'pointer',
               }}>
