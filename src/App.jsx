@@ -5,7 +5,7 @@ import { LeanLogo3D } from './LeanLogo3D';
 import {
   supabaseReady,
   getAccount, upsertAccount,
-  getRolesForEmployer, getOpenRoles, createRole as dbCreateRole, updateRole as dbUpdateRole,
+  getRolesForEmployer, getRolesForCompany, getOpenRoles, createRole as dbCreateRole, updateRole as dbUpdateRole,
 } from './supabaseClient';
 import {
   Users, User, Activity, Send, Loader2, CheckCircle2, Circle, XCircle,
@@ -191,6 +191,10 @@ function mapDbRoleToAppRole(row) {
     started: Boolean(row.started),
     hmMessages: row.hm_messages || [],
     createdAt: row.created_at ? new Date(row.created_at).toLocaleDateString([], { month: 'short', day: 'numeric' }) : '',
+    // present only on the company-wide query, which joins accounts —
+    // absent (undefined) on the regular per-employer fetch, harmlessly
+    postedByName: row.accounts?.name,
+    postedByEmail: row.accounts?.email || row.employer_email,
   };
 }
 
@@ -1485,6 +1489,53 @@ function TeamMembersTab({ teamMembers, setTeamMembers, inviteEmail, setInviteEma
   );
 }
 
+function CompanyOpeningsTab({ companyRoles, roles, account }) {
+  // Falls back to the account's own roles if the company-wide fetch hasn't
+  // returned anything (no Supabase configured, or nobody else has posted
+  // yet) — always show something rather than an empty screen.
+  const list = companyRoles.length > 0 ? companyRoles : roles;
+  return (
+    <div style={{ padding: '28px 24px', maxWidth: 900, margin: '0 auto' }}>
+      <div className="lea-display" style={{ fontSize: 22, fontWeight: 700, color: 'var(--text)', marginBottom: 4 }}>
+        All openings at {account?.company || 'the company'}
+      </div>
+      <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 24 }}>
+        Every role across the company, and who's the hiring manager on each — not just the ones you posted.
+      </div>
+
+      {list.length === 0 ? (
+        <div className="lea-glass" style={{ borderRadius: 12, padding: 32, textAlign: 'center', color: 'var(--text-muted)', fontSize: 13 }}>
+          No openings yet across the company.
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {list.map((r) => (
+            <div key={r.id} className="lea-glass" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, borderRadius: 10, padding: '14px 18px', flexWrap: 'wrap' }}>
+              <div style={{ minWidth: 180 }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', marginBottom: 2 }}>{r.title || 'Untitled role'}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{r.team || 'No team set yet'}</div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                <div style={{ textAlign: 'right' }}>
+                  <div className="lea-mono" style={{ fontSize: 9.5, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 2 }}>Hiring manager</div>
+                  <div style={{ fontSize: 12.5, color: 'var(--text)' }}>{r.postedByName || r.postedByEmail || 'Unknown'}</div>
+                </div>
+                <span style={{
+                  fontSize: 10, fontWeight: 600, padding: '3px 10px', borderRadius: 999, textTransform: 'uppercase', letterSpacing: '0.04em',
+                  background: r.started ? 'color-mix(in srgb, var(--wine) 18%, transparent)' : 'var(--panel-alt)',
+                  color: r.started ? 'var(--wine)' : 'var(--text-muted)',
+                }}>
+                  {r.started ? 'Live' : 'Draft'}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function TabButton({ active, onClick, icon: Icon, label, num, color }) {
   return (
     <button
@@ -2385,6 +2436,20 @@ export default function LeanApp() {
         setRoles(rows.map(mapDbRoleToAppRole));
       } catch (e) {
         // Supabase not reachable — the employer just starts with an empty local list
+      }
+    })();
+  }, [account]);
+
+  const [companyRoles, setCompanyRoles] = useState([]);
+  useEffect(() => {
+    if (!account || account.type !== 'employer' || !account.company || !supabaseReady) return;
+    (async () => {
+      try {
+        const rows = await getRolesForCompany(account.company);
+        setCompanyRoles(rows.map(mapDbRoleToAppRole));
+      } catch (e) {
+        // Supabase not reachable, or the join failed — company-wide view
+        // just falls back to showing this account's own roles below
       }
     })();
   }, [account]);
@@ -3974,8 +4039,9 @@ export default function LeanApp() {
             <TabButton active={tab === 'workspace'} onClick={() => setTab('workspace')} icon={LayoutGrid} label="Workspace" num="01" color="var(--wine)" />
             <TabButton active={tab === 'hm'} onClick={() => setTab('hm')} icon={Users} label="Calibrate Role" num="02" color="var(--wine)" />
             <TabButton active={tab === 'dashboard'} onClick={() => setTab('dashboard')} icon={Activity} label="Dashboard" num="03" color="var(--text)" />
-            <TabButton active={tab === 'company'} onClick={() => setTab('company')} icon={Building2} label="Company" num="04" color="var(--gold)" />
-            <TabButton active={tab === 'team'} onClick={() => setTab('team')} icon={UserPlus} label="Team" num="05" color="var(--gold)" />
+            <TabButton active={tab === 'openings'} onClick={() => setTab('openings')} icon={Search} label="All Openings" num="04" color="var(--gold)" />
+            <TabButton active={tab === 'company'} onClick={() => setTab('company')} icon={Building2} label="Company" num="05" color="var(--gold)" />
+            <TabButton active={tab === 'team'} onClick={() => setTab('team')} icon={UserPlus} label="Team" num="06" color="var(--gold)" />
           </div>
 
           {tab === 'workspace' && (
@@ -3983,6 +4049,9 @@ export default function LeanApp() {
               roles={roles} activeRoleId={activeRoleId} setActiveRoleId={setActiveRoleId}
               setTab={setTab} createRole={createRole} account={account} teamMembers={teamMembers}
             />
+          )}
+          {tab === 'openings' && (
+            <CompanyOpeningsTab companyRoles={companyRoles} roles={roles} account={account} />
           )}
           {tab === 'company' && (
             <CompanyProfileTab account={account} companyProfile={companyProfile} setCompanyProfile={setCompanyProfile} />

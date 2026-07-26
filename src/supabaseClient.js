@@ -73,6 +73,20 @@ export async function getRolesForEmployer(employerEmail) {
   return data;
 }
 
+// Every role across the whole company, regardless of who posted it —
+// joined with the poster's name/email from accounts so the company-wide
+// openings view can show which hiring manager owns each role.
+export async function getRolesForCompany(company) {
+  const db = requireClient();
+  const { data, error } = await db
+    .from('roles')
+    .select('*, accounts!roles_employer_email_fkey(name, email)')
+    .eq('company', company)
+    .order('created_at', { ascending: true });
+  if (error) throw error;
+  return data;
+}
+
 // The public job board: every role with enough info to show a candidate.
 export async function getOpenRoles() {
   const db = requireClient();
