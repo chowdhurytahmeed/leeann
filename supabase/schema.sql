@@ -72,3 +72,7 @@ create policy "demo_allow_all_accounts" on accounts for all using (true) with ch
 create policy "demo_allow_all_roles" on roles for all using (true) with check (true);
 create policy "demo_allow_all_applications" on applications for all using (true) with check (true);
 create policy "demo_allow_all_practice_history" on practice_history for all using (true) with check (true);
+
+-- Links each app account to a real Supabase Auth login (added for real
+-- authentication — see docs/AUTH_SETUP.md)
+alter table accounts add column if not exists auth_user_id uuid references auth.users(id);

@@ -34,6 +34,51 @@ function requireClient() {
   return supabase;
 }
 
+// ---------- real authentication (magic link) ----------
+//
+// This replaces "type your name and email into a form" with an actual,
+// secure login: the person gets a one-time link emailed to them, and
+// clicking it is what proves they own that email address. No password to
+// remember, no password to leak.
+
+// Sends the magic link email. redirectTo should be your site's own URL —
+// it's where Supabase sends the person back to after they click the link.
+export async function sendMagicLink(email, redirectTo) {
+  const db = requireClient();
+  const { error } = await db.auth.signInWithOtp({
+    email,
+    options: { emailRedirectTo: redirectTo },
+  });
+  if (error) throw error;
+}
+
+// Reads whatever session already exists (e.g. the person already clicked
+// their link earlier and the browser remembers them) — call this once on
+// app load so a returning visitor doesn't have to log in again.
+export async function getCurrentSession() {
+  const db = requireClient();
+  const { data, error } = await db.auth.getSession();
+  if (error) throw error;
+  return data.session;
+}
+
+// Fires whenever the login state changes — signed in (link clicked),
+// signed out, or a session refreshing quietly in the background. Returns
+// an unsubscribe function; call it in a useEffect cleanup.
+export function onAuthChange(callback) {
+  const db = requireClient();
+  const { data } = db.auth.onAuthStateChange((_event, session) => {
+    callback(session);
+  });
+  return () => data.subscription.unsubscribe();
+}
+
+export async function signOutAuth() {
+  const db = requireClient();
+  const { error } = await db.auth.signOut();
+  if (error) throw error;
+}
+
 // ---------- accounts ----------
 
 export async function getAccount(email) {
@@ -53,6 +98,7 @@ export async function upsertAccount(account) {
       name: account.name,
       company: account.company ?? null,
       resume: account.resume ?? null,
+      auth_user_id: account.authUserId ?? null,
     })
     .select()
     .single();

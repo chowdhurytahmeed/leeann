@@ -5,12 +5,13 @@ import { LeanLogo3D } from './LeanLogo3D';
 import {
   supabaseReady,
   getAccount, upsertAccount,
+  sendMagicLink, getCurrentSession, onAuthChange, signOutAuth,
   getRolesForEmployer, getRolesForCompany, getOpenRoles, createRole as dbCreateRole, updateRole as dbUpdateRole,
 } from './supabaseClient';
 import {
   Users, User, Activity, Send, Loader2, CheckCircle2, Circle, XCircle,
   Sparkles, Calendar, ArrowRight, ArrowLeft, ClipboardList, MessageSquare,
-  Building2, Sun, Moon, Volume2, Search, Mic, Key, LayoutGrid, UserPlus, Plus
+  Building2, Sun, Moon, Volume2, Search, Mic, Key, LayoutGrid, UserPlus, Plus, Mail
 } from 'lucide-react';
 
 const MODEL = 'claude-sonnet-4-6';
@@ -2349,6 +2350,7 @@ export default function LeanApp() {
   }, [account, teamMembers]);
 
   const [signupType, setSignupType] = useState(null); // 'employer' | 'candidate' — chosen before the auth form
+  const [authStage, setAuthStage] = useState('form'); // 'form' | 'awaitingLink' — real auth adds a "check your email" step
   const [authName, setAuthName] = useState('');
   const [authEmail, setAuthEmail] = useState('');
   const [authCompany, setAuthCompany] = useState('');
@@ -2432,6 +2434,40 @@ export default function LeanApp() {
 
   useEffect(() => {
     (async () => {
+      if (supabaseReady) {
+        try {
+          const session = await getCurrentSession();
+          if (session?.user?.email) {
+            const email = session.user.email.toLowerCase();
+            const existing = await getAccount(email);
+            if (existing) {
+              setAccount({
+                type: existing.type, name: existing.name, email: existing.email,
+                company: existing.company ?? undefined, resume: existing.resume ?? undefined,
+              });
+              setScreen(existing.type === 'employer' ? 'employerHome' : 'candidateHome');
+            } else {
+              // Verified, but no account yet — this is the moment right
+              // after clicking the magic link for the first time. Pick up
+              // whatever they typed before the email was sent.
+              const pendingResult = await storage.get('lean-pending-signup');
+              const pending = pendingResult?.value ? JSON.parse(pendingResult.value) : null;
+              if (pending) {
+                setSignupType(pending.type);
+                setAuthResume(pending.resume || '');
+                await finishAccountCreation({
+                  name: pending.name, email, company: pending.company, authUserId: session.user.id,
+                  type: pending.type, resume: pending.resume || '',
+                });
+              }
+            }
+            setAccountChecked(true);
+            return;
+          }
+        } catch (e) {
+          // fall through to the local-only check below
+        }
+      }
       try {
         const result = await storage.get('lean-account');
         const parsed = result?.value ? JSON.parse(result.value) : null;
@@ -2442,6 +2478,12 @@ export default function LeanApp() {
         setAccountChecked(true);
       }
     })();
+
+    if (supabaseReady) {
+      return onAuthChange((session) => {
+        if (!session) setAccount(null); // signed out elsewhere
+      });
+    }
   }, []);
 
   useEffect(() => {
@@ -2909,17 +2951,43 @@ export default function LeanApp() {
     const company = overrides.company ?? authCompany;
     if (!name.trim() || !email.trim() || !signupType) return;
     const cleanEmail = email.trim().toLowerCase();
+
+    if (supabaseReady) {
+      try {
+        // The page fully reloads once they click the emailed link, so
+        // React state (authName etc.) won't survive — save what they typed
+        // to disk now, so we can finish creating the account once they're
+        // actually back and verified.
+        await storage.set('lean-pending-signup', JSON.stringify({
+          type: signupType, name: name.trim(), company: company.trim(),
+          resume: signupType === 'candidate' ? authResume.trim() : undefined,
+        }));
+        await sendMagicLink(cleanEmail, window.location.origin + window.location.pathname);
+        setAuthStage('awaitingLink');
+        return;
+      } catch (e) {
+        // Real auth unreachable — fall through to the old, no-verification
+        // flow below rather than leaving the person stuck
+      }
+    }
+
+    await finishAccountCreation({ name, email: cleanEmail, company });
+  }
+
+  async function finishAccountCreation({ name, email, company, authUserId, type, resume }) {
+    const accountType = type ?? signupType;
+    const accountResume = resume ?? authResume;
     let finalAccount = {
-      type: signupType,
+      type: accountType,
       name: name.trim(),
-      email: cleanEmail,
-      company: signupType === 'employer' ? company.trim() : undefined,
-      resume: signupType === 'candidate' ? authResume.trim() : undefined,
+      email,
+      company: accountType === 'employer' ? company.trim() : undefined,
+      resume: accountType === 'candidate' ? accountResume.trim() : undefined,
     };
 
     if (supabaseReady) {
       try {
-        const existing = await getAccount(cleanEmail);
+        const existing = await getAccount(email);
         if (existing) {
           // returning account — use what's already saved, not whatever was just typed
           finalAccount = {
@@ -2927,7 +2995,7 @@ export default function LeanApp() {
             company: existing.company ?? undefined, resume: existing.resume ?? undefined,
           };
         } else {
-          const created = await upsertAccount(finalAccount);
+          const created = await upsertAccount({ ...finalAccount, authUserId });
           finalAccount = {
             type: created.type, name: created.name, email: created.email,
             company: created.company ?? undefined, resume: created.resume ?? undefined,
@@ -2941,6 +3009,7 @@ export default function LeanApp() {
     setAccount(finalAccount);
     try {
       await storage.set('lean-account', JSON.stringify(finalAccount));
+      await storage.delete('lean-pending-signup');
     } catch (e) {
       // best-effort — the session still works for this visit even if saving fails
     }
@@ -2949,8 +3018,10 @@ export default function LeanApp() {
     setAuthCompany('');
     setAuthResume('');
     setSsoPhase(null);
+    setAuthStage('form');
     setScreen(finalAccount.type === 'employer' ? 'employerHome' : 'candidateHome');
   }
+
 
   function handleAuthContinue() {
     if (signupType === 'employer') {
@@ -2978,12 +3049,14 @@ export default function LeanApp() {
   }
 
   function signOut() {
+    if (supabaseReady) signOutAuth().catch(() => {}); // best-effort — local state clears regardless
     setAccount(null);
     setPracticeHistory([]);
     resetPractice();
     setSignupType(null);
     setCandidateHomeView('hub');
     setActiveCandidateId(null);
+    setAuthStage('form');
     setScreen('home');
   }
 
@@ -3977,7 +4050,23 @@ export default function LeanApp() {
             <ThemeToggle theme={theme} onToggle={toggleTheme} />
           </div>
 
-          {ssoPhase === 'redirecting' ? (
+          {authStage === 'awaitingLink' ? (
+            <div style={{ width: '100%', maxWidth: 380, textAlign: 'center' }}>
+              <Mail size={32} color="var(--wine)" style={{ marginBottom: 18 }} />
+              <div className="lea-display" style={{ fontSize: 20, fontWeight: 700, color: 'var(--text)', marginBottom: 10 }}>
+                Check your email
+              </div>
+              <div style={{ fontSize: 13.5, color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: 22 }}>
+                We sent a sign-in link to <strong style={{ color: 'var(--text)' }}>{authEmail}</strong>. Click it to finish setting up your workspace — no password needed.
+              </div>
+              <button
+                onClick={() => setAuthStage('form')}
+                style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', fontSize: 12.5, cursor: 'pointer', textDecoration: 'underline' }}
+              >
+                Wrong email? Go back
+              </button>
+            </div>
+          ) : ssoPhase === 'redirecting' ? (
             <div style={{ textAlign: 'center' }}>
               <Loader2 size={28} className="lea-live-dot" color="var(--wine)" style={{ marginBottom: 18 }} />
               <div className="lea-display" style={{ fontSize: 18, fontWeight: 600, color: 'var(--text)' }}>
